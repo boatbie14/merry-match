@@ -1,0 +1,227 @@
+.row {
+  width: 100%;
+}
+.container {
+  max-width: 1200px;
+  padding: 0px 0px;
+  margin: auto;
+}
+.container-full {
+  max-width: 100%;
+  padding: 0px 0px;
+  margin: auto;
+}
+@media only screen and (max-width: 1239px) {
+  .container {
+    padding: 0px 24px;
+  }
+}
+@media only screen and (max-width: 561px) {
+  .container {
+    padding: 0px 16px;
+  }
+}
+
+.main-header {
+  font-family: "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 46px;
+  line-height: 125%;
+  letter-spacing: -2%;
+  font-variant-numeric: lining-nums proportional-nums;
+  color: #a62d82;
+}
+
+@media (max-width: 767px) {
+  .main-header {
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -1%;
+  }
+}
+
+.subhead {
+  font-family: "Nunito", sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #7b4429;
+}
+
+.section-title {
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 125%;
+  letter-spacing: -2%;
+  color: #a62d82;
+}
+
+/* Button */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 99px;
+  background: linear-gradient(to right, #c70039 50%, #95002b 50%);
+  background-size: 200% 100%;
+  background-position: left;
+  box-shadow: 2px 2px 12px 0 #40328529;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-position 0.5s ease;
+}
+
+.primary-btn:hover {
+  background-position: right;
+}
+
+.primary-btn:active {
+  background: #95002b;
+  background-size: initial;
+  background-position: initial;
+}
+
+.primary-btn:disabled {
+  background: #e4e6ed;
+  color: #9aa1b9;
+  cursor: not-allowed;
+  box-shadow: none;
+  background-size: initial;
+  background-position: initial;
+}
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #95002b;
+  font-weight: 700;
+  border-radius: 99px;
+  background: linear-gradient(to right, #ffe1ea 50%, #ffb1c8 50%);
+  background-size: 200% 100%;
+  background-position: left;
+  box-shadow: 2px 2px 12px 0 #40328514;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-position 0.5s ease;
+}
+
+.secondary-btn:hover {
+  background-position: right;
+}
+
+.secondary-btn:active {
+  background: #ff6390;
+  background-size: initial;
+  background-position: initial;
+}
+
+.secondary-btn:disabled {
+  background: #e4e6ed;
+  color: #9aa1b9;
+  cursor: not-allowed;
+  box-shadow: none;
+  background-size: initial;
+  background-position: initial;
+}
+
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  color: #c70039;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.3s ease;
+}
+
+.ghost-btn:hover {
+  color: #ff1659;
+}
+
+.ghost-btn:focus {
+  color: #95002b;
+  outline: none;
+}
+
+.ghost-btn:disabled {
+  color: #9aa1b9;
+  cursor: not-allowed;
+}
+
+.gray-icon-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 16px;
+  box-shadow: 2px 2px 12px 0 #4032851f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gray-icon-btn svg {
+  color: #646d89;
+  font-size: 24px;
+}
+
+.gray-icon-btn .tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background-color: #9aa1b9;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.gray-icon-btn:hover .tooltip {
+  opacity: 1;
+}
+
+.gray-icon-btn.active {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background-color: #c70039;
+  border: none;
+  cursor: pointer;
+  border-radius: 16px;
+  box-shadow: 2px 2px 12px 0 #4032851f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gray-icon-btn.active svg {
+  color: #fff;
+  font-size: 24px;
+}
