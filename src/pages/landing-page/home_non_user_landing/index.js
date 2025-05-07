@@ -7,7 +7,7 @@ const HomeNonLogin = () => {
     <div className=" flex  justify-center items-center bg-[#160404] ">
       <div className="m-auto w-full max-w-[1440px] ">
         <NavbarNonUser />
-        <section class=" h-[758px] overflow-hidden mt-20 pt-44 pb-20 bg-[#160404] ">
+        <section class=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
           <div class="container mx-auto px-6 relative">
             {/* Decorative Elements */}
             <div class="absolute w-[67px] h-[67px] top-[-60px] left-[-130px] bg-[#532341] rounded-full"></div>
@@ -33,20 +33,20 @@ const HomeNonLogin = () => {
               {/* Profile Images with Chat Bubbles */}
               <div class="Hero-profile relative w-1/2 h-[600px]  ">
                 <div>
-                  <div class="First-Profile absolute left-[550px] bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
+                  <div class="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
                     <img
                       src="/image-1.png"
                       alt="Profile1"
                       class="w-full h-full object-cover rounded-[999px]"
                     />
                   </div>
-                  <div class="absolute bottom-[820px] right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
+                  <div class="absolute bottom-[980px] right-[190px]  md:bottom-[820px] md:right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
                     Hi! Nice to meet you
                   </div>
                 </div>
 
                 <div>
-                  <div class=" Second-Profile absolute right-[510px] bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
+                  <div class=" Second-Profile absolute right-[-210px] bottom-[10px]  md:right-[510px] md:bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
                     <img
                       src="/image-2.png"
                       alt="Profile2"
@@ -54,7 +54,7 @@ const HomeNonLogin = () => {
                     />
                   </div>
                   <div className="relative">
-                    <div class="absolute flex flex-row  bottom-[150px] left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
+                    <div class="absolute flex flex-row  bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
                       <svg
                         className="mr-2"
                         width="10"
@@ -198,6 +198,7 @@ const HomeNonLogin = () => {
                       </div>
                       <span class="text-xl font-bold">Secure</span>
                       <div className="relative" >
+                        <div className="absolute w-2.5 h-2.5 bg-[#612F16] rounded-full left-[90px] bottom-[110px] "></div>
                         <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
                         <img src='/boy.png' alt="boy" className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "/>
                         </div>
@@ -228,6 +229,7 @@ const HomeNonLogin = () => {
                       </div>
                       <span class="text-xl font-bold">Easy</span>
                       <div className="relative">
+                        <div className="absolute w-1.5 h-1.5 rounded-full bg-[#CF4FA9] right-[260px] top-[50px]" ></div>
                         <svg
                           className="absolute top-[-71px] left-[103px] "
                           width="122"
