@@ -1,13 +1,13 @@
 import React from "react";
-// import { Footer } from "../../components/footer/footer";
-// import { NavBar } from "../../components/navbar/navbar";
+import NavbarNonUser from "../../../components/NavbarNonUser";
+import Footer from "../../../components/Footer";
 
 const HomeNonLogin = () => {
   return (
-    <div className=" flex  justify-center items-center bg-[#160404]   ">
-      <div className=" ">
-        {/* <NavBar /> */}
-        <section class=" w-[1440px] overflow-hidden mt-20 pt-44 pb-20 bg-[#160404] ">
+    <div className=" flex  justify-center items-center bg-[#160404] ">
+      <div className="m-auto w-full max-w-[1440px] ">
+        <NavbarNonUser />
+        <section class=" h-[758px] overflow-hidden mt-20 pt-44 pb-20 bg-[#160404] ">
           <div class="container mx-auto px-6 relative">
             {/* Decorative Elements */}
             <div class="absolute w-[67px] h-[67px] top-[-60px] left-[-130px] bg-[#532341] rounded-full"></div>
@@ -90,9 +90,9 @@ const HomeNonLogin = () => {
         </section>
 
         {/* Why Merry Match Section */}
-        <section class=" flex-auto  py-20 bg-[#160404]  ">
-          <div class="container flex-auto md:flex-row mx-auto px-6">
-            <div class="flex items-center justify-between">
+        <section class="  m-auto py-20 bg-[#160404]  ">
+          <div class="container flex  md:flex-row m-auto mx-auto px-6">
+            <div class="flex flex-col xl:flex-row  lg:flex-col items-center justify-center w-full">
               <div class="max-w-xl">
                 <h2 class="text-5xl font-extrabold text-[#DF89C6] mb-10">
                   Why Merry Match?
@@ -112,7 +112,7 @@ const HomeNonLogin = () => {
                   you're interested
                 </p>
               </div>
-              <div class="merry-match-card w-1/2 ">
+              <div class="merry-match-card flex ml-10 lg:ml-40 xl:ml-20 md:pl-10 pl-0 lg:pt-20  pt-32 m-auto w-1/2  ">
                 <div class="relative h-[324px]">
                   <div class="absolute top-0 left-[70px] w-[237px] h-[99px] bg-[#7D2262] rounded-[29px] drop-shadow-2xl z-10 p-6">
                     <div class="flex items-center gap-2 text-white">
@@ -197,7 +197,13 @@ const HomeNonLogin = () => {
                         </svg>
                       </div>
                       <span class="text-xl font-bold">Secure</span>
+                      <div className="relative" >
+                        <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
+                        <img src='/boy.png' alt="boy" className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "/>
+                        </div>
+                      </div>
                     </div>
+                    
                   </div>
                   <div class="absolute top-[178px] left-[171px] w-[328px] h-[146px] bg-[#EFC4E2] drop-shadow-2xl rounded-[29px] p-6 flex items-end">
                     <div class="flex flex-row gap-2 text-end   text-[#C70039]">
@@ -221,9 +227,9 @@ const HomeNonLogin = () => {
                         </svg>
                       </div>
                       <span class="text-xl font-bold">Easy</span>
-                      <div className="relative" >
+                      <div className="relative">
                         <svg
-                        className="absolute top-[-71px] left-[103px] "
+                          className="absolute top-[-71px] left-[103px] "
                           width="122"
                           height="123"
                           viewBox="0 0 122 123"
@@ -237,6 +243,13 @@ const HomeNonLogin = () => {
                             fill="#DF89C6"
                           />
                         </svg>
+                        <div className="absolute top-[0] right-[130px] w-[96px] h-[96px] bg-amber-950  rounded-full ">
+                          <img
+                            src="/girl.jpg"
+                            alt="girl"
+                            className="  w-[96px] h-[96px] rounded-full object-cover object-top grayscale"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -247,35 +260,59 @@ const HomeNonLogin = () => {
         </section>
 
         {/* How to Merry Section */}
-        <section class="py-20 bg-[#160404]">
+        <section class=" m-auto py-20 bg-[#160404]">
           <div class="container mx-auto px-6">
             <h2 class="text-5xl font-extrabold text-[#DF89C6] text-center mb-12">
               How to Merry
             </h2>
-            <div class="grid grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6">
               <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10"></div>
+                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
+                  <img
+                    src="/image-556.png"
+                    alt="Upload-emoji"
+                    class="w-[50px] h-[50px] object-cover rounded-full "
+                  />
+                </div>
                 <h3 class="text-2xl font-bold text-white mb-3">
                   Upload your cool picture
                 </h3>
                 <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
               </div>
               <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10"></div>
+                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                  <img
+                    src="/image-556-1.png"
+                    alt="Explore-emoji"
+                    class="w-[50px] h-[50px] "
+                  />
+                </div>
                 <h3 class="text-2xl font-bold text-white mb-3">
                   Explore and find the one you like
                 </h3>
                 <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
               </div>
               <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10"></div>
+                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                  <img
+                    src="/image-556-2.png"
+                    alt="Explore-emoji"
+                    class="w-[50px] h-[50px] "
+                  />
+                </div>
                 <h3 class="text-2xl font-bold text-white mb-3">
                   Click 'Merry' for get to know!
                 </h3>
                 <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
               </div>
               <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10"></div>
+                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                  <img
+                    src="/image-556-3.png"
+                    alt="Explore-emoji"
+                    class="w-[50px] h-[50px] "
+                  />
+                </div>
                 <h3 class="text-2xl font-bold text-white mb-3">
                   Start chating and relationship
                 </h3>
@@ -286,11 +323,11 @@ const HomeNonLogin = () => {
         </section>
 
         {/* CTA Section */}
-        <section class="py-20 bg-[#160404]">
-          <div class="container mx-auto px-6">
-            <div class="rounded-[32px] overflow-hidden bg-gradient-to-r from-[#82002580] to-[#A95BCD]">
-              <div class="py-20 px-12 text-center relative">
-                <div class="absolute inset-0 bg-[url('/vector.png')] bg-cover opacity-20"></div>
+        <section class="py-20 bg-[#160404]  ">
+          <div class="container mx-auto px-6 ">
+            <div class="md:rounded-[32px] overflow-hidden bg-gradient-to-r from-[#820025] to-[#A95BCD] h-[564px] md:h-[369px]  ">
+              <div class="py-20 px-12   text-center relative">
+                <div class="absolute top-[50px] left-[-20px] inset-0 bg-[url('/vector.png')] bg-cover opacity-20"></div>
                 <h2 class="text-5xl font-extrabold text-white mb-12 relative z-10">
                   Let's start finding <br />
                   and matching someone new
@@ -304,7 +341,9 @@ const HomeNonLogin = () => {
         </section>
 
         {/* <Footer /> */}
+        <Footer />
       </div>
+      
     </div>
   );
 };
