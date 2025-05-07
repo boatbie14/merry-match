@@ -90,10 +90,10 @@ const NavbarNonUser = () => {
               Login
             </button>
             {/* mobile menu list */}
-            <button className="md:hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr-40 ">
+            <button className="md:hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr- ml-40 ">
               <svg
-                width="14"
-                height="15"
+                width="30"
+                height="30"
                 viewBox="0 0 14 15"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
