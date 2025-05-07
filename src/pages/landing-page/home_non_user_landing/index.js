@@ -40,7 +40,7 @@ const HomeNonLogin = () => {
                       class="w-full h-full object-cover rounded-[999px]"
                     />
                   </div>
-                  <div class="absolute bottom-[980px] right-[190px]  md:bottom-[820px] md:right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
+                  <div class="absolute bottom-[980px] right-[190px] w-[160px] md:bottom-[820px] md:right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
                     Hi! Nice to meet you
                   </div>
                 </div>
@@ -54,7 +54,7 @@ const HomeNonLogin = () => {
                     />
                   </div>
                   <div className="relative">
-                    <div class="absolute flex flex-row  bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
+                    <div class="absolute flex flex-row w-[180px] bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
                       <svg
                         className="mr-2"
                         width="10"
@@ -325,7 +325,7 @@ const HomeNonLogin = () => {
         </section>
 
         {/* CTA Section */}
-        <section class="py-20 bg-[#160404]  ">
+        <section class=" py-0  md:py-20 bg-[#160404] ">
           <div class="container mx-auto px-6 ">
             <div class="md:rounded-[32px] overflow-hidden bg-gradient-to-r from-[#820025] to-[#A95BCD] h-[564px] md:h-[369px]  ">
               <div class="py-20 px-12   text-center relative">
