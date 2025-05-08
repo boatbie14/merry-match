@@ -1,5 +1,4 @@
 import React from "react";
-import NavbarNonUser from "../../../components/NavbarNonUser";
 import NavbarUser from "../../../components/NavbarUser"; 
 import Footer from "../../../components/Footer";
 
@@ -353,3 +352,4 @@ const HomeLogin = () => {
 };
 
 export default HomeLogin;
+

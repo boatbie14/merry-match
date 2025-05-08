@@ -14,7 +14,7 @@ const Footer = () => {
           <h1 className="flex text-4xl ">Merry</h1>{" "}
           <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
         </div>
-        <div className="w-full lg:w-[1120px] h-20 border-[#E4E6ED] border-b-[1px] flex text-center items-start justify-center mt-3">
+        <div className="w-full  h-20 border-[#E4E6ED] border-b-[1px] flex text-center items-start justify-center mt-3">
           <span>New generation of online dating website for everyone</span>
         </div>
         <span className="text-[#9AA1B9] mt-3">

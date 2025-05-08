@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { IoIosMenu } from "react-icons/io";
 import { FaUser } from "react-icons/fa6";
@@ -8,17 +7,195 @@ import { BsFillBoxFill } from "react-icons/bs";
 import { GoAlertFill } from "react-icons/go";
 import { IoLogOutOutline } from "react-icons/io5";
 
+export const DesktopAlertMenuItems = () => {
+  return (
+    /// Waiting for the alert menu items to be added by Array.map
+    <div className=" desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3">
+      {/* Array.map here */}
+      <div className="flex flex-row space-x-2 relative">
+        <img
+          src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+          alt=""
+          className=" w-[32px] h-[32px] rounded-full object-cover  "
+        />
+        <div className="heart-icon absolute top-[20px] left-[23px] ">
+          <FaHeart size="10" color="#FF1659" />
+        </div>
+        <span className="text-start text-xs">
+          ‘Khal Drogo’ Just Merry you! Click here to see profile
+        </span>
+      </div>
+      {/* sample of alert box 1 */}
+      <div className="flex flex-row space-x-2 relative">
+        <img
+          src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+          alt=""
+          className=" w-[32px] h-[32px] rounded-full object-cover  "
+        />
+        <div className="heart-icon absolute top-[20px] left-[23px] ">
+          <FaHeart size="10" color="#FF1659" />
+        </div>
+        <span className="text-start text-xs">
+          ‘khal Drogo’ Just Merry you! Click here to see profile
+        </span>
+      </div>
+      {/* sample of alert box 2 */}
+      <div className="flex flex-row space-x-2 relative">
+        <img
+          src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+          alt=""
+          className=" w-[32px] h-[32px] rounded-full object-cover  "
+        />
+        <div className="heart-icon absolute top-[20px] left-[23px] ">
+          <FaHeart size="10" color="#FF1659" />
+        </div>
+        <span className="text-start text-xs">
+          ‘Khal Drogo’ Just Merry you! Click here to see profile
+        </span>
+      </div>
+      {/* sample of alert box 3 */}
+      <div className="flex flex-row space-x-2 relative">
+        <img
+          src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+          alt=""
+          className=" w-[32px] h-[32px] rounded-full object-cover "
+        />
+        <span className="text-start text-xs">
+          ‘Khal Drogo’ Just Merry you! Click here to see profile
+        </span>
+      </div>
+      {/* sample of alert box 4 */}
+      <div className="flex flex-row space-x-2 relative">
+        <img
+          src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+          alt=""
+          className=" w-[32px] h-[32px] rounded-full object-cover "
+        />
+        <span className="text-start text-xs">
+          ‘Khal Drogo’ Just Merry you! Click here to see profile
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export const DesktopUserMenuItems = () => {
+  return (
+    <div className="flex flex-col w-[198px] h-[258px] ">
+      <button className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
+        <span className="text-xs font-bold">✨ More limit Merry!</span>
+      </button>
+      <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
+        <div className="profile-button-mobile-menu-items ">
+          <button className="flex flex-row space-x-5 cursor-pointer ">
+            <FaUser color="pink" />
+            <span>Profile</span>
+          </button>
+        </div>
+        <div className="merrylist-button-mobile-menu-items">
+          <button className="flex flex-row space-x-5 cursor-pointer ">
+            <FaHeart color="pink" />
+            <span>Merry list</span>
+          </button>
+        </div>
+        <div className="merry-membership-button-mobile-menu-items">
+          <button className="flex flex-row space-x-5 cursor-pointer">
+            <BsFillBoxFill color="pink" />
+            <span>Merry Membership</span>
+          </button>
+        </div>
+        <div className="compliant-button-mobile-menu-items">
+          <button className="flex flex-row space-x-5 cursor-pointer">
+            <GoAlertFill color="pink" />
+            <span>Compliant</span>
+          </button>
+        </div>
+      </div>
+      <button className="text-xs flex flex-row space-x-5  text-[#646D89] border-t border-[#E4E6ED] px-5 py-3 mt-5 cursor-pointer ">
+        <IoLogOutOutline />
+        <span>Log out</span>
+      </button>
+    </div>
+  );
+};
+
+export const MobileMenuItems = () => {
+  return (
+    <div className="flex flex-col ">
+      <div className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-4 rounded-4xl mx-4 my-6 text-white flex items-center justify-center">
+        <span className="text-3xl font-bold">✨ More limit Merry!</span>
+      </div>
+      <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
+        <div className="profile-button-mobile-menu-items ">
+          <button className="flex flex-row space-x-10 ">
+            <FaUser color="pink" />
+            <span>Profile</span>
+          </button>
+        </div>
+        <div className="merrylist-button-mobile-menu-items">
+          <button className="flex flex-row space-x-10">
+            <FaHeart color="pink" />
+            <span>Merry list</span>
+          </button>
+        </div>
+        <div className="merry-membership-button-mobile-menu-items">
+          <button className="flex flex-row space-x-10">
+            <BsFillBoxFill color="pink" />
+            <span>Merry Membership</span>
+          </button>
+        </div>
+        <div className="compliant-button-mobile-menu-items">
+          <button className="flex flex-row space-x-10">
+            <GoAlertFill color="pink" />
+            <span>Compliant</span>
+          </button>
+        </div>
+      </div>
+      <button className=" md:hidden flex flex-row space-x-10 text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-10 py-6 mt-5  ">
+        <IoLogOutOutline />
+        <span>Log out</span>
+      </button>
+    </div>
+  );
+};
+
 const NavbarUser = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAlertDesktopMenuOpen, setisAlertDesktopMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+  const alertMenuRef = useRef(null);
+
+  const toggleAlertDesktopMenu = () => {
+    setisAlertDesktopMenuOpen(!isAlertDesktopMenuOpen);
+  };
 
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
-  const toggleMenu = () => {
+  const toggleHamburgerBarMenu = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+      if (
+        alertMenuRef.current &&
+        !alertMenuRef.current.contains(event.target)
+      ) {
+        setisAlertDesktopMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     /// desktop Navbar
@@ -59,7 +236,10 @@ const NavbarUser = () => {
                 />
               </svg>
             </button>
-            <button className="alert-button  w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center md:mr-6  ">
+            <button
+              onClick={toggleAlertDesktopMenu}
+              className="alert-button  w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center md:mr-6 cursor-pointer "
+            >
               <svg
                 width="30"
                 height="30"
@@ -75,7 +255,15 @@ const NavbarUser = () => {
                 />
               </svg>
             </button>
-            {/* profile-logo */}
+            {isAlertDesktopMenuOpen && (
+              <div
+                ref={alertMenuRef}
+                className="absolute overflow-auto xl:top-[65px] xl:right-[100px] lg:top-[65px] lg:right-[5px] md:top-[65px] md:right-[5px]   mt-2 w-[251px] h-[214px] bg-white  rounded-lg shadow-xl/50 "
+              >
+                <DesktopAlertMenuItems />
+              </div>
+            )}
+            {/* profile-logo-button */}
             <button
               onClick={toggleUserMenu}
               className="profile-logo hidden md:flex justify-center items-center w-[48px] h-[48px] bg-[#C70039] text-white py-3 rounded-full font-bold shadow-lg  "
@@ -87,21 +275,16 @@ const NavbarUser = () => {
               />
             </button>
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
-                {settings.map((setting) => (
-                  <a
-                    key={setting}
-                    href="#"
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                  >
-                    {setting}
-                  </a>
-                ))}
+              <div
+                ref={userMenuRef}
+                className="absolute  xl:top-[65px] xl:right-[100px] lg:top-[65px] lg:right-[5px] md:top-[65px] md:right-[5px]   mt-2 w-[198px] h-[258px] bg-white  rounded-lg shadow-xl/50 "
+              >
+                <DesktopUserMenuItems />
               </div>
             )}
             {/* hamburger bar */}
             <button
-              onClick={toggleMenu}
+              onClick={toggleHamburgerBarMenu}
               className="bg-white rounded mr-3 md:hidden  "
             >
               {isOpen ? (
@@ -120,43 +303,7 @@ const NavbarUser = () => {
             >
               <div className="mobile-menu items md:hidden flex flex-col h-full overflow-y-auto px-6 py-5 inset-shadow-sm/20 ">
                 {/* mobile-menu items */}
-                <div className="flex flex-col ">
-                  <div className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-4 rounded-4xl mx-4 my-6 text-white flex items-center justify-center">
-                    <span className="text-3xl font-bold">
-                      ✨ More limit Merry!
-                    </span>
-                  </div>
-                  <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
-                    <div className="profile-button-mobile-menu-items ">
-                      <button className="flex flex-row space-x-10 ">
-                        <FaUser color="pink" />
-                        <span>Profile</span>
-                      </button>
-                    </div>
-                    <div className="merrylist-button-mobile-menu-items">
-                      <button className="flex flex-row space-x-10">
-                        <FaHeart color="pink" />
-                        <span>Merry list</span>
-                      </button>
-                    </div>
-                    <div className="merry-membership-button-mobile-menu-items">
-                      <button className="flex flex-row space-x-10">
-                        <BsFillBoxFill color="pink" />
-                        <span>Merry Membership</span>
-                      </button>
-                    </div>
-                    <div className="compliant-button-mobile-menu-items">
-                      <button className="flex flex-row space-x-10">
-                        <GoAlertFill color="pink" />
-                        <span>Compliant</span>
-                      </button>
-                    </div>
-                  </div>
-                  <button className=" md:hidden flex flex-row space-x-10 text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-10 py-6 mt-5  ">
-                    <IoLogOutOutline />
-                    <span>Log out</span>
-                  </button>
-                </div>
+                <MobileMenuItems />
               </div>
             </div>
           </div>
