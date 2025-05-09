@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import NavbarNonUser from "../../../components/NavbarNonUser";
 import Footer from "../../../components/Footer";
@@ -7,7 +9,6 @@ const HomeNonLogin = () => {
     <div className=" flex  justify-center items-center bg-[#160404] ">
       <div className="m-auto w-full max-w-[1440px] ">
         <NavbarNonUser />
-<<<<<<< HEAD
         <section className=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
           <div className="container mx-auto px-6 relative">
             {/* Decorative Elements */}
@@ -22,37 +23,16 @@ const HomeNonLogin = () => {
                   first 'Merry'
                 </h1>
                 <p className="text-xl text-white mb-12">
-=======
-        <section class=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
-          <div class="container mx-auto px-6 relative">
-            {/* Decorative Elements */}
-            <div class="absolute w-[67px] h-[67px] top-[-60px] left-[-130px] bg-[#532341] rounded-full"></div>
-            <div class="absolute w-2 h-2 top-[360px] right-[70px] bg-[#7B4429] rounded-full"></div>
-            <div class="absolute w-[7px] h-[7px] top-[-70px] left-[30px] bg-[#FFB1C8] rounded-full"></div>
-
-            <div class="flex flex-col  items-center justify-center text-center ">
-              <div class="max-w-xl w-[358px] relative z-10">
-                <h1 class="text-6xl font-black text-white leading-tight mb-6">
-                  Make the <br />
-                  first 'Merry'
-                </h1>
-                <p class="text-xl text-white mb-12">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                   If you feel lonely, let's start meeting new people in your
                   area! <br />
                   Don't forget to get Merry with us
                 </p>
-<<<<<<< HEAD
                 <button className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
-=======
-                <button class="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                   Start matching!
                 </button>
               </div>
 
               {/* Profile Images with Chat Bubbles */}
-<<<<<<< HEAD
               <div className="Hero-profile relative w-1/2 h-[600px]  ">
                 <div>
                   <div className="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
@@ -63,24 +43,11 @@ const HomeNonLogin = () => {
                     />
                   </div>
                   <div className="absolute bottom-[980px] right-[190px] w-[160px] md:bottom-[820px] md:right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
-=======
-              <div class="Hero-profile relative w-1/2 h-[600px]  ">
-                <div>
-                  <div class="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
-                    <img
-                      src="/image-1.png"
-                      alt="Profile1"
-                      class="w-full h-full object-cover rounded-[999px]"
-                    />
-                  </div>
-                  <div class="absolute bottom-[980px] right-[190px] w-[160px] md:bottom-[820px] md:right-[-275px] bg-[#64001D] text-white p-3 rounded-[24px_24px_24px_0px] text-sm font-semibold">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                     Hi! Nice to meet you
                   </div>
                 </div>
 
                 <div>
-<<<<<<< HEAD
                   <div className=" Second-Profile absolute right-[-210px] bottom-[10px]  md:right-[510px] md:bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
                     <img
                       src="/image-2.png"
@@ -90,17 +57,6 @@ const HomeNonLogin = () => {
                   </div>
                   <div className="relative">
                     <div className="absolute flex flex-row w-[180px] bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
-=======
-                  <div class=" Second-Profile absolute right-[-210px] bottom-[10px]  md:right-[510px] md:bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
-                    <img
-                      src="/image-2.png"
-                      alt="Profile2"
-                      class="w-full h-full object-cover rounded-[999px] grayscale "
-                    />
-                  </div>
-                  <div className="relative">
-                    <div class="absolute flex flex-row w-[180px] bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       <svg
                         className="mr-2"
                         width="10"
@@ -119,21 +75,13 @@ const HomeNonLogin = () => {
                   </div>
                 </div>
 
-<<<<<<< HEAD
                 <div className="absolute w-[60px] h-[60px] top-[-100px] right-[-355px] bg-[#320000] rounded-full">
-=======
-                <div class="absolute w-[60px] h-[60px] top-[-100px] right-[-355px] bg-[#320000] rounded-full">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                   <div className="relative">
                     <div className="absolute top-[30px] left-[-15px] ">
                       <img
                         src="/smile-emoji.png"
                         alt="smile-emoji"
-<<<<<<< HEAD
                         className="w-7 h-7 object-cover rounded-full "
-=======
-                        class="w-7 h-7 object-cover rounded-full "
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       />
                     </div>
                   </div>
@@ -144,7 +92,6 @@ const HomeNonLogin = () => {
         </section>
 
         {/* Why Merry Match Section */}
-<<<<<<< HEAD
         <section className="  m-auto py-20 bg-[#160404]  ">
           <div className="container flex  md:flex-row m-auto mx-auto px-6">
             <div className="flex flex-col xl:flex-row  lg:flex-col items-center justify-center w-full">
@@ -157,20 +104,6 @@ const HomeNonLogin = () => {
                   everyone
                 </p>
                 <p className="text-[#F6F7FC] text-base leading-relaxed">
-=======
-        <section class="  m-auto py-20 bg-[#160404]  ">
-          <div class="container flex  md:flex-row m-auto mx-auto px-6">
-            <div class="flex flex-col xl:flex-row  lg:flex-col items-center justify-center w-full">
-              <div class="max-w-xl">
-                <h2 class="text-5xl font-extrabold text-[#DF89C6] mb-10">
-                  Why Merry Match?
-                </h2>
-                <p class="text-white text-xl mb-6">
-                  Merry Match is a new generation of online dating website for
-                  everyone
-                </p>
-                <p class="text-[#F6F7FC] text-base leading-relaxed">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                   Whether you're committed to dating, meeting new people,
                   expanding your social network, meeting locals while traveling,
                   or even just making a small chat with strangers.
@@ -181,19 +114,11 @@ const HomeNonLogin = () => {
                   you're interested
                 </p>
               </div>
-<<<<<<< HEAD
               <div className="merry-match-card flex ml-10 lg:ml-40 xl:ml-20 md:pl-10 pl-0 lg:pt-20  pt-32 m-auto w-1/2  ">
                 <div className="relative h-[324px]">
                   <div className="absolute top-0 left-[70px] w-[237px] h-[99px] bg-[#7D2262] rounded-[29px] drop-shadow-2xl z-10 p-6">
                     <div className="flex items-center gap-2 text-white">
                       <div className="w-5 h-5 rounded">
-=======
-              <div class="merry-match-card flex ml-10 lg:ml-40 xl:ml-20 md:pl-10 pl-0 lg:pt-20  pt-32 m-auto w-1/2  ">
-                <div class="relative h-[324px]">
-                  <div class="absolute top-0 left-[70px] w-[237px] h-[99px] bg-[#7D2262] rounded-[29px] drop-shadow-2xl z-10 p-6">
-                    <div class="flex items-center gap-2 text-white">
-                      <div class="w-5 h-5 rounded">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                         <svg
                           width="19"
                           height="17"
@@ -210,11 +135,7 @@ const HomeNonLogin = () => {
                           />
                         </svg>
                       </div>
-<<<<<<< HEAD
                       <span className="text-xl font-bold">Fast</span>
-=======
-                      <span class="text-xl font-bold">Fast</span>
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       <div className="relative">
                         <svg
                           className="absolute top-[-37px] left-[40px] "
@@ -232,13 +153,8 @@ const HomeNonLogin = () => {
                       </div>
                     </div>
                   </div>
-<<<<<<< HEAD
                   <div className="absolute top-[87px] left-0 w-[398px] h-[109px] bg-[#DF89C6] rounded-[29px] p-6 flex items-center ">
                     <div className="flex items-center gap-2 text-[#7D2262] ">
-=======
-                  <div class="absolute top-[87px] left-0 w-[398px] h-[109px] bg-[#DF89C6] rounded-[29px] p-6 flex items-center ">
-                    <div class="flex items-center gap-2 text-[#7D2262] ">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       <div className="SVG-secure relative mr-60  ">
                         <svg
                           className=" absolute top-[-27px] left-[20px]"
@@ -256,11 +172,7 @@ const HomeNonLogin = () => {
                           />
                         </svg>
                       </div>
-<<<<<<< HEAD
                       <div className="w-5 h-5 rounded">
-=======
-                      <div class="w-5 h-5 rounded">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                         <svg
                           width="16"
                           height="18"
@@ -286,11 +198,7 @@ const HomeNonLogin = () => {
                           />
                         </svg>
                       </div>
-<<<<<<< HEAD
                       <span className="text-xl font-bold">Secure</span>
-=======
-                      <span class="text-xl font-bold">Secure</span>
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       <div className="relative" >
                         <div className="absolute w-2.5 h-2.5 bg-[#612F16] rounded-full left-[90px] bottom-[110px] "></div>
                         <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
@@ -300,15 +208,9 @@ const HomeNonLogin = () => {
                     </div>
                     
                   </div>
-<<<<<<< HEAD
                   <div className="absolute top-[178px] left-[171px] w-[328px] h-[146px] bg-[#EFC4E2] drop-shadow-2xl rounded-[29px] p-6 flex items-end">
                     <div className="flex flex-row gap-2 text-end   text-[#C70039]">
                       <div className="w-5 h-5 rounded pt-1.5">
-=======
-                  <div class="absolute top-[178px] left-[171px] w-[328px] h-[146px] bg-[#EFC4E2] drop-shadow-2xl rounded-[29px] p-6 flex items-end">
-                    <div class="flex flex-row gap-2 text-end   text-[#C70039]">
-                      <div class="w-5 h-5 rounded pt-1.5">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                         <svg
                           width="19"
                           height="18"
@@ -327,11 +229,7 @@ const HomeNonLogin = () => {
                           />
                         </svg>
                       </div>
-<<<<<<< HEAD
                       <span className="text-xl font-bold">Easy</span>
-=======
-                      <span class="text-xl font-bold">Easy</span>
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                       <div className="relative">
                         <div className="absolute w-1.5 h-1.5 rounded-full bg-[#CF4FA9] right-[260px] top-[50px]" ></div>
                         <svg
@@ -366,7 +264,6 @@ const HomeNonLogin = () => {
         </section>
 
         {/* How to Merry Section */}
-<<<<<<< HEAD
         <section className=" m-auto py-20 bg-[#160404]">
           <div className="container mx-auto px-6">
             <h2 className="text-5xl font-extrabold text-[#DF89C6] text-center mb-12">
@@ -424,72 +321,12 @@ const HomeNonLogin = () => {
                   Start chating and relationship
                 </h3>
                 <p className="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
-=======
-        <section class=" m-auto py-20 bg-[#160404]">
-          <div class="container mx-auto px-6">
-            <h2 class="text-5xl font-extrabold text-[#DF89C6] text-center mb-12">
-              How to Merry
-            </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6">
-              <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
-                  <img
-                    src="/image-556.png"
-                    alt="Upload-emoji"
-                    class="w-[50px] h-[50px] object-cover rounded-full "
-                  />
-                </div>
-                <h3 class="text-2xl font-bold text-white mb-3">
-                  Upload your cool picture
-                </h3>
-                <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
-              </div>
-              <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
-                    src="/image-556-1.png"
-                    alt="Explore-emoji"
-                    class="w-[50px] h-[50px] "
-                  />
-                </div>
-                <h3 class="text-2xl font-bold text-white mb-3">
-                  Explore and find the one you like
-                </h3>
-                <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
-              </div>
-              <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
-                    src="/image-556-2.png"
-                    alt="Explore-emoji"
-                    class="w-[50px] h-[50px] "
-                  />
-                </div>
-                <h3 class="text-2xl font-bold text-white mb-3">
-                  Click 'Merry' for get to know!
-                </h3>
-                <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
-              </div>
-              <div class="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div class="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
-                    src="/image-556-3.png"
-                    alt="Explore-emoji"
-                    class="w-[50px] h-[50px] "
-                  />
-                </div>
-                <h3 class="text-2xl font-bold text-white mb-3">
-                  Start chating and relationship
-                </h3>
-                <p class="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-<<<<<<< HEAD
         <section className=" py-0  md:py-20 bg-[#160404] ">
           <div className="container mx-auto px-6 ">
             <div className="md:rounded-[32px] overflow-hidden bg-gradient-to-r from-[#820025] to-[#A95BCD] h-[564px] md:h-[369px]  ">
@@ -500,18 +337,6 @@ const HomeNonLogin = () => {
                   and matching someone new
                 </h2>
                 <button className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
-=======
-        <section class=" py-0  md:py-20 bg-[#160404] ">
-          <div class="container mx-auto px-6 ">
-            <div class="md:rounded-[32px] overflow-hidden bg-gradient-to-r from-[#820025] to-[#A95BCD] h-[564px] md:h-[369px]  ">
-              <div class="py-20 px-12   text-center relative">
-                <div class="absolute top-[50px] left-[-20px] inset-0 bg-[url('/vector.png')] bg-cover opacity-20"></div>
-                <h2 class="text-5xl font-extrabold text-white mb-12 relative z-10">
-                  Let's start finding <br />
-                  and matching someone new
-                </h2>
-                <button class="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
->>>>>>> 0bba8c46a5488f4632e7b3a37b006270d467c566
                   Start Matching!
                 </button>
               </div>

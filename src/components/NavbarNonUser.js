@@ -2,64 +2,6 @@ import React from "react";
 import { useState } from "react";
 import { IoIosMenu } from "react-icons/io";
 
-// function HamburgerMenu() {
-//   const [isOpen, setIsOpen] = useState(false);
-
-//   const toggleMenu = () => {
-//     setIsOpen(!isOpen);
-//   };
-
-//   return (
-//     <div className="relative font-sans">
-//       {/* Header with logo and menu button */}
-
-//       <button onClick={toggleMenu} className="bg-white rounded p-2">
-//         {isOpen ? (
-//           <IoIosMenu className="w-6 h-6 text-gray-600" />
-//         ) : (
-//           <IoIosMenu className="w-6 h-6 text-gray-600" />
-//         )}
-//       </button>
-
-//       {/* Sidebar menu */}
-//       <div
-//         className={`fixed top-16 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
-//           isOpen
-//             ? "translate-x-0 opacity-100"
-//             : "translate-x-full opacity-0 pointer-events-none"
-//         } z-20`}
-//       >
-//         <div className="flex flex-col h-full overflow-y-auto">
-//           {/* Banner */}
-
-//           {/* Menu items */}
-//           <nav className="flex-1 px-6">
-//             <ul className="space-y-6">
-//               <li>
-//                 <a href="#" class="hidden md:flex  text-[#7D2262] font-bold ">
-//                   Why Merry Match?
-//                 </a>
-//               </li>
-//               <li>
-//                 <a href="#" class="hidden md:flex text-[#7D2262] font-bold">
-//                   How to Merry
-//                 </a>
-//               </li>
-//               <li>
-//                 <button class="hidden md:flex  bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
-//                   Login
-//                 </button>
-//               </li>
-//             </ul>
-//           </nav>
-
-//           {/* Divider */}
-//           <div className="border-t border-gray-200 my-4 mx-6"></div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
 
 const NavbarNonUser = () => {
   const [isOpen, setIsOpen] = useState(false);
