@@ -1,3 +1,3 @@
 export default function merryPage() {
-    return <></>;
+    return <><p>xxx</p></>;
   }
