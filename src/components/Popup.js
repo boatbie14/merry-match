@@ -4,26 +4,33 @@ import { IoMdArrowBack } from "react-icons/io";
 import { IoMdArrowForward } from "react-icons/io";
 import { IoCloseOutline,IoLocationSharp,IoClose  } from "react-icons/io5";
 import { GoHeartFill } from "react-icons/go";
-import React from 'react';
+import { calculateAge } from '@/utils/functionCalculate/calculateAge';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
+import { getUserHobbies } from '@/services/merryServices';
 
-export function ProfilePopup({ isOpen, onClose, profile }) {
-  const {
-    name = 'Daeny',
-    age = 24,
-    location = 'Bangkok, Thailand',
-    sexualIdentities = 'Female',
-    sexualPreferences = 'Male',
-    racialPreferences = 'Indefinite',
-    meetingInterests = 'commitment',
-    aboutMe = 'I know nothing... but you',
-    hobbiesAndInterests = ['dragon', 'romantic relationship', 'political', 'black hair', 'friendly', 'fire'],
-    images = [
-        'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRzJJs4LstMWjBaZZmBAzZblKia3j7spKC_nGMi2FvVJpi2-MTpJwz_RL9THDrG',
-        'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRzJJs4LstMWjBaZZmBAzZblKia3j7spKC_nGMi2FvVJpi2-MTpJwz_RL9THDrG',],
-  } = profile || {};
+
+//loading hobbins,loading picture->Next
+//unlike like >>>>>>>. what is this
+export function ProfilePopup({ isOpen, onClose, items}) {
+  const tempImage = [items?.profile_image_url,items?.image2_url,items?.image3_url,items?.image4_url,items?.image5_url,];
+  const images = tempImage.filter(item => !!item);
   const [imageIndex, setImageIndex] = useState(0);
-
+  const [LoadingHobbies,setLoadingHobbies] = useState(false)
+  const [hobbies,setHobbies] = useState([])
+    useEffect(()=>{
+      async function hobbiesFetch(id){
+        try{
+          setLoadingHobbies(true)
+          const tempHobbies = await getUserHobbies(id)
+          setHobbies(tempHobbies.map(item => item.hobbie_name))
+        }catch(e){console.log(e)
+        }finally{setLoadingHobbies(false)}
+      }
+      if(Object.keys(items).length > 0) {
+        console.log("load...hobbies")
+      hobbiesFetch(items.id)}
+    },[items])
   const clickClose = () => {
     
   };
@@ -50,7 +57,7 @@ const currentImage = images[imageIndex];
           onClick={onClose}
         >
           <motion.div
-            className="bg-white rounded-4xl shadow-lg w-full h-full max-w-[1140px] max-h-[760px] md:w-[90%] lg:w-[80%] xl:w-[55%] md:h-auto"
+            className="bg-white rounded-4xl shadow-lg w-full h-full max-w-[1140px] max-h-[760px] md:w-[90%] lg:w-[70%] xl:w-[55%] md:h-auto"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -62,14 +69,14 @@ const currentImage = images[imageIndex];
               <IoMdArrowBack onClick={onClose} className="md:hidden text-white hover:text-gray-600 text-2xl absolute top-4 left-5 z-20" />
 
               {/* Image Section */}
-                <div className="md:w-1/2 w-full h-auto relative">
+                <div className="md:w-1/2 w-full h-auto relative ">
                     <div className="h-[478px] w-full relative max-h-[320px] ">
                       <Image
                         src={currentImage}
-                        alt={name}
+                        alt={items.name}
                         className="object-cover rounded-b-4xl rounded-t-4xl md:rounded-l-3xl md:rounded-3xl w-full h-full "
                         fill
-                         sizes="w-full"
+                         sizes="100vm"
                         //  priority 
                       />
                         <div className="absolute bottom-[-24px]  left-1/2 transform -translate-x-1/2 flex gap-4 z-10 ">
@@ -96,51 +103,51 @@ const currentImage = images[imageIndex];
                 </div>
                 
               {/* Info Section */}
-                <div className="pb-8 px-6 md:py-3 md:w-1/2 w-full max-h-[375px] md:max-h-[500px] overflow-y-auto ">
-                    <div className="flex justify-between items-start ">
+                <div className="pb-8 px-6 md:px-3 md:py-2 md:w-1/2 w-full max-h-[375px] md:max-h-[500px] overflow-y-auto flex flex-col gap-5.5 md:gap-7.5">
+                    <div className="flex justify-between items-start mt-2 md:mt-0">
                         <div>
                             <h2 className="text-4xl md:text-4xl font-bold text-[#2A2E3F]">
-                            {name} <span className="text-gray-500">{age}</span>
+                            {items.name} <span className="text-gray-500">{calculateAge(new Date(items.date_of_birth))}</span>
                             </h2>
-                            <div className="flex items-center gap-1 text-gray-500 text-md md:text-sm lg:text-sm pt-2 md:pt-1 md:pb-2">
+                            <div className="flex items-center gap-1 text-gray-500 text-md md:text-sm lg:text-sm pt-2 ">
                                 <IoLocationSharp color="#FFB1C8" />
-                                <span>{location}</span>
+                                <span>{items.city}, {items.location}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-4 text-md md:text-xs">
-                        <table className="w-full md:w-[240px] md:max-w-none text-[#2A2E3F]">
-                            <tbody>
-                                <tr>
-                                    <td className="pr-4">Sexual identities</td>
-                                    <td className="py-1 text-[16px] text-[#646D89]">{sexualIdentities}</td>
-                                </tr>
-                                    <tr>
-                                    <td className="pr-4">Sexual preferences</td>
-                                    <td className="py-1 text-[16px] text-[#646D89]">{sexualPreferences}</td>
-                                </tr>
-                                <tr>
-                                    <td className="pr-4">Racial preferences</td>
-                                    <td className="py-1 text-[16px] text-[#646D89]">{racialPreferences}</td>
-                                </tr>
-                                <tr>
-                                    <td className="pr-4">Meeting interests</td>
-                                    <td className="py-1 text-[16px] text-[#646D89]">{meetingInterests}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className=" text-md md:text-xs">
+                      <table className="w-full  md:w-full md:text-[14px] text-[#2A2E3F] table-fixed ">
+                        <tbody>
+                          <tr>
+                            <td className=" w-3/5 md:w-2/5 xs:w-1/2 py-1.5  md:py-1 text-[#2A2E3F] ">Sexual identities</td>
+                            <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.sexual_identity}</td>
+                          </tr>
+                          <tr>
+                            <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F] ">Sexual preferences</td>
+                            <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.sexual_preference}</td> 
+                          </tr>
+                          <tr>
+                            <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F] ">Racial preferences</td>
+                            <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.racial_preference}</td>
+                          </tr>
+                          <tr>
+                            <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F]">Meeting interests</td>
+                            <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89] ">{items.meeting_interest}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
 
-                    <div className="mt-4">
-                        <h3 className="font-semibold text-xl">About me</h3>
-                        <p className="text-gray-600 pt-2 text-md md:text-sm">{aboutMe}</p>
+                    <div className="">
+                        <h3 className="font-bold text-xl md:font-semibold ">About me</h3>
+                        <p className="text-gray-600 pt-2 text-md md:text-sm">&nbsp;&nbsp;&nbsp;&nbsp;{items.bio}</p>
                     </div>
 
-                    <div className="mt-4">
-                        <h3 className="font-semibold text-xl">Hobbies and Interests</h3>
+                    <div className="">
+                        <h3 className="text-xl font-bold md:font-semibold ">Hobbies and Interests</h3>
                         <div className="flex flex-wrap gap-2 mt-2">
-                            {hobbiesAndInterests.map((tag) => (
+                            {hobbies.map((tag) => (
                             <span
                                 key={tag}
                                 className="border-1 border-pink-600 text-[#7D2262] text-sm px-4 py-1 rounded-lg">
