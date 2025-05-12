@@ -1,41 +1,75 @@
 import { AlertPopup,ProfilePopup } from "@/components/Popup";
 import MarryListCard from "@/components/MarryListCard";
-import { useState } from "react"; 
+import { use, useState } from "react"; 
 import { GoHeartFill } from "react-icons/go";
 import DoubleHeartsIcon from "@/components/icons";
 import { useEffect } from "react";
-import { postMerriyLike,deleteMerriyLike,getMarriedUsers } from "@/services/merryServices";
+import { postMerriedLike,deleteMerriedLike,getMarriedUsers,getMerriedMe,getMerriedMatch } from "@/services/merryServices";
 import useCountdown from "@/hooks/useCountdown";
+import { set } from "date-fns";
 
-
-// loading this page>view,card-list,Merry to you,Merry match,Merry limit today,
-// Get Merry to you
+// เสร็จ
+// {Get Merry to you 
 // Get Merry match
-// รอ Merry limit today from p.bost
-//logic match yet ?
-//logic and get like
+// วันนี้ match} 
+// logic match yet ?
 
-//go to chat
+// ## TODO ❓ logic and get like (ทำ dummy แล้ว แต่คิดว่าน่าจะต้องใช้Apiพี่โบทดีกว่าเพราะต้องไปลบข้อมูลอื่นๆด้วย)
+// ยัง
+
+
+// ## TODO  loading this page>view,card-list,Merry to you,Merry match,Merry limit today, 
+
+// ## TODO 🔛-❓ logic การนำ user มาแสดงก่อนหลัง (คิดว่าจะทำ logic ให้ match วันนี้ขึ้นก่อน ตามด้วย match แล้วจึงตามด้วย notYet)
+// ## TODO (P.bost)🕐 รอ Merry limit today from p.bost
+// ## TODO 💬🕐go to chat
+
 export default function MerryPagePage() { 
-  const[isMatched,setIsMatched] = useState(true)
-   const[isMarray,setIsMarray] = useState(false)
+
    
    const [data,setData] = useState ([])
+   const [merriedMeCount,setMerriedMeCount] = useState(0)
+   const [merriedMatch,setMerriedMatch] = useState(0)  
+
    const [loadingData,setLoadingData] = useState(false)
-   
+   const [loadingMerriedMeCount,setLoadingMerriedMeCount] = useState(false)
+   const [loadingMerriedMatch,setLoadingMerriedMatch] = useState(false)  
+
    const[isProfilePopup,setIsProfilePopup] = useState(false)
    const[DataProfilePopup,setDataProfilePopup] = useState({})
 
-   const [merryToYouCount,setMerryToYouCount] =useState(21)
-   const [matchCount,setMatchCount] =useState(8)
    const [merryLimit,setmerryLimit]=useState({limit:2,max:10})
-   const [selectedUserId, setSelectedUserId] = useState(null)
 
+  useEffect(()=>{
+    async function fetchData(){
+      try{setLoadingData(true)
+        const tempData = await getMarriedUsers()
+        setData(tempData)
+      }catch(e){console.log(e)
+      }finally{setLoadingData(false)}
+    }
+    async function fetchMerriedMe(){
+      try{setLoadingMerriedMeCount(true)
+        const tempData = await getMerriedMe()
+        setMerriedMeCount(tempData)
+      }catch(e){console.log(e)
+      }finally{setLoadingMerriedMeCount(false)}
+    }
+    async function fetchMerriedMatch(){
+      try{setLoadingMerriedMatch(true)
+        const tempData = await getMerriedMatch()
+        setMerriedMatch(tempData)
+      }catch(e){console.log(e)
+      }finally{setLoadingMerriedMatch(false)}
+    }
 
+    fetchMerriedMe();
+    fetchMerriedMatch();
+    fetchData();
 
+  },[])
 
-const CountdownDisplay = () => {
-  // console.log("CountdownDisplay re-rendered");
+ const CountdownDisplay = () => {
    const now = new Date();
    const midnight = new Date();
    midnight.setDate(now.getDate() + 1);
@@ -45,40 +79,27 @@ const CountdownDisplay = () => {
   return <span> {countdown}</span>;
 };
 
-
-  useEffect(()=>{console.log("ok");
-    async function fetchData(){
-      try{setLoadingData(true)
-        const tempData = await getMarriedUsers()
-        setData(tempData)
-      }catch(e){console.log(e)
-      }finally{setLoadingData(false)}
-    }
-    fetchData()
-  },[])
-
- 
-   const funcClickChat = () =>{
+   const handleClickChat = () =>{
 
    }
      
-   const funcClickHeart = async (idUser) =>{ //ทำที่ client
+   const handleClickHeart = async (idUser,isMerry,setIsMerry) =>{
     try{
-    if(isMarray){
-      console.log("dededed")
-      // await deleteMerriyLike(idUser)
+      if(isMerry){
+        await deleteMerriedLike(idUser)
+        setIsMerry(false)
+      }else{
+        console.log("wewew")
+        await postMerriedLike(idUser)
+        setIsMerry(true)
+      }
+      setIsMerry(!isMerry)
+    }catch(e){
+    console.log("🛑",e)
     }
-    else{
-      console.log("wewew")
-      // await postMerriyLike(idUser)
-    }
-    setIsMarray(!isMarray)
-  }catch(e){
-    console.log("❌🛑",e)
-  }
   }
 
-     const funcClickEye = (index) =>{ 
+     const handleClickEye = (index) =>{ 
     console.log(data[index])
     setDataProfilePopup(data[index])
     setIsProfilePopup(true)
@@ -103,7 +124,7 @@ const CountdownDisplay = () => {
             <div className="flex flex-row gap-4 text-[#646D89] justify-center">
               <div className="border-1 border-[#F1F2F6] bg-white rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center">
                 <div className="flex flex-row gap-2 items-center">
-                  <h2 className="text-[#C70039] text-[24px] font-bold"> {merryToYouCount} </h2>
+                  {loadingMerriedMeCount?<h2>โหลดนะจะ</h2>:<h2 className="text-[#C70039] text-[24px] font-bold"> {merriedMeCount?.length} </h2>}
                   <GoHeartFill size={25} color="#FF1659"/>
                 </div>
                 <h3>Merry to you</h3>
@@ -111,7 +132,9 @@ const CountdownDisplay = () => {
                 
               <div className="border-1 border-[#F1F2F6] bg-white rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center">
                 <div className="flex flex-row  gap-2 items-center">
-                  <h2 className="text-[#C70039] text-[24px] font-bold"> {matchCount} </h2>
+                  <h2 className="text-[#C70039] text-[24px] font-bold"> 
+                    {loadingMerriedMatch? "โหลดจะ ":merriedMatch?.allMatches?.length} 
+                    </h2>
                   <DoubleHeartsIcon size={25} color="#FF1659"/>
                 </div>
                 <h3>Merry match</h3>
@@ -124,13 +147,18 @@ const CountdownDisplay = () => {
             </div>
           </div>
 
-            {loadingData?(<h1>LoadingData</h1>):data.map((obj,index)=>(
+            {loadingData?(<h1>Loading Data</h1>):data.map((obj,index)=>{
+              
+              return(
               <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
                 <MarryListCard items={obj}
                                clickChat={{}}
-                               clickEye={()=>funcClickEye(index)}
-                               clickHeart={(idUser)=>funcClickHeart(idUser)}/>
-              </div>))
+                               clickEye={()=>handleClickEye(index)}
+                               clickHeart={(idUser,isMerry,setIsMerry)=>handleClickHeart(idUser,isMerry,setIsMerry)}
+                               isMatched={merriedMatch?.allMatches?.includes(obj.id)}
+                               matchToday={merriedMatch?.todayMatches?.includes(obj.id)}
+                               />
+              </div>)})
             }
       </div>
     </div>

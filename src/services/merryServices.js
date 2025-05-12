@@ -6,7 +6,7 @@ export const getMarriedUsers = async () => {
     const response = await apiClient.get(`/merry/merried-users`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching married users:', error);
+    console.error('Error fetching merried users:', error);
     throw error;
   }
 };
@@ -21,23 +21,43 @@ export const getUserHobbies = async (id)=>{
   }
 }
 
+export const getMerriedMe = async ()=>{
+  try{
+    const response = await apiClient.get(`merry/merried-me`)
+    return response.data
+  }catch(error){
+    console.error('Error fetching users like you :', error);
+    throw error
+  }
+}
 
-export const postMerriyLike = async () =>{
+export const getMerriedMatch = async ()=>{
+    try{
+    const response = await apiClient.get(`merry/merried-match`)
+    return response.data
+  }catch(error){
+    console.error('Error fetching merried-match :', error);
+    throw error
+  }
+}
+
+export const postMerriedLike = async (toUserId) =>{
     try {
-        const response = await apiClient.post('/merry/like-users');
-        return response.data;
+      console.log(toUserId)
+        const response = await apiClient.post('/merry/like', { toUserId });
+        return response
       } catch (error) {
-        console.error('Error fetching married users:', error);
+        console.error('Error fetching merried users:', error);
         throw error;
       }
 };
 
-export const deleteMerriyLike = async () =>{
-    try {
-        const response = await apiClient.delete('/merry/like-users');
-        return response.data;
+export const deleteMerriedLike = async (toUserId) =>{
+    try {console.log(toUserId)
+        const response = await apiClient.delete('/merry/like', { data: { toUserId } });
+        return response
       } catch (error) {
-        console.error('Error fetching married users:', error);
+        console.error('Error fetching merried users:', error);
         throw error;
       }
 };

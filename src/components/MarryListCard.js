@@ -5,15 +5,11 @@ import { GoHeartFill } from "react-icons/go";
 import { AiFillEye } from "react-icons/ai";
 import DoubleHeartsIcon from "./icons";
 import { calculateAge } from '@/utils/functionCalculate/calculateAge';
-const MarryListCard = ({ items,
-  isMerry = true,
-  isMatched, // show math
-  
-  matchToday = false,
-  clickHeart,
-  clickEye,
-  clickChat,
-}) => {
+import { useState } from 'react';
+
+const MarryListCard = ({ items,isMatched,matchToday,clickHeart,clickEye,clickChat,}) => {
+  const [isMerry,setIsMarray]=useState(true);
+
   const MatchStatus = () => {
     const baseClass = "text-md border border-1 py-1 rounded-full w-[160px]";
     const matchClass = isMatched
@@ -45,7 +41,7 @@ const MarryListCard = ({ items,
         <AiFillEye />
         <span className="tooltip">See profile</span>
       </button>
-      <button className={`gray-icon-btn ${isMerry ? "active" : ""}`}  onClick={()=>clickHeart(items.id)}>
+      <button className={`gray-icon-btn ${isMerry ? "active" : ""}`}  onClick={()=>clickHeart(items.id,isMerry,setIsMarray)}>
         <GoHeartFill className={isMerry ? "" : "text-[#C70039]"} />
         <span className="tooltip">Merry</span>
       </button>

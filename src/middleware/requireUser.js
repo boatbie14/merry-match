@@ -1,4 +1,5 @@
 // import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
+// ## TODO 🗝️🕐 check token and get userId(uuid) (now check cookie)
 import { createClient } from '@supabase/supabase-js';
 export async function requireUser(req, res) {
   try {

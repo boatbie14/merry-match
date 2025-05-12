@@ -10,8 +10,8 @@ import { useState } from 'react';
 import { getUserHobbies } from '@/services/merryServices';
 
 
-//loading hobbins,loading picture->Next
-//unlike like >>>>>>>. what is this
+// ## TODO  loading hobbins,loading picture->Next
+// ## TODO ❓ unlike like >>>>>>>. what is this
 export function ProfilePopup({ isOpen, onClose, items}) {
   const tempImage = [items?.profile_image_url,items?.image2_url,items?.image3_url,items?.image4_url,items?.image5_url,];
   const images = tempImage.filter(item => !!item);
