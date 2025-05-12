@@ -159,10 +159,86 @@ export const MobileMenuItems = () => {
   );
 };
 
+export const MobileAlertMenuItems = () => {
+  return (
+    <div className="flex flex-col ">
+      <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
+        <div className=" desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3">
+          {/* Array.map here */}
+          <div className="flex flex-row space-x-10 relative">
+            <img
+              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+              alt=""
+              className=" w-[50px] h-[50px] rounded-full object-cover  "
+            />
+            <div className="heart-icon absolute top-[20px] left-[23px] ">
+              <FaHeart size="10" color="#FF1659" />
+            </div>
+            <span className="text-start text-2xl">
+              ‘Khal Drogo’ Just Merry you! <br/> Click here to see profile
+            </span>
+          </div>
+          {/* sample of alert box 1 */}
+          <div className="flex flex-row space-x-10 relative">
+            <img
+              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+              alt=""
+              className=" w-[50px] h-[50px] rounded-full object-cover  "
+            />
+            <div className="heart-icon absolute top-[20px] left-[23px] ">
+              <FaHeart size="10" color="#FF1659" />
+            </div>
+            <span className="text-start text-2xl">
+              ‘khal Drogo’ Just Merry you! <br/>  Click here to see profile
+            </span>
+          </div>
+          {/* sample of alert box 2 */}
+          <div className="flex flex-row space-x-10 relative">
+            <img
+              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+              alt=""
+              className=" w-[50px] h-[50px] rounded-full object-cover  "
+            />
+            <div className="heart-icon absolute top-[20px] left-[23px] ">
+              <FaHeart size="10" color="#FF1659" />
+            </div>
+            <span className="text-start text-2xl">
+              ‘Khal Drogo’ Just Merry you! <br/>  Click here to see profile
+            </span>
+          </div>
+          {/* sample of alert box 3 */}
+          <div className="flex flex-row space-x-10 relative">
+            <img
+              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+              alt=""
+              className=" w-[50px] h-[50px] rounded-full object-cover "
+            />
+            <span className="text-start text-2xl">
+              ‘Khal Drogo’ Just Merry you! <br/>  Click here to see profile
+            </span>
+          </div>
+          {/* sample of alert box 4 */}
+          <div className="flex flex-row space-x-10 relative">
+            <img
+              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
+              alt=""
+              className=" w-[50px] h-[50px] rounded-full object-cover "
+            />
+            <span className="text-start text-2xl">
+              ‘Khal Drogo’ Just Merry you! <br/>  Click here to see profile
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NavbarUser = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAlertDesktopMenuOpen, setisAlertDesktopMenuOpen] = useState(false);
+  const [isAlertMobileMenuOpen, setIsAlertMobileMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
   const alertMenuRef = useRef(null);
 
@@ -174,8 +250,18 @@ const NavbarUser = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
+  const toggleAlertMobileMenu = () => {
+    setIsAlertMobileMenuOpen(!isAlertMobileMenuOpen);
+    if (isOpen) {
+      setIsOpen(false);
+    }
+  };
+
   const toggleHamburgerBarMenu = () => {
     setIsOpen(!isOpen);
+    if (isAlertMobileMenuOpen) {
+      setIsAlertMobileMenuOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -236,9 +322,31 @@ const NavbarUser = () => {
                 />
               </svg>
             </button>
+            {/* alert-button-mobile */}
+            <button
+              onClick={toggleAlertMobileMenu}
+              className="alert-button-mobile w-[40px] h-[40px] md:hidden rounded-3xl bg-[#F6F7FC] flex justify-center items-center md:mr-6 cursor-pointer "
+            >
+              <svg
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M5.24973 9C5.24973 7.20979 5.96089 5.4929 7.22676 4.22703C8.49263 2.96116 10.2095 2.25 11.9997 2.25C13.7899 2.25 15.5068 2.96116 16.7727 4.22703C18.0386 5.4929 18.7497 7.20979 18.7497 9V9.75C18.7497 11.873 19.5497 13.807 20.8677 15.27C20.9498 15.361 21.0084 15.4707 21.0383 15.5896C21.0682 15.7084 21.0685 15.8328 21.0391 15.9518C21.0098 16.0708 20.9518 16.1808 20.8702 16.2722C20.7885 16.3636 20.6857 16.4335 20.5707 16.476C19.0267 17.046 17.4107 17.466 15.7397 17.719C15.7774 18.2331 15.7086 18.7495 15.5377 19.2359C15.3668 19.7222 15.0974 20.1681 14.7464 20.5457C14.3955 20.9233 13.9704 21.2245 13.4978 21.4304C13.0252 21.6364 12.5152 21.7427 11.9997 21.7427C11.4842 21.7427 10.9742 21.6364 10.5016 21.4304C10.029 21.2245 9.60399 20.9233 9.25302 20.5457C8.90205 20.1681 8.6327 19.7222 8.4618 19.2359C8.29089 18.7495 8.22211 18.2331 8.25973 17.719C6.61138 17.4692 4.99272 17.0524 3.42873 16.475C3.31386 16.4326 3.21113 16.3627 3.12949 16.2715C3.04786 16.1802 2.98981 16.0703 2.96041 15.9515C2.93101 15.8326 2.93117 15.7084 2.96086 15.5896C2.99055 15.4708 3.04887 15.3611 3.13073 15.27C4.49754 13.7567 5.25281 11.7892 5.24973 9.75V9ZM9.75173 17.9C9.73894 18.2032 9.78761 18.5058 9.89481 18.7897C10.002 19.0736 10.1655 19.3329 10.3756 19.5519C10.5856 19.771 10.8377 19.9453 11.1168 20.0644C11.3959 20.1835 11.6963 20.2448 11.9997 20.2448C12.3032 20.2448 12.6035 20.1835 12.8826 20.0644C13.1618 19.9453 13.4139 19.771 13.6239 19.5519C13.8339 19.3329 13.9974 19.0736 14.1046 18.7897C14.2119 18.5058 14.2605 18.2032 14.2477 17.9C12.7521 18.0347 11.2474 18.0347 9.75173 17.9Z"
+                  fill="#FFB1C8"
+                />
+              </svg>
+            </button>
+
+            {/* alert-button-desktop */}
             <button
               onClick={toggleAlertDesktopMenu}
-              className="alert-button  w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center md:mr-6 cursor-pointer "
+              className="alert-button-desktop hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] md:flex justify-center items-center md:mr-6 cursor-pointer "
             >
               <svg
                 width="30"
@@ -306,6 +414,19 @@ const NavbarUser = () => {
                 <MobileMenuItems />
               </div>
             </div>
+          </div>
+        </div>
+        {/* sidebar mobile-alert-menu */}
+        <div
+          className={`md:hidden fixed top-22 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
+            isAlertMobileMenuOpen
+              ? "translate-x-0 opacity-100"
+              : "translate-x-full opacity-0 pointer-events-none"
+          } z-20`}
+        >
+          <div className="mobile-menu items md:hidden flex flex-col h-full overflow-y-auto px-6 py-5 inset-shadow-sm/20 ">
+            {/* mobile-menu items */}
+            <MobileAlertMenuItems />
           </div>
         </div>
       </div>
