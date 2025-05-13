@@ -36,14 +36,23 @@ export const getMerriedMatch = async ()=>{
     const response = await apiClient.get(`merry/merried-match`)
     return response.data
   }catch(error){
-    console.error('Error fetching merried-match :', error);
+    console.error('Error fetching like :', error);
     throw error
   }
 }
 
+export const getMerriedLike = async () =>{
+    try {
+        const response = await apiClient.get('/merry/like');
+        return response
+      } catch (error) {
+        console.error('Error fetching merried users:', error);
+        throw error;
+      }
+};
+
 export const postMerriedLike = async (toUserId) =>{
     try {
-      console.log(toUserId)
         const response = await apiClient.post('/merry/like', { toUserId });
         return response
       } catch (error) {
@@ -53,7 +62,7 @@ export const postMerriedLike = async (toUserId) =>{
 };
 
 export const deleteMerriedLike = async (toUserId) =>{
-    try {console.log(toUserId)
+    try {
         const response = await apiClient.delete('/merry/like', { data: { toUserId } });
         return response
       } catch (error) {

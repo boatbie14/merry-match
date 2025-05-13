@@ -11,17 +11,20 @@ export default async function handler(req, res) {
       // const { supabase, user } = result;
       const {supabase,userId} = result
 
+
       const { data, error } = await supabase
         .from('merry_list')
-        .select('from_user_id')
+        .select('from_user_id, users:from_user_id (*)')
         .eq('to_user_id', 
           // user.id
           userId
-        );
+        )
+        .order('created_at', { ascending: false });
+        
       if (error) {
         throw new Error(error.message);
       }
-      const merriedMe = data.map(entry => entry.from_user_id);
+      const merriedMe = data.map(entry => entry.users);
       return res.status(200).json(merriedMe);
 
     } catch (err) {
