@@ -25,6 +25,12 @@ export function useMatchUsers() {
   const [totalCount, setTotalCount] = useState(0);
   const [limit] = useState(5); // ค่าคงที่สำหรับจำนวนรายการต่อหน้า
 
+  //#### Add: เพิ่ม state สำหรับเก็บตัวกรอง
+  const [filters, setFilters] = useState({
+    sexual_preference: null,
+    age_range: "18-80",
+  });
+
   // โหลดข้อมูลเริ่มต้นเมื่อ component mount
   useEffect(() => {
     // เรียกฟังก์ชันเพื่อโหลดข้อมูลหน้าแรก
@@ -32,12 +38,31 @@ export function useMatchUsers() {
     console.log("useEffect in useMatchUsers hook executed");
   }, []); // ทำงานเพียงครั้งเดียวเมื่อ mount
 
-  // ฟังก์ชันโหลดข้อมูลจาก API
+  //#### Add: สร้าง useEffect ใหม่เพื่อติดตามการเปลี่ยนแปลงของตัวกรอง
+  useEffect(() => {
+    // เมื่อ filters เปลี่ยน ให้โหลดข้อมูลใหม่จากหน้าแรก
+    fetchUsers(1);
+    console.log("Filters changed:", filters);
+  }, [filters]);
+
+  //#### Edit: ปรับปรุงฟังก์ชัน fetchUsers เพื่อรองรับการกรอง
   const fetchUsers = async (page = 1) => {
     try {
       setLoading(true);
       const currentUserId = "bfd42907-62fa-44c9-bf18-38ac7478ac35";
-      const url = `/api/users?page=${page}&limit=${limit}&currentUserId=${currentUserId}`;
+
+      //#### Edit: เพิ่ม parameters สำหรับการกรอง
+      let url = `/api/users?page=${page}&limit=${limit}&currentUserId=${currentUserId}`;
+
+      // เพิ่ม parameter sexual_preference ถ้ามีการกำหนดค่า
+      if (filters.sexual_preference) {
+        url += `&sexual_preference=${filters.sexual_preference}`;
+      }
+
+      // เพิ่ม parameter age_range ถ้ามีการกำหนดค่า
+      if (filters.age_range) {
+        url += `&age_range=${filters.age_range}`;
+      }
 
       console.log("Fetching data from:", url);
       const response = await axios.get(url);
@@ -48,6 +73,10 @@ export function useMatchUsers() {
         // ถ้าเป็นหน้าแรก ให้เริ่มต้นใหม่ ถ้าไม่ใช่ให้เพิ่มต่อจากข้อมูลเดิม
         if (page === 1) {
           setUsers(response.data.users);
+          //#### Add: รีเซ็ต swipe counters เมื่อโหลดหน้าแรกใหม่
+          setSwipeCount(0);
+          setLeftSwipes(0);
+          setRightSwipes(0);
         } else {
           setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
         }
@@ -274,6 +303,22 @@ export function useMatchUsers() {
     }, 300);
   };
 
+  //#### Add: เพิ่มฟังก์ชันตั้งค่าตัวกรอง
+  const setUserFilters = (newFilters) => {
+    console.log("Setting new filters:", newFilters);
+    setFilters(newFilters);
+  };
+
+  //#### Add: เพิ่มฟังก์ชันรีเซ็ตผู้ใช้และตัวกรอง
+  const resetUsers = () => {
+    console.log("Resetting users and filters");
+    setFilters({
+      sexual_preference: null,
+      age_range: "18-80",
+    });
+    // fetchUsers(1) จะถูกเรียกโดยอัตโนมัติผ่าน useEffect ที่ติดตาม filters
+  };
+
   console.log("Current state:", {
     users: users.length,
     displayedUsers: displayedUsers.length,
@@ -284,6 +329,8 @@ export function useMatchUsers() {
     currentPage,
     totalPages,
     totalCount,
+    //#### Add: แสดงค่าตัวกรองในการ log
+    filters,
   });
 
   // ส่งค่าต่างๆ ออกไป
@@ -301,9 +348,14 @@ export function useMatchUsers() {
     currentPage,
     totalPages,
     totalCount,
+    //#### Add: เพิ่มค่าตัวกรองในการส่งกลับ
+    filters,
     handleSwipe,
     handleOutOfFrame,
     handleButtonClick,
     handleHeartButton,
+    //#### Add: เพิ่มฟังก์ชันจัดการตัวกรองในการส่งกลับ
+    setUserFilters,
+    resetUsers,
   };
 }

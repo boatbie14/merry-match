@@ -33,12 +33,12 @@ const MatchingCenter = () => {
     error,
   });
 
-  // แสดงสถานะการโหลด
-  if (loading) {
+  // แสดงสถานะการโหลดเฉพาะเมื่อกำลังโหลดครั้งแรกและยังไม่มีข้อมูลใดๆ
+  if (loading && users.length === 0) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Loading users...</p>
         </div>
       </div>
@@ -57,8 +57,8 @@ const MatchingCenter = () => {
     );
   }
 
-  // ไม่มีข้อมูลผู้ใช้
-  if (!users || users.length === 0) {
+  // ไม่มีข้อมูลผู้ใช้เมื่อการโหลดเสร็จสิ้นแล้วเท่านั้น
+  if (!loading && (!users || users.length === 0)) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64 text-white text-center">
@@ -70,14 +70,14 @@ const MatchingCenter = () => {
     );
   }
 
-  // ไม่มีผู้ใช้ที่จะแสดง
-  if (!displayedUsers || displayedUsers.length === 0) {
+  // ไม่มีผู้ใช้ที่จะแสดงเมื่อการโหลดเสร็จสิ้นแล้วและมี users แต่ไม่มี displayedUsers
+  if (!loading && users.length > 0 && (!displayedUsers || displayedUsers.length === 0)) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64 text-white text-center">
-          <h3 className="text-2xl font-bold mb-2">No more users</h3>
-          <p className="text-lg text-gray-300">You've seen everyone!</p>
-          <p className="text-lg text-gray-300">Check back later for new people.</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
+          <h3 className="text-2xl font-bold my-2">Loading next matches...</h3>
+          <p className="text-lg text-gray-300">Please wait while we find more people for you.</p>
         </div>
       </div>
     );

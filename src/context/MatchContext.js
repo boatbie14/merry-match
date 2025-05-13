@@ -14,11 +14,12 @@ export const MatchProvider = ({ children }) => {
     loading: matchUserFunctions.loading,
     usersLength: matchUserFunctions.users?.length,
     error: matchUserFunctions.error,
-    //*** Add: เพิ่มการแสดงข้อมูล pagination ใน log
     currentPage: matchUserFunctions.currentPage,
     totalPages: matchUserFunctions.totalPages,
     totalCount: matchUserFunctions.totalCount,
     swipeCount: matchUserFunctions.swipeCount,
+    //#### Add: เพิ่มการแสดงข้อมูล filters ใน log
+    filters: matchUserFunctions.filters,
   });
 
   return <MatchContext.Provider value={matchUserFunctions}>{children}</MatchContext.Provider>;

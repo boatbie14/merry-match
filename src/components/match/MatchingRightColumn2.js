@@ -2,57 +2,25 @@ import React, { useState, useContext, useEffect } from "react";
 import CheckboxInput, { CheckIcon, StyledFormGroup } from "../form/CheckboxInput";
 import { FormControlLabel, Box } from "@mui/material";
 import AgeRangeInput from "../form/SelectAgeRange";
-//#### Edit: เปลี่ยนการ import จาก context/MatchContext เป็นการใช้ hook เอง
-import { useMatch } from "@/context/MatchContext";
+import { MatchContext } from "@/context/MatchContext";
 
 export default function MatchingRightColumn() {
-  //#### Edit: ใช้ hook useMatch เพื่อเข้าถึงฟังก์ชันและข้อมูลจาก context
-  const { setUserFilters, resetUsers, filters } = useMatch();
+  // สมมติว่าเรามี Context สำหรับเก็บสถานะ Match
+  const { setUserFilters, resetUsers } = useContext(MatchContext);
 
   // Gender interests state
-  //#### Edit: เริ่มต้นด้วยค่าจาก filters หรือค่าเริ่มต้น
   const [genderInterests, setGenderInterests] = useState({
-    men: filters?.sexual_preference === "men" || false,
-    women: filters?.sexual_preference === "women" || false,
-    nonBinary: filters?.sexual_preference === "non-binary" || false,
-    everyone: filters?.sexual_preference === "everyone" || !filters?.sexual_preference || false,
+    men: false,
+    women: false,
+    nonBinary: false,
+    everyone: true, // กำหนดค่าเริ่มต้นเป็น everyone
   });
 
   // Age range state
-  //#### Edit: เริ่มต้นด้วยค่าจาก filters หรือค่าเริ่มต้น
-  const [ageRange, setAgeRange] = useState(() => {
-    if (filters?.age_range) {
-      const [min, max] = filters.age_range.split("-").map(Number);
-      return [min || 18, max || 80];
-    }
-    return [18, 80];
-  });
+  const [ageRange, setAgeRange] = useState([18, 80]);
 
   // เก็บค่า preference ที่จะส่งไปยัง API
-  const [preference, setPreference] = useState(filters?.sexual_preference || "everyone");
-
-  //#### Add: useEffect เพื่ออัพเดท component state เมื่อ filters เปลี่ยน
-  useEffect(() => {
-    if (filters) {
-      // อัพเดท ageRange
-      if (filters.age_range) {
-        const [min, max] = filters.age_range.split("-").map(Number);
-        setAgeRange([min || 18, max || 80]);
-      }
-
-      // อัพเดท genderInterests
-      if (filters.sexual_preference) {
-        setGenderInterests({
-          men: filters.sexual_preference === "men",
-          women: filters.sexual_preference === "women",
-          nonBinary: filters.sexual_preference === "non-binary",
-          everyone: filters.sexual_preference === "everyone" || !filters.sexual_preference,
-        });
-
-        setPreference(filters.sexual_preference);
-      }
-    }
-  }, [filters]);
+  const [preference, setPreference] = useState("everyone");
 
   // Effect สำหรับจัดการกับการเลือก gender interests
   useEffect(() => {
@@ -118,7 +86,7 @@ export default function MatchingRightColumn() {
     setAgeRange(newValue);
   };
 
-  //#### Edit: ปรับฟังก์ชันล้างตัวกรองให้ใช้ resetUsers จาก context
+  // ฟังก์ชันสำหรับล้างตัวกรอง
   const handleClear = () => {
     setGenderInterests({
       men: false,
@@ -128,16 +96,16 @@ export default function MatchingRightColumn() {
     });
     setAgeRange([18, 80]);
 
-    // เรียกใช้ resetUsers จาก context
+    // รีเซ็ตข้อมูลใน Context และโหลดข้อมูลใหม่
     resetUsers();
   };
 
-  //#### Edit: ปรับฟังก์ชันค้นหาให้ใช้ setUserFilters จาก context
+  // ฟังก์ชันสำหรับค้นหาด้วยตัวกรองที่กำหนด
   const handleSearch = () => {
     // สร้าง age_range แบบ string (เช่น "18-80")
     const ageRangeString = `${ageRange[0]}-${ageRange[1]}`;
 
-    // ส่งค่าตัวกรองไปยัง context
+    // ส่งค่าตัวกรองไปยัง Context
     setUserFilters({
       sexual_preference: preference,
       age_range: ageRangeString,
