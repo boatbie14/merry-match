@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import NavbarNonUser from "../../../components/NavbarNonUser";
 import Footer from "../../../components/Footer";
@@ -37,7 +35,7 @@ const HomeNonLogin = () => {
                 <div>
                   <div className="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
                     <img
-                      src="/image-1.png"
+                      src="/images/image-1.png"
                       alt="Profile1"
                       className="w-full h-full object-cover rounded-[999px]"
                     />
@@ -50,7 +48,7 @@ const HomeNonLogin = () => {
                 <div>
                   <div className=" Second-Profile absolute right-[-210px] bottom-[10px]  md:right-[510px] md:bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
                     <img
-                      src="/image-2.png"
+                      src="/images/image-2.png"
                       alt="Profile2"
                       className="w-full h-full object-cover rounded-[999px] grayscale "
                     />
@@ -79,7 +77,7 @@ const HomeNonLogin = () => {
                   <div className="relative">
                     <div className="absolute top-[30px] left-[-15px] ">
                       <img
-                        src="/smile-emoji.png"
+                        src="/images/smile-emoji.png"
                         alt="smile-emoji"
                         className="w-7 h-7 object-cover rounded-full "
                       />
@@ -202,7 +200,7 @@ const HomeNonLogin = () => {
                       <div className="relative" >
                         <div className="absolute w-2.5 h-2.5 bg-[#612F16] rounded-full left-[90px] bottom-[110px] "></div>
                         <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
-                        <img src='/boy.png' alt="boy" className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "/>
+                        <img src='/images/boy.png' alt="boy" className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "/>
                         </div>
                       </div>
                     </div>
@@ -249,7 +247,7 @@ const HomeNonLogin = () => {
                         </svg>
                         <div className="absolute top-[0] right-[130px] w-[96px] h-[96px] bg-amber-950  rounded-full ">
                           <img
-                            src="/girl.jpg"
+                            src="/images/girl.jpg"
                             alt="girl"
                             className="  w-[96px] h-[96px] rounded-full object-cover object-top grayscale"
                           />
@@ -273,7 +271,7 @@ const HomeNonLogin = () => {
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
                   <img
-                    src="/image-556.png"
+                    src="/images/image-556.png"
                     alt="Upload-emoji"
                     className="w-[50px] h-[50px] object-cover rounded-full "
                   />
@@ -286,7 +284,7 @@ const HomeNonLogin = () => {
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
                   <img
-                    src="/image-556-1.png"
+                    src="/images/image-556-1.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
                   />
@@ -299,7 +297,7 @@ const HomeNonLogin = () => {
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
                   <img
-                    src="/image-556-2.png"
+                    src="/images/image-556-2.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
                   />
@@ -312,7 +310,7 @@ const HomeNonLogin = () => {
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
                   <img
-                    src="/image-556-3.png"
+                    src="/images/image-556-3.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
                   />
