@@ -1,0 +1,59 @@
+import React from "react";
+import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
+import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
+
+export default function MatchingLeftColumn() {
+  return (
+    <>
+      <div className="px-6 pt-6">
+        <div className="flex flex-col items-center gap-1 p-6 bg-[#F6F7FC] border-1 border-[#A62D82] rounded-2xl">
+          <DiscoverMatchIcon size={64} primaryColor="#FF1659" secondaryColor="#95002B" />
+          <h1 className=" text-2xl text-[#95002B] font-bold ">Discover New Match</h1>
+          <p className="text-xm text-center">Start find and Merry to get know and connect with new friend!</p>
+        </div>
+      </div>
+
+      <hr className="text-[#E4E6ED] my-11" />
+
+      <div className="px-6">
+        <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Merry Match!</h2>
+
+        <div className="match-users-container w-full h-32 flex flex-row gap-3 overflow-x-auto whitespace-nowrap">
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+
+          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
+            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+          </div>
+        </div>
+      </div>
+
+      <div className="p-6">
+        <h2 className="text-2xl text-[#2A2E3F] font-bold">Chat with Merry Match</h2>
+      </div>
+    </>
+  );
+}
