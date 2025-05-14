@@ -1,13 +1,14 @@
 import React from "react";
-import NavbarUser from "../../../components/NavbarUser"; 
+import NavbarUser from "../../../components/NavbarUser";
 import Footer from "../../../components/Footer";
+import Link from "next/link";
 
 const HomeLogin = () => {
   return (
     <div className=" flex  justify-center items-center bg-[#160404] ">
       <div className="m-auto w-full max-w-[1440px] ">
         {/* <NavbarNonUser /> */}
-        <NavbarUser/>
+        <NavbarUser />
         <section className=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
           <div className="container mx-auto px-6 relative">
             {/* Decorative Elements */}
@@ -26,9 +27,12 @@ const HomeLogin = () => {
                   area! <br />
                   Don't forget to get Merry with us
                 </p>
-                <button className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
+                <Link
+                  href="/matching"
+                  className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors"
+                >
                   Start matching!
-                </button>
+                </Link>
               </div>
 
               {/* Profile Images with Chat Bubbles */}
@@ -198,14 +202,17 @@ const HomeLogin = () => {
                         </svg>
                       </div>
                       <span className="text-xl font-bold">Secure</span>
-                      <div className="relative" >
+                      <div className="relative">
                         <div className="absolute w-2.5 h-2.5 bg-[#612F16] rounded-full left-[90px] bottom-[110px] "></div>
                         <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
-                        <img src='/images/boy.png' alt="boy" className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "/>
+                          <img
+                            src="/images/boy.png"
+                            alt="boy"
+                            className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "
+                          />
                         </div>
                       </div>
                     </div>
-                    
                   </div>
                   <div className="absolute top-[178px] left-[171px] w-[328px] h-[146px] bg-[#EFC4E2] drop-shadow-2xl rounded-[29px] p-6 flex items-end">
                     <div className="flex flex-row gap-2 text-end   text-[#C70039]">
@@ -230,7 +237,7 @@ const HomeLogin = () => {
                       </div>
                       <span className="text-xl font-bold">Easy</span>
                       <div className="relative">
-                        <div className="absolute w-1.5 h-1.5 rounded-full bg-[#CF4FA9] right-[260px] top-[50px]" ></div>
+                        <div className="absolute w-1.5 h-1.5 rounded-full bg-[#CF4FA9] right-[260px] top-[50px]"></div>
                         <svg
                           className="absolute top-[-71px] left-[103px] "
                           width="122"
@@ -280,7 +287,9 @@ const HomeLogin = () => {
                 <h3 className="text-2xl font-bold text-white mb-3">
                   Upload your cool picture
                 </h3>
-                <p className="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
+                <p className="text-[#C8CCDB]">
+                  Lorem ipsum is a placeholder text
+                </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
@@ -293,7 +302,9 @@ const HomeLogin = () => {
                 <h3 className="text-2xl font-bold text-white mb-3">
                   Explore and find the one you like
                 </h3>
-                <p className="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
+                <p className="text-[#C8CCDB]">
+                  Lorem ipsum is a placeholder text
+                </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
@@ -306,7 +317,9 @@ const HomeLogin = () => {
                 <h3 className="text-2xl font-bold text-white mb-3">
                   Click 'Merry' for get to know!
                 </h3>
-                <p className="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
+                <p className="text-[#C8CCDB]">
+                  Lorem ipsum is a placeholder text
+                </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
@@ -319,7 +332,9 @@ const HomeLogin = () => {
                 <h3 className="text-2xl font-bold text-white mb-3">
                   Start chating and relationship
                 </h3>
-                <p className="text-[#C8CCDB]">Lorem ipsum is a placeholder text</p>
+                <p className="text-[#C8CCDB]">
+                  Lorem ipsum is a placeholder text
+                </p>
               </div>
             </div>
           </div>
@@ -346,10 +361,8 @@ const HomeLogin = () => {
         {/* <Footer /> */}
         <Footer />
       </div>
-      
     </div>
   );
 };
 
 export default HomeLogin;
-

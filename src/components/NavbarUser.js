@@ -6,6 +6,7 @@ import { FaHeart } from "react-icons/fa";
 import { BsFillBoxFill } from "react-icons/bs";
 import { GoAlertFill } from "react-icons/go";
 import { IoLogOutOutline } from "react-icons/io5";
+import Link from "next/link";
 
 export const DesktopAlertMenuItems = () => {
   return (
@@ -295,12 +296,12 @@ const NavbarUser = () => {
           </div>
           <div className="flex items-center space-x-10 ">
             {/* desktop menu list */}
-            <a
-              href="#Why-Merry-Match"
+            <Link
+              href="/matching"
               className="hidden md:flex  text-[#7D2262] font-bold "
             >
               Start Matching!
-            </a>
+            </Link>
             <a href="#" className="hidden md:flex text-[#7D2262] font-bold">
               Merry Membership
             </a>

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { IoIosMenu } from "react-icons/io";
-
+import Link from "next/link";
 
 const NavbarNonUser = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,15 +22,21 @@ const NavbarNonUser = () => {
           </div>
           <div className="flex items-center space-x-10 ">
             {/* desktop menu list */}
-            <a href="#Why-Merry-Match" className="hidden md:flex  text-[#7D2262] font-bold ">
+            <a
+              href="#WhyMerryMatch"
+              className="hidden md:flex  text-[#7D2262] font-bold "
+            >
               Why Merry Match?
             </a>
-            <a href="#" className="hidden md:flex text-[#7D2262] font-bold">
+            <a href="#HowtoMerry" className="hidden md:flex text-[#7D2262] font-bold">
               How to Merry
             </a>
-            <button className="hidden md:flex  bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
+            <Link
+              href="/login"
+              className="hidden md:flex  bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors"
+            >
               Login
-            </button>
+            </Link>
             {/* mobile menu list */}
             <button className="md:hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr- ml-40 ">
               <svg
@@ -49,9 +55,12 @@ const NavbarNonUser = () => {
               </svg>
             </button>
             {/* hamburger bar */}
-            <button onClick={toggleMenu} className="bg-white rounded mr-3 md:hidden  ">
+            <button
+              onClick={toggleMenu}
+              className="bg-white rounded mr-3 md:hidden  "
+            >
               {isOpen ? (
-                <IoIosMenu className="w-14 h-14 text-red-600 "  />
+                <IoIosMenu className="w-14 h-14 text-red-600 " />
               ) : (
                 <IoIosMenu className="w-14 h-14 text-gray-600" />
               )}
@@ -79,9 +88,12 @@ const NavbarNonUser = () => {
                   >
                     How to Merry
                   </a>
-                  <button className=" md:hidden text-4xl bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
+                  <Link
+                    href="/login"
+                    className=" md:hidden text-4xl bg-[#C70039] text-center text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors"
+                  >
                     Login
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Divider */}

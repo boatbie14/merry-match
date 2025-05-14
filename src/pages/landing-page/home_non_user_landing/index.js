@@ -1,6 +1,8 @@
 import React from "react";
 import NavbarNonUser from "../../../components/NavbarNonUser";
 import Footer from "../../../components/Footer";
+import Link from 'next/link';
+
 
 const HomeNonLogin = () => {
   return (
@@ -25,9 +27,10 @@ const HomeNonLogin = () => {
                   area! <br />
                   Don't forget to get Merry with us
                 </p>
-                <button className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
+                <Link
+                    href="/login" className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors">
                   Start matching!
-                </button>
+                </Link>
               </div>
 
               {/* Profile Images with Chat Bubbles */}
@@ -90,7 +93,7 @@ const HomeNonLogin = () => {
         </section>
 
         {/* Why Merry Match Section */}
-        <section className="  m-auto py-20 bg-[#160404]  ">
+        <section id="WhyMerryMatch" className="  m-auto py-20 bg-[#160404]  ">
           <div className="container flex  md:flex-row m-auto mx-auto px-6">
             <div className="flex flex-col xl:flex-row  lg:flex-col items-center justify-center w-full">
               <div className="max-w-xl">
@@ -262,7 +265,7 @@ const HomeNonLogin = () => {
         </section>
 
         {/* How to Merry Section */}
-        <section className=" m-auto py-20 bg-[#160404]">
+        <section id="HowtoMerry" className=" m-auto py-20 bg-[#160404]">
           <div className="container mx-auto px-6">
             <h2 className="text-5xl font-extrabold text-[#DF89C6] text-center mb-12">
               How to Merry
