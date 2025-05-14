@@ -16,10 +16,10 @@ const NavbarNonUser = () => {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* main logo */}
-          <div className="main-logo w-auto h-auto flex flex-row space-x-2 ">
+          <Link href="/#" className="main-logo w-auto h-auto flex flex-row space-x-2 ">
             <h1 className="flex text-4xl ">Merry</h1>{" "}
             <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
-          </div>
+          </Link>
           <div className="flex items-center space-x-10 ">
             {/* desktop menu list */}
             <a
