@@ -11,17 +11,17 @@ export default async function handler(req, res) {
   try {
     const {
       page = 1,
-      limit = 5, // เปลี่ยนเป็น 5 ตามที่ต้องการ
-      currentUserId = "bfd42907-62fa-44c9-bf18-38ac7478ac35", // Default เป็น ID ของ techguy
-      sexual_preference, // รับค่า sexual_preference จาก client
-      age_range, // รับค่าช่วงอายุจาก client เช่น "18-80"
+      limit = 5, 
+      currentUserId = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a", 
+      sexual_preference, 
+      age_range, 
     } = req.query;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
 
-    // 1. ดึงข้อมูลของ current user เพื่อใช้ในการกรอง
+    // Get current user
     const { data: currentUser, error: currentUserError } = await supabase
       .from("users")
       .select("sexual_identity, sexual_preference")
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Error fetching current user preferences" });
     }
 
-    // ใช้ค่า sexual_preference จาก client ถ้ามี หรือใช้ค่าของ current user เป็น fallback
+    // get sexual_preference from current user
     let filterSexualPreference = sexual_preference || currentUser.sexual_preference;
 
     // 2. สร้างเงื่อนไขการกรองตาม sexual preference

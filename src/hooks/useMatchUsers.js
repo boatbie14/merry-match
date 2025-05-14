@@ -3,68 +3,61 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export function useMatchUsers() {
-  // สถานะพื้นฐาน
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // สถานะสำหรับการ swipe
+  // swipe
   const [displayedUsers, setDisplayedUsers] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lastDirection, setLastDirection] = useState(null);
   const [imageIndexes, setImageIndexes] = useState({});
 
-  // เพิ่มการนับ swipe
+  // count swipe
   const [swipeCount, setSwipeCount] = useState(0);
   const [leftSwipes, setLeftSwipes] = useState(0);
   const [rightSwipes, setRightSwipes] = useState(0);
 
-  // เพิ่ม state สำหรับ pagination
+  // add state for pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit] = useState(5); // ค่าคงที่สำหรับจำนวนรายการต่อหน้า
+  const [limit] = useState(5); // Limit per page
 
-  //#### Add: เพิ่ม state สำหรับเก็บตัวกรอง
+  //Filter state
   const [filters, setFilters] = useState({
     sexual_preference: null,
     age_range: "18-80",
   });
 
-  //#### Add: เพิ่ม state สำหรับเก็บข้อมูลผู้ใช้ปัจจุบัน
+  //Current user state
   const [currentUser, setCurrentUser] = useState(null);
 
-  //#### Delete: ลบ useEffect ที่เรียก fetchCurrentUser
-
-  // โหลดข้อมูลเริ่มต้นเมื่อ component mount
+  // Start load component mount
   useEffect(() => {
-    // เรียกฟังก์ชันเพื่อโหลดข้อมูลหน้าแรก
+    // call first page
     fetchUsers(1);
-    console.log("useEffect in useMatchUsers hook executed");
-  }, []); // ทำงานเพียงครั้งเดียวเมื่อ mount
+    //console.log("useEffect in useMatchUsers hook executed");
+  }, []);
 
-  //#### Add: สร้าง useEffect ใหม่เพื่อติดตามการเปลี่ยนแปลงของตัวกรอง
+  //useEffect check filter change
   useEffect(() => {
-    // เมื่อ filters เปลี่ยน ให้โหลดข้อมูลใหม่จากหน้าแรก
     fetchUsers(1);
-    console.log("Filters changed:", filters);
+    //console.log("Filters changed:", filters);
   }, [filters]);
 
-  //#### Edit: ปรับปรุงฟังก์ชัน fetchUsers เพื่อรองรับการกรองและดึงข้อมูลผู้ใช้ปัจจุบัน
+  // Fetch Users
   const fetchUsers = async (page = 1) => {
     try {
       setLoading(true);
-      const currentUserId = "bfd42907-62fa-44c9-bf18-38ac7478ac35";
+      const currentUserId = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a";
 
-      //#### Edit: เพิ่ม parameters สำหรับการกรอง
       let url = `/api/users?page=${page}&limit=${limit}&currentUserId=${currentUserId}`;
 
-      // เพิ่ม parameter sexual_preference ถ้ามีการกำหนดค่า
       if (filters.sexual_preference) {
         url += `&sexual_preference=${filters.sexual_preference}`;
       }
 
-      // เพิ่ม parameter age_range ถ้ามีการกำหนดค่า
       if (filters.age_range) {
         url += `&age_range=${filters.age_range}`;
       }
@@ -73,17 +66,14 @@ export function useMatchUsers() {
       const response = await axios.get(url);
       console.log("API Response:", response.data);
 
-      // บันทึกข้อมูลเข้า state
       if (response.data && response.data.users) {
-        // ถ้าเป็นหน้าแรก ให้เริ่มต้นใหม่ ถ้าไม่ใช่ให้เพิ่มต่อจากข้อมูลเดิม
         if (page === 1) {
           setUsers(response.data.users);
-          //#### Add: รีเซ็ต swipe counters เมื่อโหลดหน้าแรกใหม่
+          // Reset swipe counters after load first page
           setSwipeCount(0);
           setLeftSwipes(0);
           setRightSwipes(0);
 
-          //#### Add: ถ้าเป็นการโหลดครั้งแรกและ API มีข้อมูล userSexualPreference
           if (response.data.meta?.userSexualPreference && !filters.sexual_preference) {
             setFilters((prev) => ({
               ...prev,
@@ -94,19 +84,16 @@ export function useMatchUsers() {
           setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
         }
 
-        // บันทึกข้อมูล metadata
         if (response.data.meta) {
           setTotalCount(response.data.meta.totalCount);
           setTotalPages(response.data.meta.totalPages);
           setCurrentPage(response.data.meta.page);
 
-          // ถ้ามีข้อมูล currentUser ใน meta
           if (response.data.meta.currentUser && !currentUser) {
             setCurrentUser(response.data.meta.currentUser);
           }
         }
 
-        // ถ้าเป็นหน้าแรกและมีข้อมูล ให้แสดงผู้ใช้คนแรก
         if (page === 1 && response.data.users.length > 0) {
           const firstUser = response.data.users[0];
           if (firstUser) {
@@ -141,7 +128,6 @@ export function useMatchUsers() {
     }
   };
 
-  // ฟังก์ชันคำนวณอายุจากวันเกิด
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return null;
 
@@ -157,7 +143,6 @@ export function useMatchUsers() {
     return age;
   };
 
-  // ฟังก์ชันโหลดผู้ใช้คนถัดไป
   const loadNextUser = () => {
     if (!users || users.length === 0) {
       console.log("No users available");
@@ -166,21 +151,19 @@ export function useMatchUsers() {
 
     const nextIndex = currentIndex + 1;
 
-    // ถ้า index เกินจำนวนผู้ใช้ที่มีอยู่
     if (nextIndex >= users.length) {
       console.log("Need to load more users");
 
-      // ตรวจสอบว่าควรโหลดหน้าถัดไปหรือไม่
+      // Check whether the next page should be loaded.
       if (currentPage < totalPages) {
-        // ยังมีหน้าถัดไปให้โหลด
         console.log(`Loading next page: ${currentPage + 1}`);
         fetchUsers(currentPage + 1);
         return;
       } else {
-        // ถ้าถึงหน้าสุดท้ายแล้ว และ swipeCount เท่ากับ totalCount
+        //if last page and swipeCount = totalCount
         if (swipeCount >= totalCount - 1) {
           console.log("Reached the end, restarting from page 1");
-          // รีเซ็ตการนับ swipe และกลับไปโหลดหน้าแรกใหม่
+          // reset swipe and load first page
           setSwipeCount(0);
           setLeftSwipes(0);
           setRightSwipes(0);
@@ -188,17 +171,15 @@ export function useMatchUsers() {
           return;
         }
 
-        // ถ้ายังไม่ครบ totalCount แต่หมดหน้าแล้ว (กรณีพิเศษ)
+        // If the totalCount hasn't been reached yet but there are no more pages (special case).
         console.log("No more users to display");
         return;
       }
     }
 
-    // มีผู้ใช้พร้อมแสดง
     const user = users[nextIndex];
     console.log("Loading next user:", user);
 
-    // คำนวณอายุและสร้างข้อมูลสำหรับแสดงผล
     const age = calculateAge(user.date_of_birth);
     const newPerson = {
       name: user.name,
@@ -215,21 +196,17 @@ export function useMatchUsers() {
     setCurrentIndex(nextIndex);
   };
 
-  // ฟังก์ชันจัดการเมื่อการ์ดหายไปจากหน้าจอ
   const handleOutOfFrame = () => {
     console.log("Card out of frame");
-    // เราไม่ต้องทำอะไรเพิ่มเติม เพราะเราจัดการใน handleSwipe แล้ว
   };
 
-  // ฟังก์ชันจัดการการคลิกปุ่มเปลี่ยนรูปภาพ
+  // Change Click Arrow icon to change images
   const handleButtonClick = (e, userName, direction) => {
     e.stopPropagation();
 
-    // เรียกฟังก์ชันเปลี่ยนรูปภาพ
     handleImageChange(userName, direction);
   };
 
-  // ฟังก์ชันเปลี่ยนรูปภาพ
   const handleImageChange = (userName, direction) => {
     const user = users.find((u) => u.name === userName);
     if (!user) return;
@@ -240,7 +217,6 @@ export function useMatchUsers() {
       newImageIndexes[userName] = 1;
     }
 
-    // สร้างอาร์เรย์ของ URL รูปภาพที่มี
     const imageUrls = [user.profile_image_url, user.image2_url, user.image3_url, user.image4_url, user.image5_url].filter(
       (url) => url !== null && url !== undefined
     );
@@ -254,63 +230,62 @@ export function useMatchUsers() {
     setImageIndexes(newImageIndexes);
   };
 
-  // ฟังก์ชันจัดการการคลิกปุ่ม Merry
   const handleHeartButton = (e, user) => {
     e.stopPropagation();
     console.log("Heart button clicked for", user.name);
 
-    // ทำเหมือนกับการ swipe ขวา
+    // Click heart then do swipe right
     handleSwipe("right", user);
   };
 
-  // ฟังก์ชันจัดการการ swipe
+  // Swipe
   const handleSwipe = (direction, user) => {
     setLastDirection(direction);
-    console.log(`User swiped ${direction} for ${user.name}`);
+    //console.log(`User swiped ${direction} for ${user.name}`);
 
-    // เพิ่มการนับ swipe
+    // count swipe
     setSwipeCount((prev) => prev + 1);
 
-    // นับแยกตามทิศทาง
+    // count swipe by directions
     if (direction === "left") {
       setLeftSwipes((prev) => prev + 1);
     } else if (direction === "right") {
       setRightSwipes((prev) => prev + 1);
     }
 
-    // ลบการ์ดผู้ใช้ที่ถูก swipe
+    // delete card after swipe
     setDisplayedUsers((prevUsers) => {
       const remaining = prevUsers.filter((item) => item.name !== user.name);
-      console.log("Remaining users after swipe:", remaining);
+      //console.log("Remaining users after swipe:", remaining);
       return remaining;
     });
 
-    // ถ้า swipe ขวา (Like) ให้บันทึกการ Merry
+    // swipe right do Merry
     if (direction === "right") {
-      // ส่วนนี้จะเพิ่มการเรียก API ต่อไป
       console.log("Would record Merry for:", user.name);
+      // ******* Call merry API Here ******
     }
 
-    // ถ้าไม่มีการ์ดแสดงเหลือแล้ว ให้โหลดผู้ใช้คนถัดไป
+    // If there are no cards left to display, load the next user.
     setTimeout(() => {
       if (displayedUsers.length <= 1) {
         loadNextUser();
       }
 
-      // ตรวจสอบว่าควรโหลดข้อมูลเพิ่มหรือไม่
-      // เราควรโหลดล่วงหน้าเมื่อเหลือผู้ใช้น้อยลง (preload)
+      // Check whether more data should be loaded
+      // We should preload when the number of users left is getting low
       if (users.length - currentIndex <= 2) {
-        // ถ้าใกล้จะหมดข้อมูลและยังมีหน้าถัดไป
+        // If the data is about to run out and there is still a next page
         if (currentPage < totalPages) {
           console.log(`Preloading next page: ${currentPage + 1}`);
           fetchUsers(currentPage + 1);
         }
       }
 
-      // ตรวจสอบว่าควรรีเซ็ตไปหน้าแรกหรือไม่
+      // check to reload to homepage
       if (swipeCount >= totalCount && currentPage >= totalPages) {
         console.log("Reached the end of all users, restarting");
-        // รีเซ็ตการนับ swipe และโหลดหน้าแรกใหม่
+
         setTimeout(() => {
           setSwipeCount(0);
           setLeftSwipes(0);
@@ -321,21 +296,18 @@ export function useMatchUsers() {
     }, 300);
   };
 
-  //#### Add: เพิ่มฟังก์ชันตั้งค่าตัวกรอง
   const setUserFilters = (newFilters) => {
-    console.log("Setting new filters:", newFilters);
+    //console.log("Setting new filters:", newFilters);
     setFilters(newFilters);
   };
 
-  //#### Edit: ปรับฟังก์ชันรีเซ็ตผู้ใช้และตัวกรอง
   const resetUsers = () => {
-    console.log("Resetting users and filters");
-    // ใช้ค่า sexual_preference จากข้อมูลที่ได้จาก API ในครั้งแรก (ถ้ามี)
+    //console.log("Resetting users and filters");
+
     setFilters((prev) => ({
       sexual_preference: prev.userSexualPreference || null,
       age_range: "18-80",
     }));
-    // fetchUsers(1) จะถูกเรียกโดยอัตโนมัติผ่าน useEffect ที่ติดตาม filters
   };
 
   console.log("Current state:", {
@@ -348,12 +320,10 @@ export function useMatchUsers() {
     currentPage,
     totalPages,
     totalCount,
-    //#### Add: แสดงค่าตัวกรองในการ log
     filters,
     currentUser: currentUser?.username,
   });
 
-  // ส่งค่าต่างๆ ออกไป
   return {
     users,
     displayedUsers,
@@ -368,14 +338,12 @@ export function useMatchUsers() {
     currentPage,
     totalPages,
     totalCount,
-    //#### Add: เพิ่มค่าตัวกรองและข้อมูลผู้ใช้ปัจจุบันในการส่งกลับ
     filters,
     currentUser,
     handleSwipe,
     handleOutOfFrame,
     handleButtonClick,
     handleHeartButton,
-    //#### Add: เพิ่มฟังก์ชันจัดการตัวกรองในการส่งกลับ
     setUserFilters,
     resetUsers,
   };

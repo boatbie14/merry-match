@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 // ID ของ Free Package
-const FREE_PACKAGE_ID = "fdb233a6-3bd7-4943-926e-2f884e1b9897";
+const FREE_PACKAGE_ID = "6c3e5251-6ba4-4c79-a305-22cfaaecb47c";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   try {
     // ในอนาคตจะได้จากระบบ login แต่ตอนนี้ mockup ไว้ก่อน
-    const user_id = "bfd42907-62fa-44c9-bf18-38ac7478ac35";
+    const user_id = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a";
 
     // รับวันที่จาก client หรือใช้วันที่ปัจจุบัน
     let clientDate;
