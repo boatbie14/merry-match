@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import "@/styles/base.css";
 import { Nunito } from "next/font/google";
-
+import { AuthProvider } from "@/context/AuthContext";
 const nunito = Nunito({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
@@ -10,8 +10,10 @@ const nunito = Nunito({
 
 export default function App({ Component, pageProps }) {
   return (
+    <AuthProvider>
     <div className={nunito.className}>
       <Component {...pageProps} />
     </div>
+    </AuthProvider>
   );
 }
