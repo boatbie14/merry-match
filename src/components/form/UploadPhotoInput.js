@@ -71,7 +71,7 @@ function SortableImageItem({ id, src, onRemove, onUpload, index }) {
   };
 
   return (
-    <Grid item xs={6} sm={4} md={3}>
+    <Grid sx={{ width: { xs: '50%', sm: '33.33%', md: '25%' } }}>
       {src ? (
         <ImageBox ref={setNodeRef} style={style} {...attributes} {...listeners}>
           <ImageWrapper>

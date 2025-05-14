@@ -1,15 +1,15 @@
-// components/form/TextInput.js
+// components/form/Textarea.js
 import { TextField, Box } from "@mui/material";
 
-export default function TextInput({
+export default function TextArea({
   label = "",
   name,
   value,
   onChange,
   placeholder = "",
   required = false,
-  type = "text",
-   disabled = false
+  rows = 4,
+  disabled = false,
 }) {
   return (
     <Box>
@@ -18,7 +18,8 @@ export default function TextInput({
       )}
       <TextField
         name={name}
-        type={type}
+        multiline // ทำให้เป็น Textarea
+        rows={rows}
         placeholder={placeholder}
         variant="outlined"
         fullWidth
@@ -32,7 +33,7 @@ export default function TextInput({
           fontSize: "16px",
           "& .MuiOutlinedInput-root": {
             borderRadius: "8px",
-            height: "48px",
+            padding: "16px",
             "&.Mui-disabled": {
               backgroundColor: "#F1F2F6",
             },
@@ -50,8 +51,7 @@ export default function TextInput({
               borderWidth: "1px",
             },
           },
-          "& input": {
-            padding: "12px 14px 16px 14px",
+          "& textarea": {
             "::placeholder": {
               color: "#A0A3BD",
               opacity: 1,
