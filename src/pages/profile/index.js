@@ -7,12 +7,15 @@ import TextArea from "@/components/form/TextArea";
 import { Controller,useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import UploadPhotoInput from "@/components/form/UploadPhotoInput";
+import { Api } from "@mui/icons-material";
+import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
 
 const TwoButton =()=>{
   return(
     <>
     <div className="flex flex-row justify-around gap-2 w-full">
-      <button className="secondary-btn">Preview Profile</button>
+      {/* TODO 😖🕐show user profile (componentตัวเอง) */}
+      <button type="button" className="secondary-btn" onClick={()=>console.log("b")}>Preview Profile</button>
       <button type="submit" className="primary-btn text-xs">Update Profile</button>
     </div>
     </>
@@ -25,6 +28,7 @@ export default function ProfilePage() {
 const { register, handleSubmit, control, watch, setError, formState: { errors }, reset } = useForm({
     shouldUnregister: false,
     defaultValues: {
+      id:'',
       name: '',
       username: '',
       email: '',
@@ -40,6 +44,7 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
       images: Array.from({ length: 5 }, (_, i) => ({
         id: `img${i + 1}`,
         src: "",
+        file: null,
       })),
     },
   });
@@ -62,6 +67,7 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
   useEffect(() => {
     if (data) {
       reset({
+        id:data.id || '',
         name: data.name || '',
         username: data.username || '',
         email: data.email || '',
@@ -74,37 +80,56 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
         meeting_interest: data.meeting_interest || '',
         hobbies: data.hobbies || [], 
         bio:data.bio || [],
-        images: data.images || Array.from({ length: 5 }, (_, i) => ({
-          id: `img${i + 1}`,
-          src: "",
-        })),
+        images: [{ id: "img1", src: data.profile_image_url || "", file: null },
+                 { id: "img2", src: data.image2_url || "", file: null },
+                 { id: "img3", src: data.image3_url || "", file: null },
+                 { id: "img4", src: data.image4_url || "", file: null },
+                 { id: "img5", src: data.image5_url || "", file: null },],
       });
     }
-  }, [data, reset]);
-
+  }, [data]);
   const images = watch("images");
 
-  const handleUpload =(e)=>{
+  const handleUpload =async(e)=>{
     e.preventDefault()
     console.log("a")
-  }
+    //   const updatedImages = data.images.map((imageItem) => {
+  //     return imageItem.file ? imageItem : { ...imageItem, file: null }; // ถ้าไม่มีการอัปโหลดไฟล์ใหม่ ให้ใช้ค่าเดิม
+  //   });
+
+  // const urls = await uploadImagesToSupabase(updatedImages, data.userId);
+
+  // TODO 👩‍💻🕐 create Api patch 
+  // const updatedData = {
+  //   ...data,
+  //   profile_image_url: urls.profile_image_url,
+  //   image2_url: urls.image2_url,
+  //   image3_url: urls.image3_url,
+  //   image4_url: urls.image4_url,
+  //   image5_url: urls.image5_url,
+  // };
+  // await updateUserProfile(updatedData);
+};
+
+
   return (
     <>
-    <div className="row">
+    <div className="row"> 
       <div className="container flex flex-col items-start md:items-center mt-[80px] ">
         <div className="max-w-[968px] w-full">
-        <div className="md:flex w-full my-10 md:justify-between items-end md:my-20">
-          <div className="flex flex-col gap-2 font-bold md:w-full lg:max-w-[520px] md:max-w-[420px] md:break-words ">
-            <h4 className="text-[#7B4429] font-bold">PROFILE</h4>
-            <h1 className="text-[#A62D82] text-[32px] lg:text-5xl md:text-4xl font-extrabold leading-[1.25]">
-              Let’s make profile <br className="hidden md:inline" />to let others know you</h1>
+          <form onSubmit={(e)=>handleUpload(e)}>
+          <div className="md:flex w-full my-10 md:justify-between items-end md:my-20">
+            <div className="flex flex-col gap-2 font-bold md:w-full lg:max-w-[520px] md:max-w-[420px] md:break-words ">
+              <h4 className="text-[#7B4429] font-bold">PROFILE</h4>
+              <h1 className="text-[#A62D82] text-[32px] lg:text-5xl md:text-4xl font-extrabold leading-[1.25]">
+                Let’s make profile <br className="hidden md:inline" />to let others know you</h1>
+            </div>
+            <div className="hidden h-1/3 md:flex justify-end max-w-[100%] md:h-ull">
+              <TwoButton/>
+            </div>
           </div>
-          <div className="hidden h-1/3 md:flex justify-end max-w-[100%] md:h-ull">
-            <TwoButton/>
-          </div>
-        </div>
-
-        <form className="w-full md:flex md:flex-col md:gap-20" onSubmit={(e)=>handleUpload(e)}>
+      
+        <div className="w-full md:flex md:flex-col md:gap-20" >
           <div className=" w-full">
             <h1 className="text-[#2A2E3F] text-2xl font-extrabold ">Basic Information</h1>
             <div className="flex flex-col gap-6 mt-6 md:grid md:grid-cols-2 md:gap-10 ">
@@ -182,9 +207,9 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
           <div className="w-full mt-10">
             <h1 className="text-[#2A2E3F] text-2xl font-extrabold">Identities and Interests</h1>
             
-            <div className="flex flex-col gap-6 mt-6">
+            <div className="flex flex-col gap-6 mt-6 md:gap-10">
               <div className="flex flex-col gap-6 
-                              md:grid md:grid-cols-2 md:gap-10 mt">
+                              md:grid md:grid-cols-2 md:gap-10">
                 
                 <Controller
                   name="sexual_identity"
@@ -251,23 +276,21 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
               />
 
             </div>
+              <Controller
+                name="hobbies"
+                control={control}
+                render={({ field }) => (
+                  <MultiSelectTagInput label="Hobbies / Interests (Maximum 10)" {...field} />
+                )}
+              />
 
-            <Controller
-              name="hobbies"
-              control={control}
-              render={({ field }) => (
-                <MultiSelectTagInput label="Hobbies / Interests (Maximum 10)" {...field} />
+              <Controller
+                name="bio"
+                control={control}
+                render={({field})=>(
+                <TextArea label="About me (Maximum 150 characters)" rows={4} {...field} />
               )}
-            />
-
-            <Controller
-              name="bio"
-              control={control}
-              render={({field})=>(
-              <TextArea label="About me (Maximum 150 characters)" rows={4} {...field} />
-            )}
-            />
-
+              />
           </div>
 
           </div>
@@ -280,6 +303,7 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
                   name="images"
                   control={control}
                   render={({ field }) => (
+                    // TODO ❓ เอา label in UploadPhotoInput ออก
                     <UploadPhotoInput value={field.value} onChange={field.onChange} />
                   )}
                 />                
@@ -298,8 +322,10 @@ const { register, handleSubmit, control, watch, setError, formState: { errors },
           <div className="md:hidden w-full my-10 ">
             <TwoButton/>
           </div>
+          </div>
         </form>
         <div className=" w-full flex flex-row justify-center mb-11 md:justify-end md:b-15 md:mt-20">
+          {/* TODO delete account */}
           <button className="text-[#646D89] text-[16px] font-bold" onClick={()=>console.log("3")}>Delete account</button>
         </div>
       </div>
