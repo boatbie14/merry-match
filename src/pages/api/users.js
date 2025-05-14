@@ -131,7 +131,7 @@ export default async function handler(req, res) {
     if (!users.length) {
       return res.status(200).json({
         users: [],
-        meta: { totalCount: 0, page: pageNum, limit: limitNum, totalPages: 0 },
+        meta: { totalCount: 0, page: pageNum, limit: limitNum, totalPages: 0, userSexualPreference: currentUser.sexual_preference || null },
       });
     }
 
@@ -166,6 +166,7 @@ export default async function handler(req, res) {
         page: pageNum,
         limit: limitNum,
         totalPages: Math.ceil(count / limitNum),
+        userSexualPreference: currentUser.sexual_preference || null,
       },
     });
   } catch (error) {

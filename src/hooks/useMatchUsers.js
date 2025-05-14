@@ -31,6 +31,11 @@ export function useMatchUsers() {
     age_range: "18-80",
   });
 
+  //#### Add: เพิ่ม state สำหรับเก็บข้อมูลผู้ใช้ปัจจุบัน
+  const [currentUser, setCurrentUser] = useState(null);
+
+  //#### Delete: ลบ useEffect ที่เรียก fetchCurrentUser
+
   // โหลดข้อมูลเริ่มต้นเมื่อ component mount
   useEffect(() => {
     // เรียกฟังก์ชันเพื่อโหลดข้อมูลหน้าแรก
@@ -45,7 +50,7 @@ export function useMatchUsers() {
     console.log("Filters changed:", filters);
   }, [filters]);
 
-  //#### Edit: ปรับปรุงฟังก์ชัน fetchUsers เพื่อรองรับการกรอง
+  //#### Edit: ปรับปรุงฟังก์ชัน fetchUsers เพื่อรองรับการกรองและดึงข้อมูลผู้ใช้ปัจจุบัน
   const fetchUsers = async (page = 1) => {
     try {
       setLoading(true);
@@ -77,6 +82,14 @@ export function useMatchUsers() {
           setSwipeCount(0);
           setLeftSwipes(0);
           setRightSwipes(0);
+
+          //#### Add: ถ้าเป็นการโหลดครั้งแรกและ API มีข้อมูล userSexualPreference
+          if (response.data.meta?.userSexualPreference && !filters.sexual_preference) {
+            setFilters((prev) => ({
+              ...prev,
+              sexual_preference: response.data.meta.userSexualPreference,
+            }));
+          }
         } else {
           setUsers((prevUsers) => [...prevUsers, ...response.data.users]);
         }
@@ -86,6 +99,11 @@ export function useMatchUsers() {
           setTotalCount(response.data.meta.totalCount);
           setTotalPages(response.data.meta.totalPages);
           setCurrentPage(response.data.meta.page);
+
+          // ถ้ามีข้อมูล currentUser ใน meta
+          if (response.data.meta.currentUser && !currentUser) {
+            setCurrentUser(response.data.meta.currentUser);
+          }
         }
 
         // ถ้าเป็นหน้าแรกและมีข้อมูล ให้แสดงผู้ใช้คนแรก
@@ -309,13 +327,14 @@ export function useMatchUsers() {
     setFilters(newFilters);
   };
 
-  //#### Add: เพิ่มฟังก์ชันรีเซ็ตผู้ใช้และตัวกรอง
+  //#### Edit: ปรับฟังก์ชันรีเซ็ตผู้ใช้และตัวกรอง
   const resetUsers = () => {
     console.log("Resetting users and filters");
-    setFilters({
-      sexual_preference: null,
+    // ใช้ค่า sexual_preference จากข้อมูลที่ได้จาก API ในครั้งแรก (ถ้ามี)
+    setFilters((prev) => ({
+      sexual_preference: prev.userSexualPreference || null,
       age_range: "18-80",
-    });
+    }));
     // fetchUsers(1) จะถูกเรียกโดยอัตโนมัติผ่าน useEffect ที่ติดตาม filters
   };
 
@@ -331,6 +350,7 @@ export function useMatchUsers() {
     totalCount,
     //#### Add: แสดงค่าตัวกรองในการ log
     filters,
+    currentUser: currentUser?.username,
   });
 
   // ส่งค่าต่างๆ ออกไป
@@ -348,8 +368,9 @@ export function useMatchUsers() {
     currentPage,
     totalPages,
     totalCount,
-    //#### Add: เพิ่มค่าตัวกรองในการส่งกลับ
+    //#### Add: เพิ่มค่าตัวกรองและข้อมูลผู้ใช้ปัจจุบันในการส่งกลับ
     filters,
+    currentUser,
     handleSwipe,
     handleOutOfFrame,
     handleButtonClick,

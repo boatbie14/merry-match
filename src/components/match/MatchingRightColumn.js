@@ -7,15 +7,37 @@ import { useMatch } from "@/context/MatchContext";
 
 export default function MatchingRightColumn() {
   //#### Edit: ใช้ hook useMatch เพื่อเข้าถึงฟังก์ชันและข้อมูลจาก context
-  const { setUserFilters, resetUsers, filters } = useMatch();
+  const { setUserFilters, resetUsers, filters, currentUser } = useMatch();
 
   // Gender interests state
-  //#### Edit: เริ่มต้นด้วยค่าจาก filters หรือค่าเริ่มต้น
-  const [genderInterests, setGenderInterests] = useState({
-    men: filters?.sexual_preference === "men" || false,
-    women: filters?.sexual_preference === "women" || false,
-    nonBinary: filters?.sexual_preference === "non-binary" || false,
-    everyone: filters?.sexual_preference === "everyone" || !filters?.sexual_preference || false,
+  //#### Edit: เริ่มต้นด้วยค่าจาก currentUser, filters หรือค่าเริ่มต้น
+  const [genderInterests, setGenderInterests] = useState(() => {
+    // ใช้ค่าจาก filters ก่อน (กรณีที่มีการกรองแล้ว)
+    if (filters?.sexual_preference) {
+      return {
+        men: filters.sexual_preference === "men",
+        women: filters.sexual_preference === "women",
+        nonBinary: filters.sexual_preference === "non-binary",
+      };
+    }
+
+    // ถ้าไม่มี filters แต่มี currentUser ให้ใช้ค่าจาก currentUser
+    if (currentUser?.sexual_preference) {
+      return {
+        men: currentUser.sexual_preference === "men",
+        women: currentUser.sexual_preference === "women",
+        nonBinary: currentUser.sexual_preference === "non-binary",
+        everyone: currentUser.sexual_preference === "everyone" || !currentUser.sexual_preference,
+      };
+    }
+
+    // ค่าเริ่มต้นถ้าไม่มีทั้ง filters และ currentUser
+    return {
+      men: false,
+      women: false,
+      nonBinary: false,
+      everyone: true,
+    };
   });
 
   // Age range state
@@ -29,7 +51,32 @@ export default function MatchingRightColumn() {
   });
 
   // เก็บค่า preference ที่จะส่งไปยัง API
-  const [preference, setPreference] = useState(filters?.sexual_preference || "everyone");
+  //#### Edit: ใช้ค่าเริ่มต้นจาก currentUser หรือ filters
+  const [preference, setPreference] = useState(() => {
+    if (filters?.sexual_preference) {
+      return filters.sexual_preference;
+    }
+    return currentUser?.sexual_preference || "everyone";
+  });
+
+  //#### Add: ใช้ useEffect เพื่ออัพเดท checkbox เมื่อ currentUser โหลดสำเร็จ
+  useEffect(() => {
+    if (currentUser && !filters?.sexual_preference) {
+      // ถ้ามี currentUser แต่ยังไม่มีการกรอง ให้ใช้ค่าจาก currentUser
+      const userPreference = currentUser.sexual_preference || "everyone";
+
+      setGenderInterests({
+        men: userPreference === "men",
+        women: userPreference === "women",
+        nonBinary: userPreference === "non-binary",
+        everyone: userPreference === "everyone" || !userPreference,
+      });
+
+      setPreference(userPreference);
+
+      console.log("Using preferences from current user:", userPreference);
+    }
+  }, [currentUser, filters]);
 
   //#### Add: useEffect เพื่ออัพเดท component state เมื่อ filters เปลี่ยน
   useEffect(() => {
@@ -120,12 +167,16 @@ export default function MatchingRightColumn() {
 
   //#### Edit: ปรับฟังก์ชันล้างตัวกรองให้ใช้ resetUsers จาก context
   const handleClear = () => {
+    // ใช้ค่าเริ่มต้นจาก currentUser หรือค่าเริ่มต้น
+    const defaultPreference = currentUser?.sexual_preference || "everyone";
+
     setGenderInterests({
-      men: false,
-      women: false,
-      nonBinary: false,
-      everyone: true,
+      men: defaultPreference === "men",
+      women: defaultPreference === "women",
+      nonBinary: defaultPreference === "non-binary",
+      everyone: defaultPreference === "everyone" || !defaultPreference,
     });
+
     setAgeRange([18, 80]);
 
     // เรียกใช้ resetUsers จาก context

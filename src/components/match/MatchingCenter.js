@@ -88,8 +88,7 @@ const MatchingCenter = () => {
     <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
       {/* Debug info */}
       <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
-        Users: {users?.length || 0} | Displayed: {displayedUsers?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R:{" "}
-        {rightSwipes})
+        Users: {users?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R: {rightSwipes})
       </div>
 
       <div className="relative mx-auto" style={{ height: "680px", width: "620px", maxWidth: "100%" }}>
@@ -112,7 +111,6 @@ const MatchingCenter = () => {
                     alt={`Photo of ${user.name}`}
                     style={{ pointerEvents: "none" }}
                   />
-
                   {/* Linear Gradient Layer ทับรูป */}
                   <div
                     className="absolute inset-0 pointer-events-none"
@@ -122,62 +120,84 @@ const MatchingCenter = () => {
                     }}
                   ></div>
 
-                  {/* ข้อมูลผู้ใช้ด้านล่าง */}
-                  <div className="absolute bottom-0 left-0 right-0 px-6 pb-14 text-white">
-                    <div className="flex justify-between items-center">
-                      <h5 className="text-3xl font-bold flex gap-4">
-                        <div>
-                          {user.name}, {user.age}
-                        </div>
-                        <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white/40 cursor-pointer">
-                          <AiFillEye size={16} color="#fff" />
-                        </button>
-                      </h5>
-                      {/* Arrow */}
-                      <div className="flex justify-between mt-4">
-                        <button
-                          className="p-2 cursor-pointer"
-                          onClick={(e) => handleButtonClick && handleButtonClick(e, user.name, "prev")}
-                        >
-                          <FiArrowLeft size={20} color="#ffffff" />
-                        </button>
-                        <button
-                          className="p-2 cursor-pointer"
-                          onClick={(e) => handleButtonClick && handleButtonClick(e, user.name, "next")}
-                        >
-                          <FiArrowRight size={20} color="#ffffff" />
-                        </button>
-                      </div>
+                  {/* เพิ่มเงื่อนไขการแสดงผลส่วน match */}
+                  {user.isMatch ? (
+                    //#### Add: เพิ่มส่วนแสดงผลเมื่อเป็น match
+                    <div className="absolute inset-0 flex flex-col items-center justify-center mt-24">
+                      <img
+                        src="./images/merry-match.png"
+                        className="w-60 h-auto no-drag"
+                        alt="Matching"
+                        style={{
+                          pointerEvents: "none",
+                          WebkitUserDrag: "none",
+                          KhtmlUserDrag: "none",
+                          MozUserDrag: "none",
+                          OUserDrag: "none",
+                          userDrag: "none",
+                        }}
+                      />
+                      <button className="secondary-btn mt-6">Start Conversation</button>
                     </div>
-                    <p className="text-white text-opacity-80 mt-1 flex items-center gap-2">
-                      <RiMapPin2Fill size={16} color="#FFFFFFCC" /> {user.city}, {user.country}
-                    </p>
-                  </div>
+                  ) : (
+                    <div className="absolute bottom-0 left-0 right-0 px-6 pb-14 text-white">
+                      <div className="flex justify-between items-center">
+                        <h5 className="text-3xl font-bold flex gap-4">
+                          <div>
+                            {user.name}, {user.age}
+                          </div>
+                          <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white/40 cursor-pointer">
+                            <AiFillEye size={16} color="#fff" />
+                          </button>
+                        </h5>
+                        {/* Arrow */}
+                        <div className="flex justify-between mt-4">
+                          <button
+                            className="p-2 cursor-pointer"
+                            onClick={(e) => handleButtonClick && handleButtonClick(e, user.name, "prev")}
+                          >
+                            <FiArrowLeft size={20} color="#ffffff" />
+                          </button>
+                          <button
+                            className="p-2 cursor-pointer"
+                            onClick={(e) => handleButtonClick && handleButtonClick(e, user.name, "next")}
+                          >
+                            <FiArrowRight size={20} color="#ffffff" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-white text-opacity-80 mt-1 flex items-center gap-2">
+                        <RiMapPin2Fill size={16} color="#FFFFFFCC" /> {user.city}, {user.country}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* ปุ่ม Pass และ Merry */}
-                <div className="flex flex-row justify-center gap-6 mt-[-40px]">
-                  <button
-                    className="gray-icon-btn"
-                    style={{ width: "80px", height: "80px" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSwipe && handleSwipe("left", user);
-                    }}
-                  >
-                    <IoCloseOutline size={40} color="#646D89" />
-                    <span className="tooltip">Pass</span>
-                  </button>
+                {!user.isMatch && (
+                  <div className="flex flex-row justify-center gap-6 mt-[-40px]">
+                    <button
+                      className="gray-icon-btn"
+                      style={{ width: "80px", height: "80px" }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSwipe && handleSwipe("left", user);
+                      }}
+                    >
+                      <IoCloseOutline size={40} color="#646D89" />
+                      <span className="tooltip">Pass</span>
+                    </button>
 
-                  <button
-                    className="gray-icon-btn"
-                    style={{ width: "80px", height: "80px" }}
-                    onClick={(e) => handleHeartButton && handleHeartButton(e, user)}
-                  >
-                    <GoHeartFill size={40} color="#C70039" />
-                    <span className="tooltip">Merry</span>
-                  </button>
-                </div>
+                    <button
+                      className="gray-icon-btn"
+                      style={{ width: "80px", height: "80px" }}
+                      onClick={(e) => handleHeartButton && handleHeartButton(e, user)}
+                    >
+                      <GoHeartFill size={40} color="#C70039" />
+                      <span className="tooltip">Merry</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </SimpleCard>
           </div>
