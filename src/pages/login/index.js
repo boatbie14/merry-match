@@ -28,14 +28,32 @@ export default function LoginPage() {
       return;
     }
 
-    // 2. ถ้า login สำเร็จ ให้ redirect ไปหน้าแรก
-    router.push('/');
+    const userId = loginData.user.id;
+
+    // 2. ดึง role จาก table `users` โดยใช้ user id
+const { data: userRecord, error: userError } = await supabase
+  .from('users')
+  .select('user_role')
+  .eq('id', userId)
+  .single();
+
+if (userError) {
+  setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้');
+  return;
+}
+
+// 3. redirect ตาม user_role
+if (userRecord.user_role === 'admin') {
+  router.push('/admin');
+} else {
+  router.push('/homepage');
+}
+
   }
 
   return (
     <>
       <NavbarNonUser />
-
       <main className="min-h-screen flex flex-col md:flex-row bg-[#fdfafd]">
         {/* Left image section */}
         <div className="hidden md:flex md:w-1/2 items-center justify-center p-6">
