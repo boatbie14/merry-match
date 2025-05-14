@@ -7,6 +7,7 @@ import { IoCloseOutline } from "react-icons/io5";
 import { AiFillEye } from "react-icons/ai";
 import { RiMapPin2Fill } from "react-icons/ri";
 import { MatchContext } from "../../context/MatchContext";
+import { useMerryLimit } from "@/context/MerryLimitContext";
 
 const MatchingCenter = () => {
   // ใช้ข้อมูลและฟังก์ชันจาก Context
@@ -82,6 +83,9 @@ const MatchingCenter = () => {
       </div>
     );
   }
+
+  //get merry limit
+  const { merryLimit } = useMerryLimit();
 
   // แสดงข้อมูลผู้ใช้
   return (
@@ -212,7 +216,10 @@ const MatchingCenter = () => {
 
       <div className="text-center mt-4 text-[#646D89]">
         <p>
-          Merry limit today <span className="text-[#FF1659]">2/20</span>
+          Merry limit today{" "}
+          <span className="text-[#FF1659]">
+            {merryLimit.count}/{merryLimit.merry_per_day}
+          </span>
         </p>
       </div>
     </div>
