@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { supabase } from '../../utils/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -22,14 +22,14 @@ export default function AdminDashboard() {
         .single();
 
       if (userData?.role !== 'admin') {
-        router.push('/'); // ไม่ใช่แอดมินก็ redirect ไปหน้าอื่น
+        router.push('/');
       } else {
         setLoading(false);
       }
     };
 
     checkAdmin();
-  }, []);
+  }, [router]);
 
   if (loading) return <p>Loading...</p>;
 

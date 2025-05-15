@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '../../lib/supabaseClient'; 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { supabase } from '../../lib/supabaseClient';
 import Link from 'next/link';
 import Image from 'next/image';
 import loginImage from '../../../public/assets/login-complaint.jpg';
-
+import { useAuth } from '@/context/AuthContext';
 // import NavbarNonUser from '../../components/NavbarNonUser';
 
 export default function LoginPage() {
@@ -12,6 +12,13 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { isLoggedIn, checkingLogin } = useAuth();
+
+  useEffect(() => {
+    if (!checkingLogin && isLoggedIn) {
+      router.push('/'); // เปลี่ยนเส้นทางไปหน้าโฮมถ้าล็อกอินแล้ว
+    }
+  }, [checkingLogin, isLoggedIn, router]); 
 
   async function logIn(e) {
     e.preventDefault();
@@ -20,7 +27,7 @@ export default function LoginPage() {
     // 1. Login ด้วย email/password
     const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
 
     if (loginError) {
@@ -31,24 +38,23 @@ export default function LoginPage() {
     const userId = loginData.user.id;
 
     // 2. ดึง role จาก table `users` โดยใช้ user id
-const { data: userRecord, error: userError } = await supabase
-  .from('users')
-  .select('user_role')
-  .eq('id', userId)
-  .single();
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('user_role')
+      .eq('id', userId)
+      .single();
 
-if (userError) {
-  setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้');
-  return;
-}
+    if (userError) {
+      setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้');
+      return;
+    }
 
-// 3. redirect ตาม user_role
-if (userRecord.user_role === 'admin') {
-  router.push('/admin');
-} else {
-  router.push('/homepage');
-}
-
+    // 3. redirect ตาม user_role
+    if (userRecord.user_role === 'admin') {
+      router.push('/admin');
+    } else {
+      router.push('/');
+    }
   }
 
   return (
@@ -77,7 +83,9 @@ if (userRecord.user_role === 'admin') {
 
             <form onSubmit={logIn} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="email" className="text-sm font-medium">Username or Email</label>
+                <label htmlFor="email" className="text-sm font-medium">
+                  Username or Email
+                </label>
                 <input
                   id="email"
                   type="email"
@@ -90,7 +98,9 @@ if (userRecord.user_role === 'admin') {
               </div>
 
               <div>
-                <label htmlFor="password" className="text-sm font-medium">Password</label>
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
                 <input
                   id="password"
                   type="password"
@@ -114,7 +124,9 @@ if (userRecord.user_role === 'admin') {
 
             <p className="text-sm mt-4 text-center">
               Don’t have an account?{' '}
-              <Link href="/register" className="text-[#c4003b] font-medium">Register</Link>
+              <Link href="/register" className="text-[#c4003b] font-medium">
+                Register
+              </Link>
             </p>
           </div>
         </div>
