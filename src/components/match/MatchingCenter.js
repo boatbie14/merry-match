@@ -27,12 +27,8 @@ const MatchingCenter = () => {
     handleHeartButton,
   } = useContext(MatchContext) || {};
 
-  console.log("MatchingCenter rendering with:", {
-    usersLength: users?.length || 0,
-    displayedUsersLength: displayedUsers?.length || 0,
-    loading,
-    error,
-  });
+  //get merry limit
+  const { merryLimit } = useMerryLimit();
 
   // แสดงสถานะการโหลดเฉพาะเมื่อกำลังโหลดครั้งแรกและยังไม่มีข้อมูลใดๆ
   if (loading && users.length === 0) {
@@ -64,7 +60,7 @@ const MatchingCenter = () => {
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64 text-white text-center">
           <h3 className="text-2xl font-bold mb-2">No users found</h3>
-          <p className="text-lg text-gray-300">We couldn't find anyone matching your preferences.</p>
+          <p className="text-lg text-gray-300">We couldn&apos;t find anyone matching your preferences.</p>
           <p className="text-lg text-gray-300">Try adjusting your search filters.</p>
         </div>
       </div>
@@ -83,9 +79,6 @@ const MatchingCenter = () => {
       </div>
     );
   }
-
-  //get merry limit
-  const { merryLimit } = useMerryLimit();
 
   // แสดงข้อมูลผู้ใช้
   return (
