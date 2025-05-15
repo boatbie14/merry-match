@@ -1,4 +1,4 @@
-import { createServerClient, serializeCookieHeader } from '@supabase/ssr'
+import { createServerClient, serializeCookieHeader } from '@supabase/auth-helpers-nextjs';
 
 export function createClient({ req, res }) {
   const supabase = createServerClient(

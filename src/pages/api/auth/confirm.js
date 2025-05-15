@@ -1,4 +1,4 @@
-import createClient from '@/utils/supabase/api'
+import createClient from '@supabase/auth-helpers-nextjs'
 
 function stringOrFirstString(item) {
   return Array.isArray(item) ? item[0] : item
