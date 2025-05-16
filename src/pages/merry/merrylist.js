@@ -9,13 +9,15 @@ import { postMerriedLike,deleteMerriedLike,getMarriedUsers,getMerriedMe,getMerri
 import useCountdown from "@/hooks/useCountdown";
 import { CircularProgress } from "@mui/material";
 import SkeletonMerryListCard from "@/components/MerryList/SkeletonMerryListCard";
-
-// ## TODO ❓ logic and get like (ต้องเอา context พี่โบทด้วย) + ทดสอบเรื่องกดเร็วๆแล้ว error 500
-// ## TODO (P.bost)🕐 รอ Merry limit today from p.bost
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/router";
+// import aut
+// ## TODO 🕐(P.bost)🕐 รอ Merry limit today from p.bost
 // ## TODO 💬🕐go to chat
 
 export default function MerryPagePage() { 
-
+  const {checkingLogin,isLoggedIn}=useAuth()
+  const router =useRouter()
    const [data,setData] = useState ([])
    const [merriedMe,setMerriedMe] = useState(0)
    const [merriedMatch,setMerriedMatch] = useState(0)  
@@ -32,42 +34,51 @@ export default function MerryPagePage() {
 
    const [merryLimit,setmerryLimit]=useState({limit:2,max:10})
 
-  useEffect(()=>{
-    async function fetchData(){
-      try{setLoadingData(true)
-        
-        const tempData = await getMarriedUsers()
-        setData(tempData)
-      }catch(e){console.log(e)
-      }finally{setLoadingData(false)}
+useEffect(() => {
+    if (!checkingLogin && !isLoggedIn) {
+      router.push('/');
     }
+  }, [checkingLogin, isLoggedIn, router]);
 
-    async function fetchMerriedMe(){
-      try{setLoadingMerriedMe(true)
-        const tempData = await getMerriedMe()
-        setMerriedMe(tempData)
-      }catch(e){console.log(e)
-      }finally{setLoadingMerriedMe(false)}
-    }
-    async function fetchMerriedMatch(){
-      try{setLoadingMerriedMatch(true)
-        const tempData = await getMerriedMatch()
-        setMerriedMatch(tempData)
-      }catch(e){console.log(e)
-      }finally{setLoadingMerriedMatch(false)}
-    }
+  useEffect(() => {
+    if (checkingLogin || !isLoggedIn) return;
 
-    fetchMerriedMe();
-    fetchMerriedMatch();
-    fetchData();
-  },[])
+    const fetchAllData = async () => {
+      try {
+        setLoadingData(true);
+        setLoadingMerriedMe(true);
+        setLoadingMerriedMatch(true);
+
+        const [users, me, match] = await Promise.all([
+          getMarriedUsers(),
+          getMerriedMe(),
+          getMerriedMatch(),
+        ]);
+
+        setData(users);
+        setMerriedMe(me);
+        setMerriedMatch(match);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoadingData(false);
+        setLoadingMerriedMe(false);
+        setLoadingMerriedMatch(false);
+      }
+    };
+
+    fetchAllData();
+  }, [checkingLogin, isLoggedIn]);
 
  const CountdownDisplay = () => {
    const now = new Date();
-   const midnight = new Date();
-   midnight.setDate(now.getDate() + 1);
-   midnight.setHours(0, 0, 0, 0);
-   const midnightTimestamp = midnight.getTime();
+    const midnightUTC = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+    0, 0, 0, 0
+  ));
+  const midnightTimestamp = midnightUTC.getTime();
    const countdown = useCountdown(midnightTimestamp);
   return <span> {countdown}</span>;
 };

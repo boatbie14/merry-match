@@ -1,9 +1,8 @@
 import apiClient from '@/interceptor/apiClient';
-// import axios from 'axios';
 
 export const getMarriedUsers = async () => {
   try {
-    const response = await apiClient.get(`/merry/merried-users`);
+    const response = await apiClient.get(`/merry/merry-users`);
     return response.data;
   } catch (error) {
     console.error('Error fetching merried users:', error);
@@ -11,19 +10,9 @@ export const getMarriedUsers = async () => {
   }
 };
 
-export const getUserHobbies = async (id)=>{
-  try{
-    const response = await apiClient.get(`/merry/user-hobbies/${id}`);
-    return response.data;
-  }catch(error){
-    console.error('Error fetching users hobbies :', error);
-    throw error
-  }
-}
-
 export const getMerriedMe = async ()=>{
   try{
-    const response = await apiClient.get(`merry/merried-me`)
+    const response = await apiClient.get(`merry/merry-me`)
     return response.data
   }catch(error){
     console.error('Error fetching users like you :', error);
@@ -33,7 +22,7 @@ export const getMerriedMe = async ()=>{
 
 export const getMerriedMatch = async ()=>{
     try{
-    const response = await apiClient.get(`merry/merried-match`)
+    const response = await apiClient.get(`merry/merry-match`)
     return response.data
   }catch(error){
     console.error('Error fetching like :', error);
@@ -43,7 +32,7 @@ export const getMerriedMatch = async ()=>{
 
 export const getMerriedLike = async () =>{
     try {
-        const response = await apiClient.get('/merry/like');
+        const response = await apiClient.get('/merry/getlike');
         return response
       } catch (error) {
         console.error('Error fetching merried users:', error);
@@ -51,19 +40,24 @@ export const getMerriedLike = async () =>{
       }
 };
 
-export const postMerriedLike = async (toUserId) =>{
-    try {
-        const response = await apiClient.post('/merry/like', { toUserId });
-        return response
-      } catch (error) {
-        console.error('Error fetching merried users:', error);
-        throw error;
-      }
+export const postMerriedLike = async (toUserId) => {
+  try {
+        const options = { timeZone: "Asia/Bangkok" };
+    const bangkokDate = new Date(new Date().toLocaleString("en-US", options));
+    const dateString = bangkokDate.toISOString();
+
+    const response = await apiClient.post('/merry/like', {toUserId,dateString});
+    return response;
+  } catch (error) {
+    console.error('Error fetching merried users:', error);
+    throw error;
+  }
 };
 
 export const deleteMerriedLike = async (toUserId) =>{
-    try {
-        const response = await apiClient.delete('/merry/like', { data: { toUserId } });
+  const unlikeUserId = toUserId
+    try {console.log("loop")
+        const response = await apiClient.delete(`/merry/${unlikeUserId}`);
         return response
       } catch (error) {
         console.error('Error fetching merried users:', error);

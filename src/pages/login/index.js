@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import loginImage from '../../../public/assets/login-complaint.jpg';
 import { useAuth } from '@/context/AuthContext';
-// import NavbarNonUser from '../../components/NavbarNonUser';
 
 export default function LoginPage() {
   const router = useRouter();

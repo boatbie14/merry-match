@@ -7,16 +7,15 @@ import { IoCloseOutline,IoLocationSharp,IoClose  } from "react-icons/io5";
 import { calculateAge } from '@/utils/functionCalculate/calculateAge';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { getUserHobbies } from '@/services/merryServices';
+import { getUserHobbies } from '@/services/hobbiesServices';
 import LikeButton from '../LikeButton';
-
 export function ProfilePopup({ isOpen, onClose, items}) {
-
 const tempImage = [items?.profile_image_url,items?.image2_url,items?.image3_url,items?.image4_url,items?.image5_url,];
 const images = tempImage.filter(item => !!item);
 const [imageIndex, setImageIndex] = useState(0);
+const [isloadingImage,setIsloadingImage] = useState(true)
 const [direction, setDirection] = useState(0);
-const [hasLoadedOnce, setHasLoadedOnce] = useState(false);  
+const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 const [loadingHobbies,setLoadingHobbies] = useState(false)
 const [hobbies,setHobbies] = useState([])
 
@@ -37,11 +36,13 @@ useEffect(()=>{
         setDirection(-1);
         setImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
         setHasLoadedOnce(true);
+        setIsloadingImage(true)
     };
     const handleNextImage = () => {
         setDirection(1);
         setImageIndex((prevIndex) => (prevIndex + 1) % images.length);
         setHasLoadedOnce(true);
+        setIsloadingImage(true)
     };
     const handleClose = ()=>{
         setHasLoadedOnce(false);
@@ -60,15 +61,17 @@ useEffect(()=>{
                 exit={{ x: direction > 0 ? -750 : 750 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
             >
+                {isloadingImage &&
                 <div className='w-full h-full rounded-4xl overflow-hidden'>
                     <Skeleton variant="rounded" style={{ height: '100%'}} />
-                </div>
+                </div>}
                 <Image
                     src={src}
                     alt={alt}
                     fill
                     sizes="(max-width: 768px) 60vw, 40vw"
                     className={`object-cover rounded-b-4xl rounded-t-4xl md:rounded-l-3xl md:rounded-3xl w-full h-full transition-opacity duration-500 `}
+                    onLoad={()=>setIsloadingImage(false)}
                 />
             </motion.div>
             );

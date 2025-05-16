@@ -1,6 +1,10 @@
 // services/apiClient.js
 // ## TODO 😗🕐 HIDDEN CONSOLE.LOG data
 import axios from 'axios';
+import { createClient  } from '@supabase/supabase-js';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const baseURL = '/api';
 
@@ -11,16 +15,15 @@ const apiClient = axios.create({
   },
 });
 
-// Request Interceptor
+// ✅ Request Interceptor
 apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
+ async (config) => {
+      const {data} = await supabase.auth.getSession();
+      const token = data.session?.access_token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    // console.log('Request Interceptor:', config);
     return config;
-    
   },
   (error) => {
     console.error('Request Interceptor Error:', error);
@@ -28,7 +31,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor
+// ✅ Response Interceptor
 apiClient.interceptors.response.use(
   (response) => {
     console.log('Response Interceptor:', response);
@@ -39,7 +42,7 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log('Unauthorized - Redirecting or clearing token');
       localStorage.removeItem('authToken');
-      // router.push('/login'); // พาไปหน้า login ถ้าไม่ login
+      // router.push('/login');
     } else if (error.response?.status === 404) {
       console.log('Resource Not Found');
     }
@@ -47,4 +50,5 @@ apiClient.interceptors.response.use(
   }
 );
 
+// ✅ export apiClient และฟังก์ชัน
 export default apiClient;

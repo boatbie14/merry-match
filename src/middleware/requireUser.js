@@ -1,35 +1,29 @@
-// import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs';
-// ## TODO 🗝️🕐 check token and get userId(uuid) (now check cookie)
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabaseClient';
 export async function requireUser(req, res) {
   try {
-    const supabase = createServerSupabaseClient({ req, res });
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return res.status(401).json({ error: 'Unauthorized' });;
+    // ดึง token จาก header Authorization
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Authorization header missing' });
     }
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Token missing' });
+    }
+    // ตรวจสอบ token กับ Supabase และดึง user info
+    const { data, error } = await supabase.auth.getUser(token);
 
-    return { supabase, user };
+    if (error || !data.user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const userId = data.user.id;
+    
+    return {supabase, userId}
   } catch (err) {
     console.error('Error in requireUser:', err);
-    // res.status(500).json({ error: 'Internal Auth Error' });
-    return null;
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
 
-export async function dummyUser(req, res) {
-  const userId = "bfd42907-62fa-44c9-bf18-38ac7478ac35"
-    
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
 
-    console.log("middleeare",userId)
-    // เราจะไม่เช็คการ login ของ user ในกรณีนี้
-    return { supabase,userId };
-  }
+

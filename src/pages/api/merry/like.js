@@ -1,91 +1,39 @@
-import { dummyUser, requireUser } from '@/middleware/requireUser';
-// ## TODO 🗝️🕐 change meddleware
+import { requireUser } from '@/middleware/requireUser';
+import { getMerryLike, insertMerryLike} from '@/lib/query/merryLike';
+import { addLikeCountLog } from '@/lib/query/addLikeCountLog';
+import { checkMerryLimit } from '@/lib/query/checkMerryLimit';
+// TODO 🩵 ตรวจสอบความถูกต้อง และ เช็คฟังก์ชันพี่โบทส
+// TODO 💙โลจิกการ แจ้งให้ client รู้ว่า limit เกิน
 export default async function handler(req, res) {
+  if (req.method !== 'POST') {return res.status(405).json({ error: 'Method Not Allowed' });}
+  try {
+    const result = await requireUser(req, res);
+    if (!result) return;
+    const { userId } = result;
+    const { toUserId,dateString } = req.body;
 
-  if(req.method === "GET"){
-    try {
-    // const result = await requireUser(req, res);
-      const result = await dummyUser(req,res);
-      if (!result) return result;
+    // 1. ตรวจสอบว่ามี like นี้อยู่แล้วหรือไม่
+    const { data: existingLike} = await getMerryLike(userId, toUserId);
+    if (existingLike) {return res.status(200).json({ message: 'Already liked' });}
 
-    //   const { supabase, user } = result;
-      const {supabase,userId} = result
-      
-   const { data, error } = await supabase
-        .from('merry_list')
-        .select('to_user_id')
-        .eq('from_user_id',
-          // user.id
-          userId
-        ) 
-      if (error) {
-         throw new Error(error.message);
-      }
-      const formattedData = data?.map((item) => ({id: item.to_user_id,}));
-      return res.status(200).json( formattedData );
-    } catch (err) {
-      console.error('Failed to fetch :', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
+    // 2. ดึงค่าจำนวน like วันนี้ และ limit
+    const {data} = await checkMerryLimit(userId, dateString);
+    const {count,merry_per_day,log_date} = data
+    if (count >= merry_per_day) {return res.status(403).json({ message: 'Like limit reached for today' });}
+
+    // 3. เพิ่ม log การกด like วันนี้
+    const logResult = await addLikeCountLog(userId,count,log_date);
+    if (!logResult.success) {return res.status(500).json({ error: 'Failed to log like count' });}
+
+    // 4. เพิ่ม like ลงใน merry_list
+    const { error } = await insertMerryLike(userId, toUserId);
+    if (error) {
+      return res.status(500).json({ error: error.message });
     }
+
+    return res.status(200).json({ message: 'User liked successfully' });
+  } catch (e) {
+    console.error('Error in handler:', e);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
-
-    if (req.method === 'POST') {
-        try {
-    const{toUserId}=req.body
-
-    // const result = await requireUser(req, res);
-      const result = await dummyUser(req,res);
-      if (!result) return result;
-
-    //   const { supabase, user } = result;
-      const {supabase,userId} = result  
-
-   const { data, error } = await supabase
-        .from('merry_list')
-        .insert([
-          { from_user_id: userId, to_user_id: toUserId, created_at: new Date() },
-        ]);
-
-      if (error) {
-        console.error('Error inserting like:', error);
-        return res.status(500).json({ error: 'Failed to record the like' });
-      }
-      return res.status(200).json({ message: 'Like recorded successfully' });
-    } catch (err) {
-      console.error('Unexpected error during like:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-  }
-
-
-
-  if (req.method === 'DELETE') {
-    try {
-    const{toUserId}=req.body
-        console.log(req.body)
-    // const result = await requireUser(req, res);
-      const result = await dummyUser(req,res);
-      if (!result) return result;
-
-    //   const { supabase, user } = result;
-      const {supabase,userId} = result
-
-      const {data, error } = await supabase
-        .from('merry_list')
-        .delete()
-        .match({ from_user_id: userId, to_user_id: toUserId });
-      if (error) {
-        console.error('Error unliking:', error);
-        return res.status(500).json({ error: 'Failed to unlike' });
-      }
-        return res.status(200).json({ message: 'Like removed successfully' });
-    } catch (err) {
-      console.error('Unexpected error during unlike:', err);
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
-    }
-  else {
-    return res.status(405).json({ error: 'Method Not Allowed. Use POST to record a like.' });
-  }
-
 }

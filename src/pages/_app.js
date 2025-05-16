@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import "@/styles/base.css";
 import { Nunito } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
-import { MerryLikeProvider } from "../../context/MerryLikeContext";
+import { MerryLikeProvider } from "../context/MerryLikeContext";
 const nunito = Nunito({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],

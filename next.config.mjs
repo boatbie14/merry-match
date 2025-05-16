@@ -9,6 +9,12 @@ const nextConfig = {
         port: '',
         pathname: '/images/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'dlvptnewdgewaptlqbsa.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
     domains: ['res.cloudinary.com'],
   },

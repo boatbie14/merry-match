@@ -1,24 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY);    
+import { supabase } from "@/lib/supabaseClient";
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-     const userId = req.query.id;
+  console.log("dwdwdwdwd")
+  if (req.method !== 'GET')return res.status(405).json({ error: 'Method Not Allowed' });
+     const userHobbiesId = req.query.userHobbiesId;
     try {
-
-
       const { data, error } = await supabase
         .from('hobbies')
         .select('hobbie_name')
         .eq('user_id', 
-          userId
+          userHobbiesId
         );
-        console.log(data)
       if (error) {
         throw new Error(error.message);
       }
 
       const userHobbies = data
-      console.log(userHobbies)
       return res.status(200).json(userHobbies);
 
     } catch (err) {
@@ -33,4 +29,3 @@ export default async function handler(req, res) {
       }
     }
   }
-}
