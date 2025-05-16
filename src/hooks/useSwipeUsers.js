@@ -1,8 +1,10 @@
-// hooks/useMatchUsers.js
+// hooks/useSwipeUsers.js
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuth } from "@/context/AuthContext";
 
-export function useMatchUsers() {
+export function useSwipeUsers() {
+  const { userInfo } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,26 +35,38 @@ export function useMatchUsers() {
   //Current user state
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Start load component mount
+  // Start load component on mount - only if userInfo exists
   useEffect(() => {
-    // call first page
-    fetchUsers(1);
-    //console.log("useEffect in useMatchUsers hook executed");
-  }, []);
+    if (userInfo) {
+      // call first page only if user is logged in
+      fetchUsers(1);
+    }
+  }, [userInfo]);
 
-  //useEffect check filter change
+  //useEffect check filter change - only if userInfo exists
   useEffect(() => {
-    fetchUsers(1);
-    //console.log("Filters changed:", filters);
-  }, [filters]);
+    if (userInfo) {
+      fetchUsers(1);
+    }
+  }, [filters, userInfo]);
 
   // Fetch Users
   const fetchUsers = async (page = 1) => {
+    if (!userInfo) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const currentUserId = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a";
+      const currentUserId = userInfo.id;
 
-      let url = `/api/users?page=${page}&limit=${limit}&currentUserId=${currentUserId}`;
+      let url = `/api/users?page=${page}&limit=${limit}`;
+
+      // Only add currentUserId if it exists
+      if (currentUserId) {
+        url += `&currentUserId=${currentUserId}`;
+      }
 
       if (filters.sexual_preference) {
         url += `&sexual_preference=${filters.sexual_preference}`;
@@ -62,9 +76,7 @@ export function useMatchUsers() {
         url += `&age_range=${filters.age_range}`;
       }
 
-      console.log("Fetching data from:", url);
       const response = await axios.get(url);
-      console.log("API Response:", response.data);
 
       if (response.data && response.data.users) {
         if (page === 1) {
@@ -111,10 +123,7 @@ export function useMatchUsers() {
             setCurrentIndex(0);
           }
         }
-
-        console.log("Users set to:", response.data.users);
       } else {
-        console.log("No users data in response");
         if (page === 1) {
           setUsers([]);
           setDisplayedUsers([]);
@@ -145,24 +154,19 @@ export function useMatchUsers() {
 
   const loadNextUser = () => {
     if (!users || users.length === 0) {
-      console.log("No users available");
       return;
     }
 
     const nextIndex = currentIndex + 1;
 
     if (nextIndex >= users.length) {
-      console.log("Need to load more users");
-
       // Check whether the next page should be loaded.
       if (currentPage < totalPages) {
-        console.log(`Loading next page: ${currentPage + 1}`);
         fetchUsers(currentPage + 1);
         return;
       } else {
         //if last page and swipeCount = totalCount
         if (swipeCount >= totalCount - 1) {
-          console.log("Reached the end, restarting from page 1");
           // reset swipe and load first page
           setSwipeCount(0);
           setLeftSwipes(0);
@@ -172,22 +176,26 @@ export function useMatchUsers() {
         }
 
         // If the totalCount hasn't been reached yet but there are no more pages (special case).
-        console.log("No more users to display");
         return;
       }
     }
 
     const user = users[nextIndex];
-    console.log("Loading next user:", user);
+
+    // เพิ่มการตรวจสอบว่ามี user ข้อมูล
+    if (!user) {
+      console.warn("User not found at index:", nextIndex);
+      return;
+    }
 
     const age = calculateAge(user.date_of_birth);
     const newPerson = {
       name: user.name,
       age: age,
       picture: user.profile_image_url,
-      city: user.city,
-      country: user.location,
-      bio: user.bio,
+      city: user.city || "Unknown",
+      country: user.location || "Unknown",
+      bio: user.bio || "",
       isMatch: user.isMatch || false,
       originalProfile: user,
     };
@@ -197,13 +205,12 @@ export function useMatchUsers() {
   };
 
   const handleOutOfFrame = () => {
-    console.log("Card out of frame");
+    // Card out of frame handler
   };
 
   // Change Click Arrow icon to change images
   const handleButtonClick = (e, userName, direction) => {
     e.stopPropagation();
-
     handleImageChange(userName, direction);
   };
 
@@ -232,60 +239,47 @@ export function useMatchUsers() {
 
   const handleHeartButton = (e, user) => {
     e.stopPropagation();
-    console.log("Heart button clicked for", user.name);
-
     // Click heart then do swipe right
     handleSwipe("right", user);
   };
 
   // Swipe
   const handleSwipe = (direction, user) => {
+    if (!userInfo || !user || loading || !user.originalProfile?.id) {
+      console.warn("Invalid swipe. Possibly still loading or user is invalid.", { direction, user });
+      return;
+    }
+
     setLastDirection(direction);
-    //console.log(`User swiped ${direction} for ${user.name}`);
 
     // count swipe
     setSwipeCount((prev) => prev + 1);
 
-    // count swipe by directions
     if (direction === "left") {
       setLeftSwipes((prev) => prev + 1);
     } else if (direction === "right") {
       setRightSwipes((prev) => prev + 1);
+
+      // ✅ ป้องกัน error ถ้า originalProfile.id ไม่ถูกต้อง
+      createMatch(user.originalProfile.id);
     }
 
-    // delete card after swipe
+    // ลบการ์ดหลัง swipe
     setDisplayedUsers((prevUsers) => {
       const remaining = prevUsers.filter((item) => item.name !== user.name);
-      //console.log("Remaining users after swipe:", remaining);
       return remaining;
     });
 
-    // swipe right do Merry
-    if (direction === "right") {
-      console.log("Would record Merry for:", user.name);
-      // ******* Call merry API Here ******
-    }
-
-    // If there are no cards left to display, load the next user.
     setTimeout(() => {
       if (displayedUsers.length <= 1) {
         loadNextUser();
       }
 
-      // Check whether more data should be loaded
-      // We should preload when the number of users left is getting low
-      if (users.length - currentIndex <= 2) {
-        // If the data is about to run out and there is still a next page
-        if (currentPage < totalPages) {
-          console.log(`Preloading next page: ${currentPage + 1}`);
-          fetchUsers(currentPage + 1);
-        }
+      if (users.length - currentIndex <= 2 && currentPage < totalPages) {
+        fetchUsers(currentPage + 1);
       }
 
-      // check to reload to homepage
       if (swipeCount >= totalCount && currentPage >= totalPages) {
-        console.log("Reached the end of all users, restarting");
-
         setTimeout(() => {
           setSwipeCount(0);
           setLeftSwipes(0);
@@ -296,33 +290,37 @@ export function useMatchUsers() {
     }, 300);
   };
 
+  // Function to create a match when swiping right
+  const createMatch = async (targetUserId) => {
+    if (!userInfo?.id || !targetUserId || typeof targetUserId !== "string") {
+      console.warn("Invalid parameters for createMatch", { userId: userInfo?.id, targetUserId });
+      return;
+    }
+
+    try {
+      const response = await axios.post("/api/match", {
+        user_id: userInfo.id,
+        target_user_id: targetUserId,
+      });
+
+      if (response.data?.isMatch) {
+        // TODO: แสดง popup หรือเสียงดนตรี 🎉
+      }
+    } catch (err) {
+      console.error("Error creating match:", err?.response?.data || err.message);
+    }
+  };
+
   const setUserFilters = (newFilters) => {
-    //console.log("Setting new filters:", newFilters);
     setFilters(newFilters);
   };
 
   const resetUsers = () => {
-    //console.log("Resetting users and filters");
-
-    setFilters((prev) => ({
-      sexual_preference: prev.userSexualPreference || null,
+    setFilters({
+      sexual_preference: null,
       age_range: "18-80",
-    }));
+    });
   };
-
-  console.log("Current state:", {
-    users: users.length,
-    displayedUsers: displayedUsers.length,
-    currentIndex,
-    swipeCount,
-    leftSwipes,
-    rightSwipes,
-    currentPage,
-    totalPages,
-    totalCount,
-    filters,
-    currentUser: currentUser?.username,
-  });
 
   return {
     users,

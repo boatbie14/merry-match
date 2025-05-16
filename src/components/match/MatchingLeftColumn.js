@@ -1,8 +1,12 @@
 import React from "react";
 import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
 import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
+import { useMatchedUsers } from "@/hooks/useMatchedUsers";
 
 export default function MatchingLeftColumn() {
+  // ใช้ Hook ที่เราสร้างไว้เพื่อดึงข้อมูล matchedUsers
+  const { matchedUsers, loading, error } = useMatchedUsers();
+
   return (
     <>
       <div className="px-6 pt-6">
@@ -18,37 +22,25 @@ export default function MatchingLeftColumn() {
       <div className="px-6">
         <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Merry Match!</h2>
 
-        <div className="match-users-container w-full h-32 flex flex-row gap-3 overflow-x-auto whitespace-nowrap">
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
-          </div>
+        {loading && <p>Loading matches...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
 
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
-          </div>
+        {!loading && !error && matchedUsers && matchedUsers.length === 0 && <p>You don't have any matches yet</p>}
 
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+        {!loading && !error && matchedUsers && matchedUsers.length > 0 && (
+          <div className="match-users-container w-full h-32 flex flex-row gap-3 overflow-x-auto whitespace-nowrap">
+            {matchedUsers.map((user) => (
+              <div key={user.id} className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
+                <img
+                  src={user.profile_image_url || "/default-avatar.png"}
+                  alt={user.name}
+                  className="rounded-3xl w-full h-full object-cover"
+                />
+                <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
+              </div>
+            ))}
           </div>
-
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
-          </div>
-
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
-          </div>
-
-          <div className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-            <img src="https://placehold.co/100x100" alt="user name" className="rounded-3xl w-full h-full object-cover" />
-            <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="p-6">

@@ -1,13 +1,15 @@
 // components/match/MatchingCenter.js
 import React, { useContext } from "react";
+import Link from "next/link";
 import SimpleCard from "./SimpleCard";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { GoHeartFill } from "react-icons/go";
 import { IoCloseOutline } from "react-icons/io5";
 import { AiFillEye } from "react-icons/ai";
 import { RiMapPin2Fill } from "react-icons/ri";
-import { MatchContext } from "../../context/MatchContext";
+import { SwipeContext } from "../../context/SwipeContext";
 import { useMerryLimit } from "@/context/MerryLimitContext";
+import { useAuth } from "@/context/AuthContext";
 
 const MatchingCenter = () => {
   // ใช้ข้อมูลและฟังก์ชันจาก Context
@@ -25,10 +27,45 @@ const MatchingCenter = () => {
     handleOutOfFrame,
     handleButtonClick,
     handleHeartButton,
-  } = useContext(MatchContext) || {};
+  } = useContext(SwipeContext) || {};
 
   //get merry limit
   const { merryLimit } = useMerryLimit();
+
+  // Check login
+  const { isLoggedIn, userInfo, checkingLogin } = useAuth();
+
+  // ถ้ากำลังตรวจสอบสถานะล็อกอิน
+  if (checkingLogin) {
+    return (
+      <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
+        <div className="flex flex-col justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
+          <p className="mt-4 text-white">Checking login status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ถ้าไม่ได้ล็อกอิน
+  if (!isLoggedIn) {
+    return (
+      <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
+        <div className="flex flex-col justify-center items-center h-64 text-white text-center">
+          <h3 className="text-2xl font-bold mb-2">Ready to find your Merry Match?</h3>
+          <p className="text-lg text-gray-300 mb-6">Join us and start your journey to meaningful connections!</p>
+          <div className="flex gap-4">
+            <Link href="/login" className="secondary-btn w-[200px]">
+              Login
+            </Link>
+            <Link href="/register" className="primary-btn w-[200px]">
+              Join Merry Match
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // แสดงสถานะการโหลดเฉพาะเมื่อกำลังโหลดครั้งแรกและยังไม่มีข้อมูลใดๆ
   if (loading && users.length === 0) {

@@ -13,9 +13,17 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ในอนาคตจะได้จากระบบ login แต่ตอนนี้ mockup ไว้ก่อน
-    const user_id = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a";
-    
+    // ใช้ user_id จาก query params
+    const user_id = req.query.user_id;
+
+    // ถ้าไม่มี user_id ให้ส่ง error กลับไป
+    if (!user_id) {
+      return res.status(400).json({
+        error: "User ID is required",
+        count: 0,
+        merry_per_day: 10,
+      });
+    }
 
     // รับวันที่จาก client หรือใช้วันที่ปัจจุบัน
     let clientDate;
@@ -135,6 +143,10 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error("Error checking merry limit:", error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      error: error.message,
+      count: 0, // ส่งค่าเริ่มต้นกลับไปเมื่อเกิดข้อผิดพลาด
+      merry_per_day: 10, // ส่งค่าเริ่มต้นกลับไปเมื่อเกิดข้อผิดพลาด
+    });
   }
 }
