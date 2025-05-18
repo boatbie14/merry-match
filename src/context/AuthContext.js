@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 const AuthContext = createContext();
 
@@ -7,32 +7,35 @@ export function AuthProvider({ children }) {
   const [userInfo, setUserInfo] = useState(null);
   const [checkingLogin, setCheckingLogin] = useState(true);
 
+  // โหลดข้อมูลผู้ใช้เมื่อแอปเริ่มทำงาน
   useEffect(() => {
     async function loadUser() {
       try {
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (!authUser || authError) {
+        if (!session?.user || sessionError) {
           setUserInfo(null);
           setCheckingLogin(false);
           return;
         }
 
-        // ดึงข้อมูลเพิ่มเติมจากตาราง users โดยใช้ id ที่ได้จาก auth
+        const authUser = session.user;
+
+        // ดึงข้อมูลจากตาราง users โดยใช้ user id
         const { data: profile, error: profileError } = await supabase
-          .from("users")
-          .select("*")
-          .eq("id", authUser.id)
+          .from('users')
+          .select('*')
+          .eq('id', authUser.id)
           .single();
 
         if (profileError) {
-          console.error("Error loading user profile:", profileError.message);
+          console.error('Error loading user profile:', profileError.message);
+          setUserInfo(authUser); // fallback แค่ user auth
+        } else {
+          setUserInfo({ ...authUser, ...profile });
         }
-
-        // รวมข้อมูล auth กับ profile
-        setUserInfo({ ...authUser, ...profile });
       } catch (err) {
-        console.error("Unexpected error loading user:", err);
+        console.error('Unexpected error loading user:', err);
         setUserInfo(null);
       } finally {
         setCheckingLogin(false);
@@ -41,6 +44,7 @@ export function AuthProvider({ children }) {
 
     loadUser();
 
+    // ฟัง event เมื่อ login/logout เปลี่ยน
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         loadUser();
@@ -66,7 +70,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
