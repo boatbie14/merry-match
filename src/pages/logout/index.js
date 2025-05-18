@@ -1,8 +1,6 @@
-// pages/logout.js
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import axios from 'axios';
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -10,10 +8,16 @@ export default function LogoutPage() {
   useEffect(() => {
     const logout = async () => {
       try {
-        await axios.post('/api/auth/logout');
-        router.push('/login');
+        // 1. Sign out จาก Supabase
+        await supabase.auth.signOut();
+
+        // 2. ลบ token สำรอง (เผื่อหลุดระบบ)
+        localStorage.removeItem("sb-dlvptnewdgewaptlqbsa-auth-token");
+
+        // 3. redirect ไปหน้า login
+        router.push("/login");
       } catch (err) {
-        console.error('Logout failed', err);
+        console.error("Logout failed", err);
       }
     };
 
