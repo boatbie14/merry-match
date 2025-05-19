@@ -8,11 +8,9 @@ const HomePage = () => {
   const { userInfo, isLoggedIn } = useAuth();
   const isAuthenticated = userInfo !== null || isLoggedIn;
 
-
   return (
     <div className=" flex  justify-center items-center bg-[#160404] ">
       <div className="m-auto w-full max-w-[1440px] ">
-     
         <section className=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
           <div className="container mx-auto px-6 relative">
             {/* Decorative Elements */}
@@ -27,8 +25,8 @@ const HomePage = () => {
                   first &apos;Merry&apos;
                 </h1>
                 <p className="text-xl text-white mb-12">
-                  If you feel lonely, let&apos;s start meeting new people in your
-                  area! <br />
+                  If you feel lonely, let&apos;s start meeting new people in
+                  your area! <br />
                   Don&apos;t forget to get Merry with us
                 </p>
                 {isAuthenticated ? (
@@ -55,6 +53,8 @@ const HomePage = () => {
                     <Image
                       src="/images/image-1.png"
                       alt="Profile1"
+                      width={286}
+                      height={500}
                       className="w-full h-full object-cover rounded-[999px]"
                     />
                   </div>
@@ -68,9 +68,12 @@ const HomePage = () => {
                     <Image
                       src="/images/image-2.png"
                       alt="Profile2"
+                      width={286}
+                      height={500}
                       className="w-full h-full object-cover rounded-[999px] grayscale "
                     />
                   </div>
+
                   <div className="relative">
                     <div className="absolute flex flex-row w-[180px] bottom-[-180px] left-[170px] md:bottom-[150px] md:left-[-230px] bg-[#64001D] text-white p-3 rounded-[24px_24px_0px_24px] text-sm font-semibold">
                       <svg
@@ -93,11 +96,13 @@ const HomePage = () => {
 
                 <div className="absolute w-[60px] h-[60px] top-[-100px] right-[-355px] bg-[#320000] rounded-full">
                   <div className="relative">
-                    <div className="absolute top-[30px] left-[-15px] ">
+                    <div className="absolute top-[30px] left-[-15px]">
                       <Image
                         src="/images/smile-emoji.png"
                         alt="smile-emoji"
-                        className="w-7 h-7 object-cover rounded-full "
+                        width={28}
+                        height={28}
+                        className="object-cover rounded-full"
                       />
                     </div>
                   </div>
@@ -221,6 +226,8 @@ const HomePage = () => {
                           <Image
                             src="/images/boy.png"
                             alt="boy"
+                            width={60}
+                            height={60}
                             className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "
                           />
                         </div>
@@ -296,7 +303,9 @@ const HomePage = () => {
                   <Image
                     src="/images/image-556.png"
                     alt="Upload-emoji"
-                    className="w-[50px] h-[50px] object-cover rounded-full "
+                    width={50}
+                    height={50}
+                    className="object-cover rounded-full"
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -307,11 +316,12 @@ const HomePage = () => {
                 </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
                   <Image
                     src="/images/image-556-1.png"
                     alt="Explore-emoji"
-                    className="w-[50px] h-[50px] "
+                    width={50}
+                    height={50}
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -322,11 +332,12 @@ const HomePage = () => {
                 </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
                   <Image
                     src="/images/image-556-2.png"
                     alt="Explore-emoji"
-                    className="w-[50px] h-[50px] "
+                    width={50}
+                    height={50}
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -337,11 +348,13 @@ const HomePage = () => {
                 </p>
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
-                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
+                <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
                   <Image
                     src="/images/image-556-3.png"
                     alt="Explore-emoji"
-                    className="w-[50px] h-[50px] "
+                    width={50}
+                    height={50}
+                    className="object-cover"
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
@@ -366,11 +379,17 @@ const HomePage = () => {
                   and matching someone new
                 </h2>
                 {isAuthenticated ? (
-                  <Link href="/matching" className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
+                  <Link
+                    href="/matching"
+                    className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10"
+                  >
                     Start Matching!
                   </Link>
                 ) : (
-                  <Link href="/matching" className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
+                  <Link
+                    href="/matching"
+                    className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10"
+                  >
                     Start Matching!
                   </Link>
                 )}
@@ -378,8 +397,6 @@ const HomePage = () => {
             </div>
           </div>
         </section>
-
-      
       </div>
     </div>
   );

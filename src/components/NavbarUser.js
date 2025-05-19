@@ -12,26 +12,8 @@ import { IoLogOutOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
 
+// DesktopAlertMenuItems
 
-export const DesktopAlertMenuItems = () => {
-  return (
-    <div className=" desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3">
-      <div className="flex flex-row space-x-2 relative">
-        <img
-          src=""
-          alt="Alert-noti"
-          className=" w-[32px] h-[32px] rounded-full object-cover  "
-        />
-        <div className="heart-icon absolute top-[20px] left-[23px] ">
-          <FaHeart size="10" color="#FF1659" />
-        </div>
-        <span className="text-start text-xs">
-          &lsquo;Khal Drogo&rsquo; Just Merry you! Click here to see profile
-        </span>
-      </div>
-    </div>
-  );
-};
 
 export const DesktopUserMenuItems = () => {
   const router = useRouter();
@@ -140,75 +122,8 @@ export const MobileMenuItems = () => {
   );
 };
 
-export const MobileAlertMenuItems = () => {
-  return (
-    <div className="flex flex-col ">
-      <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
-        <div className=" desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3">
-          <div className="flex flex-row space-x-10 relative">
-            <img
-              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
-              alt=""
-              className=" w-[50px] h-[50px] rounded-full object-cover  "
-            />
-            <div className="heart-icon absolute top-[20px] left-[23px] ">
-              <FaHeart size="10" color="#FF1659" />
-            </div>
-            <span className="text-start text-2xl">
-              ‘Khal Drogo’ Just Merry you! <br /> Click here to see profile
-            </span>
-          </div>
-          <div className="flex flex-row space-x-10 relative">
-            <img
-              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
-              alt=""
-              className=" w-[50px] h-[50px] rounded-full object-cover  "
-            />
-            <div className="heart-icon absolute top-[20px] left-[23px] ">
-              <FaHeart size="10" color="#FF1659" />
-            </div>
-            <span className="text-start text-2xl">
-              ‘khal Drogo’ Just Merry you! <br /> Click here to see profile
-            </span>
-          </div>
-          <div className="flex flex-row space-x-10 relative">
-            <img
-              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
-              alt=""
-              className=" w-[50px] h-[50px] rounded-full object-cover  "
-            />
-            <div className="heart-icon absolute top-[20px] left-[23px] ">
-              <FaHeart size="10" color="#FF1659" />
-            </div>
-            <span className="text-start text-2xl">
-              ‘Khal Drogo’ Just Merry you! <br /> Click here to see profile
-            </span>
-          </div>
-          <div className="flex flex-row space-x-10 relative">
-            <img
-              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
-              alt=""
-              className=" w-[50px] h-[50px] rounded-full object-cover "
-            />
-            <span className="text-start text-2xl">
-              ‘Khal Drogo’ Just Merry you! <br /> Click here to see profile
-            </span>
-          </div>
-          <div className="flex flex-row space-x-10 relative">
-            <img
-              src="https://ichef.bbci.co.uk/ace/standard/976/cpsprodpb/8976/production/_94709153_kurt_getty.jpg"
-              alt=""
-              className=" w-[50px] h-[50px] rounded-full object-cover "
-            />
-            <span className="text-start text-2xl">
-              ‘Khal Drogo’ Just Merry you! <br /> Click here to see profile
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+// MobileAlertMenuItems
+
 
 const NavbarUser = () => {
   const { userInfo } = useAuth();
@@ -308,7 +223,8 @@ const NavbarUser = () => {
                   ref={alertMenuRef}
                   className="absolute overflow-auto  md:top-[45px] md:right-[-70px]   mt-2 w-[251px] h-[214px] bg-white  rounded-lg shadow-xl/50 "
                 >
-                  <DesktopAlertMenuItems />
+                  {/* DesktopAlertMenuItems rendering */}
+                  {/* <DesktopAlertMenuItems /> */}
                 </div>
               )}
             </div>
@@ -323,6 +239,8 @@ const NavbarUser = () => {
                     "https://pbs.twimg.com/media/FKWwGZFVUAY2lKN?format=jpg&name=small"
                   }
                   alt="profile-logo-image"
+                  width={48}
+                  height={48}
                   className="w-[48px] h-[48px] rounded-full  object-cover "
                 />
               </button>
@@ -366,7 +284,8 @@ const NavbarUser = () => {
           } z-20`}
         >
           <div className="mobile-menu items md:hidden flex flex-col h-full overflow-y-auto px-6 py-5 inset-shadow-sm/20 ">
-            <MobileAlertMenuItems />
+          {/* MobileAlertMenuItems rendering */}
+            {/* <MobileAlertMenuItems /> */}
           </div>
         </div>
       </div>
