@@ -164,6 +164,19 @@ export default function UploadPhotoInput({ name, value, onChange }) {
     fileInput.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
+        // ✅ เช็คว่าเป็นรูปภาพ
+        if (!file.type.startsWith("image/")) {
+          alert("Please upload a valid image file.");
+          return;
+        }
+    
+        // ✅ เช็คขนาดไม่เกิน 5MB
+        const maxSizeInMB = 5;
+        if (file.size > maxSizeInMB * 1024 * 1024) {
+          alert(`File is too large. Maximum size is ${maxSizeInMB}MB.`);
+          return;
+        }
+    
         const reader = new FileReader();
         reader.onload = (event) => {
           const current = Array.isArray(value)
@@ -172,16 +185,17 @@ export default function UploadPhotoInput({ name, value, onChange }) {
                 id: `img${i + 1}`,
                 src: "",
               }));
-
+    
           const updated = current.map((item) =>
             item.id === id ? { ...item, src: event.target.result, file } : item
           );
-
+    
           onChange(updated);
         };
         reader.readAsDataURL(file);
       }
     };
+    
 
     fileInput.click();
   };
@@ -204,7 +218,7 @@ export default function UploadPhotoInput({ name, value, onChange }) {
 
   return (
     <Box>
-      <Typography sx={{ fontSize: 16, fontWeight: 500, mb: 1 }}>
+      <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 1, color: "#424C6B" }}>
         Upload at least 2 photos
       </Typography>
       <DndContext

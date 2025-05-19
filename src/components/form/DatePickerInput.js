@@ -1,56 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { IoCalendarOutline } from "react-icons/io5";
 
+/**
+ * Flexible DatePickerInput
+ * - ใช้ได้ทั้ง controlled (value/onChange) และ uncontrolled
+ * - รองรับ label, name, placeholder, ...props
+ */
 export default function DatePickerInput({
-    label = "",
-    name = "",
-    value,
-    onChange,
-    placeholder = "dd/MM/yyyy",
-  }) {
-    const [internalValue, setInternalValue] = useState(value || null);
-  
-    const handleChange = (newValue) => {
+  label = "",
+  name = "",
+  placeholder = "dd/MM/yyyy",
+  value,
+  onChange,
+  ...props
+}) {
+  // ถ้า controlled จะใช้ value/onChange จาก props
+  // ถ้าไม่ controlled จะใช้ state ภายใน
+  const isControlled = value !== undefined && typeof onChange === "function";
+  const [internalValue, setInternalValue] = useState(value ?? null);
+
+  // sync internalValue ถ้า value จากข้างนอกเปลี่ยน (กรณี controlled)
+  useEffect(() => {
+    if (isControlled) {
+      setInternalValue(value);
+    }
+  }, [value, isControlled]);
+
+  // handle change
+  const handleChange = (newValue) => {
+    if (!isControlled) {
       setInternalValue(newValue);
-  
-      if (onChange && typeof onChange === "function") {
-        if (name) {
-          onChange({
-            target: {
-              name,
-              value: newValue,
-            },
-          });
-        } else {
-          onChange(newValue);
-        }
+    }
+    if (onChange && typeof onChange === "function") {
+      // ถ้ามี name ส่ง event แบบ input
+      if (name) {
+        onChange({
+          target: {
+            name,
+            value: newValue,
+          },
+        });
+      } else {
+        onChange(newValue);
       }
-    };
-  
-    return (
-      <Box>
-        {label && (
-          <Box sx={{ fontSize: "16px", fontWeight: 500, mb: 1 }}>{label}</Box>
-        )}
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            value={internalValue}
-            onChange={handleChange}
-            maxDate={new Date()} 
-            format="dd/MM/yyyy"
-            slots={{
-              openPickerIcon: IoCalendarOutline,
-            }}
-            slotProps={{
-              textField: {
-                name,
-                fullWidth: true,
-                placeholder,
+    }
+  };
+
+  return (
+    <Box>
+      {label && (
+        <Box sx={{ fontSize: "16px", fontWeight: 500, mb: 1 }}>{label}</Box>
+      )}
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DatePicker
+          value={internalValue}
+          onChange={handleChange}
+          maxDate={new Date()}
+          format="dd/MM/yyyy"
+          slots={{
+            openPickerIcon: IoCalendarOutline,
+          }}
+          slotProps={{
+            textField: {
+              name,
+              fullWidth: true,
+              placeholder,
+              InputProps: {
                 sx: {
+                  background: "#ffffff",
                   height: "48px",
                   borderRadius: "8px",
                   fontSize: "16px",
@@ -76,10 +97,11 @@ export default function DatePickerInput({
                   },
                 },
               },
-            }}
-          />
-        </LocalizationProvider>
-      </Box>
-    );
-  }
-  
+            },
+          }}
+          {...props}
+        />
+      </LocalizationProvider>
+    </Box>
+  );
+}

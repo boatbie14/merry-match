@@ -8,14 +8,14 @@ import SelectInput from "@/components/form/SelectInput";
 import MultiSelectTagInput from "@/components/form/MultiSelectTagInput";
 import UploadPhotoInput from "@/components/form/UploadPhotoInput";
 import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
-import { validateImages } from "@/utils/validateImages";
+import { validateRegisterForm } from "@/utils/validateRegisterForm";
+
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [generalError, setGeneralError] = useState("");
 
   const {
-    register,
     handleSubmit,
     control,
     watch,
@@ -51,65 +51,45 @@ export default function RegisterPage() {
   const onSubmit = async (values) => {
     setGeneralError("");
 
-    if (values.password !== values.confirmPassword) {
-      return setGeneralError("Passwords do not match");
+    console.log(values);
+
+    const isValid = validateRegisterForm(values, setError);
+    if (!isValid) return;
+
+    try {
+      const signUpRes = await fetch("/api/pre-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+        }),
+      });
+      const signUpData = await signUpRes.json();
+
+      if (!signUpRes.ok) {
+        return setGeneralError(signUpData.error || "Sign up failed");
+      }
+
+      const userId = signUpData.userId;
+      const imageUrls = await uploadImagesToSupabase(images, userId);
+
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, ...imageUrls, userId }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return setGeneralError(result.error || "Signup failed");
+      }
+
+      router.push("/login");
+    } catch (err) {
+      setGeneralError("Unexpected error occurred. Please try again.");
     }
-
-    const dob = new Date(values.date_of_birth);
-    const today = new Date();
-    const age =
-      today.getFullYear() -
-      dob.getFullYear() -
-      (today.getMonth() < dob.getMonth() ||
-      (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())
-        ? 1
-        : 0);
-
-    if (age < 18) {
-      return setGeneralError("You must be at least 18 years old to register.");
-    }
-
-    const imageError = validateImages(values.images);
-    if (imageError) {
-      return setError("images", { type: "manual", message: imageError });
-    }
-
-    // 1. สมัคร user ใน auth เพื่อเอา userId มาก่อน
-    const signUpRes = await fetch("/api/pre-signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: values.email, password: values.password }),
-    });
-    const signUpData = await signUpRes.json();
-
-    if (!signUpRes.ok) {
-      return setGeneralError(signUpData.error || "Sign up failed");
-    }
-
-    const userId = signUpData.userId;
-
-    // 2. อัปโหลดรูปพร้อม userId
-    const imageUrls = await uploadImagesToSupabase(images, userId);
-
-    // 3. ส่งข้อมูลอื่นไป backend signup
-    const response = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...values,
-        ...imageUrls,
-        userId,
-        password: values.password, // เผื่อเอาไว้ใช้อีกครั้ง
-      }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      return setGeneralError(result.error || "Signup failed");
-    }
-
-    router.push("/login");
   };
 
   const stepTitles = {
@@ -119,19 +99,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="row">
-      <div className="container-full">
+    <div className="row bg-[#FCFCFE] min-h-screen pb-32 bg-deco-circle mt-14 md:mt-20">
+      <div className="container mx-auto px-4 md:px-8 lg:px-20">
         <form
           id="register-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="max-w-6xl mx-auto mt-10"
+          className="w-full max-w-full  pt-16 md:pt-[85px] md:max-w-4xl lg:max-w-6xl mx-auto"
         >
-          <div className="flex justify-between">
+          <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-0">
             <div>
               <h1 className="subhead">Register</h1>
-              <h2 className="main-header">Join us and start matching</h2>
+              <h2 className="main-header md:w-[453px]">Join us and start matching</h2>
             </div>
-            <div className="flex justify-center items-center gap-4 mb-10">
+            <div className="flex items-center gap-2 md:gap-4 mb-10">
               {[1, 2, 3].map((s) => (
                 <button
                   key={s}
@@ -139,24 +119,24 @@ export default function RegisterPage() {
                   onClick={() => setStep(s)}
                   className={`text-center p-2 border-1 rounded-2xl ${
                     step === s
-                      ? "border-[#A62D82] font-bold w-40 md:w-52 h-20"
-                      : "border-gray-300 w-20 h-20"
+                      ? "border-[#A62D82] font-bold md:w-66 md:h-20 w-auto h-14"
+                      : "border-gray-300 md:w-20 md:h-20 w-14 h-14"
                   }`}
                 >
-                  <div className="flex justify-center items-center">
+                  <div className="flex justify-center items-center gap-2 md:gap-4">
                     <div
                       className={`rounded-xl flex items-center justify-center ${
                         step === s
-                          ? "bg-gray-100 p-4 w-12 h-12 text-[#A62D82]"
-                          : "bg-gray-200 w-8 h-8 text-gray-500"
+                          ? "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#A62D82] md:text-2xl font-bold"
+                          : "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#9AA1B9] md:text-2xl font-bold"
                       }`}
                     >
                       {s}
                     </div>
                     {step === s && (
-                      <div className="w-1/2">
-                        <div className="text-xs text-gray-400">Step {s}/3</div>
-                        <div className="text-[#A62D82] text-xs">
+                      <div className=" text-start">
+                        <div className="text-xs font-medium text-gray-400">Step {s}/3</div>
+                        <div className="text-[#A62D82] font-extrabold whitespace-nowrap">
                           {stepTitles[s]}
                         </div>
                       </div>
@@ -169,26 +149,37 @@ export default function RegisterPage() {
 
           {step === 1 && (
             <div>
-              <p className="section-title py-4">Basic Information</p>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Controller
-                  name="name"
-                  control={control}
-                  rules={{ required: "Name is required" }}
-                  render={({ field }) => <TextInput label="Name" {...field} />}
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm">{errors.name.message}</p>
-                )}
+              <p className="section-title py-4 mt-10">Basic Information</p>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6" >
+                <div>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field }) => (
+                      <TextInput label="Name" {...field} />
+                    )}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
                 <Controller
                   name="date_of_birth"
                   control={control}
-                  rules={{ required: "Date of birth is required" }}
                   render={({ field }) => (
                     <div>
-                      <DatePickerInput label="Date of Birth" {...field} />
+                      <DatePickerInput
+                        label="Date of Birth"
+                        value={field.value || null}
+                        onChange={(date) => field.onChange(date)}
+                        name={field.name}
+                        placeholder="dd/MM/yyyy"
+                      />
                       {errors.date_of_birth && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-sm mt-2">
                           {errors.date_of_birth.message}
                         </p>
                       )}
@@ -199,7 +190,6 @@ export default function RegisterPage() {
                 <Controller
                   name="location"
                   control={control}
-                  rules={{ required: "Location is required" }}
                   render={({ field }) => (
                     <div>
                       <SelectInput
@@ -220,7 +210,7 @@ export default function RegisterPage() {
                         {...field}
                       />
                       {errors.location && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-sm mt-2">
                           {errors.location.message}
                         </p>
                       )}
@@ -231,7 +221,6 @@ export default function RegisterPage() {
                 <Controller
                   name="city"
                   control={control}
-                  rules={{ required: "City is required" }}
                   render={({ field }) => (
                     <div>
                       <SelectInput
@@ -254,7 +243,7 @@ export default function RegisterPage() {
                         {...field}
                       />
                       {errors.city && (
-                        <p className="text-red-500 text-sm">
+                        <p className="text-red-500 text-sm mt-2">
                           {errors.city.message}
                         </p>
                       )}
@@ -262,228 +251,301 @@ export default function RegisterPage() {
                   )}
                 />
 
-                <Controller
-                  name="username"
-                  control={control}
-                  rules={{ required: "Username is required" }}
-                  render={({ field }) => (
-                    <TextInput label="Username" {...field} />
+                <div>
+                  <Controller
+                    name="username"
+                    control={control}
+                    render={({ field }) => (
+                      <TextInput label="Username" {...field} />
+                    )}
+                  />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.username.message}
+                    </p>
                   )}
-                />
-                {errors.username && (
-                  <p className="text-red-500 text-sm">
-                    {errors.username.message}
-                  </p>
-                )}
+                </div>
 
-                <Controller
-                  name="email"
-                  control={control}
-                  rules={{ required: "Email is required" }}
-                  render={({ field }) => <TextInput label="Email" {...field} />}
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email.message}</p>
-                )}
-
-                <Controller
-                  name="password"
-                  control={control}
-                  rules={{ required: "Password is required" }}
-                  render={({ field }) => (
-                    <PasswordInput label="Password" {...field} />
+                <div>
+                  <Controller
+                    name="email"
+                    control={control}
+                    render={({ field }) => (
+                      <TextInput label="Email" {...field} />
+                    )}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.email.message}
+                    </p>
                   )}
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm">
-                    {errors.password.message}
-                  </p>
-                )}
-                {password && password.length < 8 && (
-                  <p className="text-yellow-500 text-sm">
-                    Password should be at least 8 characters
-                  </p>
-                )}
+                </div>
 
-                <Controller
-                  name="confirmPassword"
-                  control={control}
-                  rules={{ required: "Please confirm your password" }}
-                  render={({ field }) => (
-                    <PasswordInput label="Confirm Password" {...field} />
+                <div>
+                  <Controller
+                    name="password"
+                    control={control}
+                    render={({ field }) => (
+                      <PasswordInput label="Password" {...field} />
+                    )}
+                  />
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.password.message}
+                    </p>
                   )}
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-                {confirmPassword && confirmPassword !== password && (
-                  <p className="text-red-500 text-sm">Passwords do not match</p>
-                )}
+                  {password && password.length < 8 && (
+                    <p className="text-yellow-500 text-sm mt-2">
+                      Password should be at least 8 characters
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Controller
+                    name="confirmPassword"
+                    control={control}
+                    render={({ field }) => (
+                      <PasswordInput label="Confirm Password" {...field} />
+                    )}
+                  />
+                  {errors.confirmPassword && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.confirmPassword.message}
+                    </p>
+                  )}
+                  {confirmPassword && confirmPassword !== password && (
+                    <p className="text-red-500 text-sm mt-2">
+                      Passwords do not match
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-50 z-50">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="ghost-btn"
-                  disabled
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStep(2)}
-                  className="primary-btn"
-                >
-                  Next Step
-                </button>
+              <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                <div className=" text-gray-400">
+                  <p>
+                    <span className="text-gray-500 font-medium">1</span>/3
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="ghost-btn"
+                    disabled
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    className="primary-btn"
+                  >
+                    Next Step
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
           {step === 2 && (
             <div>
-              <p className="section-title py-4">Identities and Interests</p>
+              <p className="section-title py-4 mt-10">
+                Identities and Interests
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Controller
-                  name="sexual_identity"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectInput
-                      label="Sexual Identities"
-                      options={[
-                        { value: "male", label: "Male" },
-                        { value: "female", label: "Female" },
-                        { value: "non-binary", label: "Non-binary" },
-                      ]}
-                      {...field}
-                    />
-                  )}
-                />
-                <Controller
-                  name="sexual_preference"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectInput
-                      label="Sexual Preferences"
-                      options={[
-                        { value: "men", label: "Men" },
-                        { value: "women", label: "Women" },
-                        { value: "non-binary", label: "Non-binary" },
-                      ]}
-                      {...field}
-                    />
-                  )}
-                />
-                <Controller
-                  name="racial_preference"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectInput
-                      label="Racial Preferences"
-                      options={[
-                        { value: "asian", label: "Asian" },
-                        { value: "caucasian", label: "Caucasian" },
-                        { value: "african", label: "African" },
-                        { value: "mixed", label: "Mixed" },
-                        { value: "hispanic", label: "Hispanic" },
-                        { value: "no_preference", label: "No preference" },
-                        { value: "other", label: "Other" },
-                      ]}
-                      {...field}
-                    />
-                  )}
-                />
-                <Controller
-                  name="meeting_interest"
-                  control={control}
-                  render={({ field }) => (
-                    <SelectInput
-                      label="Meeting Interests"
-                      options={[
-                        { value: "friendship", label: "Friendship" },
-                        { value: "relationship", label: "Relationship" },
-                        { value: "casual", label: "Casual" },
-                        { value: "networking", label: "Networking" },
-                      ]}
-                      {...field}
-                    />
-                  )}
-                />
+                <div>
+                  <Controller
+                    name="sexual_identity"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <SelectInput
+                          label="Sexual Identities"
+                          options={[
+                            { value: "male", label: "Male" },
+                            { value: "female", label: "Female" },
+                            { value: "non-binary", label: "Non-binary" },
+                          ]}
+                          {...field}
+                        />
+                        {errors.sexual_identity && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.sexual_identity.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <Controller
+                    name="sexual_preference"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <SelectInput
+                          label="Sexual Preferences"
+                          options={[
+                            { value: "men", label: "Men" },
+                            { value: "women", label: "Women" },
+                            { value: "non-binary", label: "Non-binary" },
+                          ]}
+                          {...field}
+                        />
+                        {errors.sexual_preference && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.sexual_preference.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <Controller
+                    name="racial_preference"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <SelectInput
+                          label="Racial Preferences"
+                          options={[
+                            { value: "asian", label: "Asian" },
+                            { value: "caucasian", label: "Caucasian" },
+                            { value: "african", label: "African" },
+                            { value: "mixed", label: "Mixed" },
+                            { value: "hispanic", label: "Hispanic" },
+                            { value: "no_preference", label: "No preference" },
+                            { value: "other", label: "Other" },
+                          ]}
+                          {...field}
+                        />
+                        {errors.racial_preference && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.racial_preference.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <Controller
+                    name="meeting_interest"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <SelectInput
+                          label="Meeting Interests"
+                          options={[
+                            { value: "friendship", label: "Friendship" },
+                            { value: "relationship", label: "Relationship" },
+                            { value: "casual", label: "Casual" },
+                            { value: "networking", label: "Networking" },
+                          ]}
+                          {...field}
+                        />
+                        {errors.meeting_interest && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.meeting_interest.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mt-6">
                 <Controller
                   name="hobbies"
                   control={control}
                   render={({ field }) => (
-                    <MultiSelectTagInput
-                      label="Hobbies / Interest (Maximum 10)"
-                      {...field}
-                    />
+                    <>
+                      <MultiSelectTagInput
+                        label="Hobbies / Interest (Maximum 10)"
+                        {...field}
+                      />
+                      {errors.hobbies && (
+                        <p className="text-red-500 text-sm mt-2">
+                          {errors.hobbies.message}
+                        </p>
+                      )}
+                    </>
                   )}
                 />
               </div>
-              <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-50 z-50">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className="ghost-btn"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStep(3)}
-                  className="primary-btn"
-                >
-                  Next Step
-                </button>
+              <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                <div className=" text-gray-400">
+                  <p>
+                    <span className="text-gray-500 font-medium">2</span>/3
+                  </p>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="ghost-btn"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStep(3)}
+                    className="primary-btn"
+                  >
+                    Next Step
+                  </button>
+                </div>
               </div>
             </div>
           )}
 
           {step === 3 && (
             <div>
-              <p className="section-title py-4">Profile pictures</p>
+              <p className="section-title py-4 mt-10">Profile pictures</p>
 
               <div>
-                <Controller
-                  name="images"
-                  control={control}
-                  render={({ field }) => (
-                    <UploadPhotoInput
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
+                <div>
+                  <Controller
+                    name="images"
+                    control={control}
+                    render={({ field }) => (
+                      <UploadPhotoInput
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+
+                  {errors.images && (
+                    <p className="text-red-500 text-sm mt-2">
+                      {errors.images.message}
+                    </p>
                   )}
-                />
+                </div>
 
-                {errors.images && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {errors.images.message}
-                  </p>
-                )}
-                {images && images.filter((img) => img.src).length < 2 && (
-                  <p className="text-red-500 text-sm">
-                    Please upload at least 2 photos.
-                  </p>
-                )}
-                {images && !images[0]?.src && (
-                  <p className="text-red-500 text-sm">
-                    First image is required as your profile picture.
-                  </p>
-                )}
-
-                <div className="flex justify-between mt-4 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-50 z-50">
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="ghost-btn"
-                  >
-                    Back
-                  </button>
-                  <button type="submit" className="primary-btn">
-                    Confirm
-                  </button>
+                <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                  <div className=" text-gray-400">
+                    <p>
+                      <span className="text-gray-500 font-medium">3</span>/3
+                    </p>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setStep(2)}
+                      className="ghost-btn"
+                    >
+                      Back
+                    </button>
+                    <button type="submit" className="primary-btn">
+                      Confirm
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
