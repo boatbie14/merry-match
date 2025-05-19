@@ -1,17 +1,18 @@
 import React from "react";
-
+import NavbarMain from "../../components/NavbarMain";
+import Footer from "../../components/Footer";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 const HomePage = () => {
   const { userInfo, isLoggedIn } = useAuth();
   const isAuthenticated = userInfo !== null || isLoggedIn;
 
-
   return (
     <div className=" flex  justify-center items-center bg-[#160404] ">
       <div className="m-auto w-full max-w-[1440px] ">
-     
+        {/* Navbar place */}
+        <NavbarMain />
         <section className=" md:h-[758px] overflow-hidden mt-20 pt-80 md:pt-44 pb-20 bg-[#160404] ">
           <div className="container mx-auto px-6 relative">
             {/* Decorative Elements */}
@@ -39,7 +40,7 @@ const HomePage = () => {
                   </Link>
                 ) : (
                   <Link
-                    href="/matching"
+                    href="/login"
                     className="bg-[#C70039] text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-[#950028] transition-colors"
                   >
                     Start matching!
@@ -367,7 +368,7 @@ const HomePage = () => {
                     Start Matching!
                   </Link>
                 ) : (
-                  <Link href="/matching" className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
+                  <Link href="/login" className="bg-[#FFE1EA] text-[#950028] px-6 py-3 rounded-full font-bold hover:bg-[#FFB1C8] transition-colors relative z-10">
                     Start Matching!
                   </Link>
                 )}
@@ -376,7 +377,8 @@ const HomePage = () => {
           </div>
         </section>
 
-      
+        {/* <Footer /> */}
+        <Footer />
       </div>
     </div>
   );
