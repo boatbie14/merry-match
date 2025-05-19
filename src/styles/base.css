@@ -225,3 +225,19 @@
   color: #fff;
   font-size: 24px;
 }
+
+.bg-deco-circle {
+  background-image: radial-gradient(
+      60px at 30px 150px,
+      #faf1ed 100%,
+      transparent 20%
+    ),
+    radial-gradient(4px at 100px 240px, #7B4429 100%, transparent 20%),
+    radial-gradient(30px at 1900px 595px, #faf1ed 100%, transparent 20%);
+}
+
+@media (max-width: 768px) {
+  .bg-deco-circle {
+    background-image: none;
+  }
+}
