@@ -1,7 +1,9 @@
 import React from "react";
+
 import { useState } from "react";
 import { IoIosMenu } from "react-icons/io";
 import Link from "next/link";
+
 
 const NavbarNonUser = () => {
   const [isOpen, setIsOpen] = useState(false);

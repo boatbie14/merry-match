@@ -1,5 +1,6 @@
 import React from "react";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -23,12 +24,12 @@ const HomePage = () => {
               <div className="max-w-xl w-[358px] relative z-10">
                 <h1 className="text-6xl font-black text-white leading-tight mb-6">
                   Make the <br />
-                  first 'Merry'
+                  first &apos;Merry&apos;
                 </h1>
                 <p className="text-xl text-white mb-12">
-                  If you feel lonely, let's start meeting new people in your
+                  If you feel lonely, let&apos;s start meeting new people in your
                   area! <br />
-                  Don't forget to get Merry with us
+                  Don&apos;t forget to get Merry with us
                 </p>
                 {isAuthenticated ? (
                   <Link
@@ -51,7 +52,7 @@ const HomePage = () => {
               <div className="Hero-profile relative w-1/2 h-[600px]  ">
                 <div>
                   <div className="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
-                    <img
+                    <Image
                       src="/images/image-1.png"
                       alt="Profile1"
                       className="w-full h-full object-cover rounded-[999px]"
@@ -64,7 +65,7 @@ const HomePage = () => {
 
                 <div>
                   <div className=" Second-Profile absolute right-[-210px] bottom-[10px]  md:right-[510px] md:bottom-[360px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
-                    <img
+                    <Image
                       src="/images/image-2.png"
                       alt="Profile2"
                       className="w-full h-full object-cover rounded-[999px] grayscale "
@@ -93,7 +94,7 @@ const HomePage = () => {
                 <div className="absolute w-[60px] h-[60px] top-[-100px] right-[-355px] bg-[#320000] rounded-full">
                   <div className="relative">
                     <div className="absolute top-[30px] left-[-15px] ">
-                      <img
+                      <Image
                         src="/images/smile-emoji.png"
                         alt="smile-emoji"
                         className="w-7 h-7 object-cover rounded-full "
@@ -119,14 +120,14 @@ const HomePage = () => {
                   everyone
                 </p>
                 <p className="text-[#F6F7FC] text-base leading-relaxed">
-                  Whether you're committed to dating, meeting new people,
+                  Whether you&apos;re committed to dating, meeting new people,
                   expanding your social network, meeting locals while traveling,
                   or even just making a small chat with strangers.
                   <br />
                   <br />
                   This site allows you to make your own dating profile, discover
                   new people, save favorite profiles, and let them know that
-                  you're interested
+                  you&apos;re interested
                 </p>
               </div>
               <div className="merry-match-card flex ml-10 lg:ml-40 xl:ml-20 md:pl-10 pl-0 lg:pt-20  pt-32 m-auto w-1/2  ">
@@ -217,7 +218,7 @@ const HomePage = () => {
                       <div className="relative">
                         <div className="absolute w-2.5 h-2.5 bg-[#612F16] rounded-full left-[90px] bottom-[110px] "></div>
                         <div className="absolute bg-amber-300 w-[60px] h-[60px] rounded-full top-[-100px] left-[-10px] ">
-                          <img
+                          <Image
                             src="/images/boy.png"
                             alt="boy"
                             className="  w-[60px] h-[60px] rounded-full object-cover object-top grayscale "
@@ -266,9 +267,11 @@ const HomePage = () => {
                           />
                         </svg>
                         <div className="absolute top-[0] right-[130px] w-[96px] h-[96px] bg-amber-950  rounded-full ">
-                          <img
+                          <Image
                             src="/images/girl.jpg"
                             alt="girl"
+                            width={96}
+                            height={96}
                             className="  w-[96px] h-[96px] rounded-full object-cover object-top grayscale"
                           />
                         </div>
@@ -290,7 +293,7 @@ const HomePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-4 gap-6">
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center">
-                  <img
+                  <Image
                     src="/images/image-556.png"
                     alt="Upload-emoji"
                     className="w-[50px] h-[50px] object-cover rounded-full "
@@ -305,7 +308,7 @@ const HomePage = () => {
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
+                  <Image
                     src="/images/image-556-1.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
@@ -320,14 +323,14 @@ const HomePage = () => {
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
+                  <Image
                     src="/images/image-556-2.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-3">
-                  Click 'Merry' for get to know!
+                  Click &apos;Merry&apos; for get to know!
                 </h3>
                 <p className="text-[#C8CCDB]">
                   Lorem ipsum is a placeholder text
@@ -335,7 +338,7 @@ const HomePage = () => {
               </div>
               <div className="bg-[#2A0B21] rounded-[40px] p-8 text-center">
                 <div className="w-[120px] h-[120px] bg-[#411032] rounded-full mx-auto mb-10 flex justify-center items-center ">
-                  <img
+                  <Image
                     src="/images/image-556-3.png"
                     alt="Explore-emoji"
                     className="w-[50px] h-[50px] "
@@ -359,7 +362,7 @@ const HomePage = () => {
               <div className="py-20 px-12   text-center relative">
                 <div className="absolute top-[50px] left-[-20px] inset-0 bg-[url('/vector.png')] bg-cover opacity-20"></div>
                 <h2 className="text-5xl font-extrabold text-white mb-12 relative z-10">
-                  Let's start finding <br />
+                  Let&apos;s start finding <br />
                   and matching someone new
                 </h2>
                 {isAuthenticated ? (

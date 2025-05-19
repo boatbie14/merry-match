@@ -10,6 +10,7 @@ import { BsFillBoxFill } from "react-icons/bs";
 import { GoAlertFill } from "react-icons/go";
 import { IoLogOutOutline } from "react-icons/io5";
 import Link from "next/link";
+import Image from "next/image";
 
 
 export const DesktopAlertMenuItems = () => {
@@ -25,7 +26,7 @@ export const DesktopAlertMenuItems = () => {
           <FaHeart size="10" color="#FF1659" />
         </div>
         <span className="text-start text-xs">
-          ‘Khal Drogo’ Just Merry you! Click here to see profile
+          &lsquo;Khal Drogo&rsquo; Just Merry you! Click here to see profile
         </span>
       </div>
     </div>
@@ -316,7 +317,7 @@ const NavbarUser = () => {
                 onClick={toggleUserMenu}
                 className="profile-logo hidden md:flex justify-center items-center w-[48px] h-[48px] bg-[#C70039] text-white py-3 rounded-full font-bold shadow-lg  "
               >
-                <img
+                <Image
                   src={
                     userInfo?.profile_image_url ||
                     "https://pbs.twimg.com/media/FKWwGZFVUAY2lKN?format=jpg&name=small"
