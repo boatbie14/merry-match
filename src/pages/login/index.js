@@ -8,35 +8,57 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [emailOrName, setEmailOrName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { isLoggedIn, checkingLogin } = useAuth();
 
   useEffect(() => {
+    // ถ้าเข้าสู่ระบบอยู่แล้ว ให้ redirect ไปหน้าแรก
     if (!checkingLogin && isLoggedIn) {
-      router.push('/'); // เปลี่ยนเส้นทางไปหน้าโฮมถ้าล็อกอินแล้ว
+      router.push('/');
     }
-  }, [checkingLogin, isLoggedIn, router]); 
+  }, [checkingLogin, isLoggedIn, router]);
 
   async function logIn(e) {
     e.preventDefault();
     setError('');
 
-    // 1. Login ด้วย email/password
+    let loginEmail = emailOrName;
+
+    // ตรวจสอบว่าผู้ใช้กรอก email หรือ name
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrName);
+
+    if (!isEmail) {
+      // ถ้าไม่ใช่ email ให้ค้น email จาก name
+      const { data: userByName, error: userNameError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('name', emailOrName)
+        .single();
+
+      if (userNameError || !userByName) {
+        setError('ไม่พบชื่อผู้ใช้นี้');
+        return;
+      }
+
+      loginEmail = userByName.email;
+    }
+
+    // ล็อกอินด้วย email และ password
     const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 
     if (loginError) {
-      setError(loginError.message);
+      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
       return;
     }
 
     const userId = loginData.user.id;
 
-    // 2. ดึง role จาก table `users` โดยใช้ user id
+    // ดึง role เพื่อ redirect ให้เหมาะสม
     const { data: userRecord, error: userError } = await supabase
       .from('users')
       .select('user_role')
@@ -48,13 +70,14 @@ export default function LoginPage() {
       return;
     }
 
-    // 3. redirect ตาม user_role
+    // ส่งผู้ใช้ไปยังหน้าที่ตรงกับบทบาท
     if (userRecord.user_role === 'admin') {
       router.push('/admin');
     } else {
       router.push('/');
     }
   }
+
 
   return (
     <>
@@ -87,9 +110,11 @@ export default function LoginPage() {
                 </label>
                 <input
                   id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={emailOrName}
+                  onChange={(e) => {
+                    setEmailOrName(e.target.value);
+                  }}
                   required
                   className="w-full p-3 border rounded-md mt-1"
                   placeholder="Enter Username or Email"
