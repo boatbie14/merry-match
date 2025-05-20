@@ -1,4 +1,4 @@
-//// this is new one 
+//// this is new one
 import React from "react";
 import { useRouter } from "next/router";
 
@@ -13,12 +13,13 @@ import { IoLogOutOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
 
-/// import Alertbox from components 
-import { DesktopAlertMenuItems, MobileAlertMenuItems } from '@/components/alert-box/Alert-box.js'
-
+/// import Alertbox from components
+import {
+  DesktopAlertMenuItems,
+  MobileAlertMenuItems,
+} from "@/components/alert-box/Alert-box.js";
 
 // DesktopAlertMenuItems Old placement
-
 
 export const DesktopUserMenuItems = () => {
   const router = useRouter();
@@ -34,7 +35,10 @@ export const DesktopUserMenuItems = () => {
       </button>
       <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
         <div className="profile-button-mobile-menu-items ">
-          <Link href="/profile" className="flex flex-row space-x-5 cursor-pointer ">
+          <Link
+            href="/profile"
+            className="flex flex-row space-x-5 cursor-pointer "
+          >
             <FaUser color="pink" />
             <span>profile</span>
           </Link>
@@ -78,7 +82,7 @@ export const MobileMenuItems = () => {
   const { setIsOpen } = useNavbar();
 
   const handleLogout = () => {
-    router.push("/logout-test");
+    router.push("/logout");
   };
 
   return (
@@ -88,10 +92,14 @@ export const MobileMenuItems = () => {
       </div>
       <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
         <div className="profile-button-mobile-menu-items ">
-          <button className="flex flex-row space-x-10 ">
+          <Link
+            href="/profile"
+            onClick={() => setIsOpen(false)}
+            className="flex flex-row space-x-10 "
+          >
             <FaUser color="pink" />
             <span>Profile</span>
-          </button>
+          </Link>
         </div>
         <div className="merrylist-button-mobile-menu-items">
           <Link
@@ -127,8 +135,7 @@ export const MobileMenuItems = () => {
   );
 };
 
-// MobileAlertMenuItems Old placement 
-
+// MobileAlertMenuItems Old placement
 
 const NavbarUser = () => {
   const { userInfo } = useAuth();
@@ -154,7 +161,10 @@ const NavbarUser = () => {
           <Link
             href="/"
             className="main-logo w-auto h-auto flex flex-row space-x-2 "
-            onClick={() => { setIsOpen(false); setIsAlertMobileMenuOpen(false); }}
+            onClick={() => {
+              setIsOpen(false);
+              setIsAlertMobileMenuOpen(false);
+            }}
           >
             <h1 className="flex text-4xl ">Merry</h1>{" "}
             <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
@@ -290,7 +300,7 @@ const NavbarUser = () => {
           } z-20`}
         >
           <div className="mobile-menu items md:hidden flex flex-col h-full overflow-y-auto px-6 py-5 inset-shadow-sm/20 ">
-          {/* MobileAlertMenuItems rendering */}
+            {/* MobileAlertMenuItems rendering */}
             <MobileAlertMenuItems />
           </div>
         </div>
