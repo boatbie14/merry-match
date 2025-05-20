@@ -1,5 +1,5 @@
 import { requireUser } from '@/middleware/requireUser';
-import { deleteMerryLike,getMerryLike } from '@/lib/query/merryLike';
+import { deleteMerryLike,getMerryLike } from '@/utils/query/merryLike';
 export default async function handler(req, res) {
 
   if (req.method !== 'DELETE')return res.status(405).json({ error: 'Method Not Allowed' });

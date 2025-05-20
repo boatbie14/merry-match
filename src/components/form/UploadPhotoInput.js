@@ -71,7 +71,7 @@ function SortableImageItem({ id, src, onRemove, onUpload, index }) {
   };
 
   return (
-    <Grid item xs={6} sm={4} md={3}>
+    <Grid sx={{ xs: '50%', sm: '33.33%', md: '25%' } }>
       {src ? (
         <ImageBox ref={setNodeRef} style={style} {...attributes} {...listeners}>
           <ImageWrapper>
@@ -132,7 +132,7 @@ function SortableImageItem({ id, src, onRemove, onUpload, index }) {
               height: 24,
               backgroundColor: "#AF2758",
               color: "white",
-              zIndex: 9999,
+              zIndex: 100,
               pointerEvents: "auto",
               "&:hover": { backgroundColor: "#951F49" },
             }}

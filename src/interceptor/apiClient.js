@@ -1,10 +1,6 @@
-// services/apiClient.js
-// ## TODO 😗🕐 HIDDEN CONSOLE.LOG data
+// ## TODO 😗🕐 delete CONSOLE.LOG data
 import axios from 'axios';
-import { createClient  } from '@supabase/supabase-js';
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
- const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/lib/supabaseClient';
 
 const baseURL = '/api';
 
@@ -15,7 +11,7 @@ const apiClient = axios.create({
   },
 });
 
-// ✅ Request Interceptor
+// Request Interceptor
 apiClient.interceptors.request.use(
  async (config) => {
       const {data} = await supabase.auth.getSession();
@@ -31,18 +27,17 @@ apiClient.interceptors.request.use(
   }
 );
 
-// ✅ Response Interceptor
+// Response Interceptor
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('Response Interceptor:', response);
+    // console.log('Response Interceptor:', response);
     return response;
   },
   (error) => {
     console.error('Response Interceptor Error:', error);
     if (error.response?.status === 401) {
       console.log('Unauthorized - Redirecting or clearing token');
-      localStorage.removeItem('authToken');
-      // router.push('/login');
+      window.location.href = '/logout'
     } else if (error.response?.status === 404) {
       console.log('Resource Not Found');
     }
@@ -50,5 +45,4 @@ apiClient.interceptors.response.use(
   }
 );
 
-// ✅ export apiClient และฟังก์ชัน
 export default apiClient;

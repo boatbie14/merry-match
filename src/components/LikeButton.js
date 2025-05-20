@@ -5,7 +5,7 @@ const LikeButton = ({ userId }) => {
   const { isLiked, toggleLike, inProgressIds } = useMerryLike();
   const liked = isLiked(userId);
   const isProcessing = inProgressIds.has(userId);
-//TODO lottie file
+//TODO 💽 optional lottie file
   return (
     <button
       className={`gray-icon-btn ${liked ? "active" : ""}`}

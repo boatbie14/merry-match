@@ -44,12 +44,15 @@ export const MerryLikeProvider = ({ children }) => {
 
     try {
       if (alreadyLiked) {
-        await deleteMerriedLike(userId);
+       await deleteMerriedLike(userId);
       } else {
-        await postMerriedLike(userId);
+       await postMerriedLike(userId);
       }
     } catch (err) {
       console.error('Toggle Like Failed:', err);
+      // out of limit 
+      if(err.status === 403){console.log("Like limit reached for today")
+      }
       // Rollback UI
       setLikedUsers((prev) =>
         alreadyLiked
