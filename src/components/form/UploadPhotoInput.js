@@ -170,8 +170,8 @@ export default function UploadPhotoInput({ name, value, onChange }) {
           return;
         }
     
-        // ✅ เช็คขนาดไม่เกิน 5MB
-        const maxSizeInMB = 5;
+        // ✅ เช็คขนาดไม่เกิน 2MB
+        const maxSizeInMB = 2;
         if (file.size > maxSizeInMB * 1024 * 1024) {
           alert(`File is too large. Maximum size is ${maxSizeInMB}MB.`);
           return;

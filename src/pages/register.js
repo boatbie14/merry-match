@@ -9,12 +9,13 @@ import MultiSelectTagInput from "@/components/form/MultiSelectTagInput";
 import UploadPhotoInput from "@/components/form/UploadPhotoInput";
 import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
 import { validateRegisterForm } from "@/utils/validateRegisterForm";
+import { Country, State } from "country-state-city";
+import { FaArrowLeft } from "react-icons/fa6";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [generalError, setGeneralError] = useState("");
-
   const {
     handleSubmit,
     control,
@@ -47,6 +48,20 @@ export default function RegisterPage() {
   const images = watch("images");
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
+  const selectedCountry = watch("location");
+  const countries = Country.getAllCountries();
+  const states = selectedCountry
+    ? State.getStatesOfCountry(selectedCountry)
+    : [];
+  const countryOptions = countries.map((c) => ({
+    label: c.name,
+    value: c.isoCode,
+  }));
+
+  const cityOptions = states.map((s) => ({
+    label: s.name,
+    value: s.name,
+  }));
 
   const onSubmit = async (values) => {
     setGeneralError("");
@@ -109,7 +124,9 @@ export default function RegisterPage() {
           <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-0">
             <div>
               <h1 className="subhead">Register</h1>
-              <h2 className="main-header md:w-[453px]">Join us and start matching</h2>
+              <h2 className="main-header md:w-[453px]">
+                Join us and start matching
+              </h2>
             </div>
             <div className="flex items-center gap-2 md:gap-4 mb-10">
               {[1, 2, 3].map((s) => (
@@ -135,7 +152,9 @@ export default function RegisterPage() {
                     </div>
                     {step === s && (
                       <div className=" text-start">
-                        <div className="text-xs font-medium text-gray-400">Step {s}/3</div>
+                        <div className="text-xs font-medium text-gray-400">
+                          Step {s}/3
+                        </div>
                         <div className="text-[#A62D82] font-extrabold whitespace-nowrap">
                           {stepTitles[s]}
                         </div>
@@ -150,7 +169,7 @@ export default function RegisterPage() {
           {step === 1 && (
             <div>
               <p className="section-title py-4 mt-10">Basic Information</p>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6" >
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Controller
                     name="name"
@@ -194,19 +213,7 @@ export default function RegisterPage() {
                     <div>
                       <SelectInput
                         label="Location"
-                        options={[
-                          { value: "thailand", label: "Thailand" },
-                          { value: "usa", label: "United States" },
-                          { value: "japan", label: "Japan" },
-                          { value: "uk", label: "United Kingdom" },
-                          { value: "germany", label: "Germany" },
-                          { value: "canada", label: "Canada" },
-                          { value: "southkorea", label: "South Korea" },
-                          { value: "australia", label: "Australia" },
-                          { value: "france", label: "France" },
-                          { value: "singapore", label: "Singapore" },
-                          { value: "vietnam", label: "Vietnam" },
-                        ]}
+                        options={countryOptions}
                         {...field}
                       />
                       {errors.location && (
@@ -219,29 +226,24 @@ export default function RegisterPage() {
                 />
 
                 <Controller
+                  key={selectedCountry}
                   name="city"
                   control={control}
                   render={({ field }) => (
                     <div>
-                      <SelectInput
-                        label="City"
-                        options={[
-                          { value: "bangkok", label: "Bangkok" },
-                          { value: "chiangmai", label: "Chiang Mai" },
-                          { value: "chonburi", label: "Chonburi" },
-                          { value: "khonkaen", label: "Khon Kaen" },
-                          {
-                            value: "nakhonratchasima",
-                            label: "Nakhon Ratchasima",
-                          },
-                          { value: "phuket", label: "Phuket" },
-                          { value: "hatyai", label: "Hat Yai" },
-                          { value: "rayong", label: "Rayong" },
-                          { value: "nakhonpathom", label: "Nakhon Pathom" },
-                          { value: "ayutthaya", label: "Ayutthaya" },
-                        ]}
-                        {...field}
-                      />
+                      {cityOptions.length > 0 ? (
+                        <SelectInput
+                          label="City"
+                          options={cityOptions}
+                          {...field}
+                        />
+                      ) : (
+                        <TextInput
+                          label="City"
+                          placeholder="Enter your city"
+                          {...field}
+                        />
+                      )}
                       {errors.city && (
                         <p className="text-red-500 text-sm mt-2">
                           {errors.city.message}
@@ -327,13 +329,14 @@ export default function RegisterPage() {
                     <span className="text-gray-500 font-medium">1</span>/3
                   </p>
                 </div>
-                <div>
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="ghost-btn"
+                    className="ghost-btn flex items-center gap-2"
                     disabled
                   >
+                    <FaArrowLeft />
                     Back
                   </button>
                   <button
@@ -484,12 +487,13 @@ export default function RegisterPage() {
                     <span className="text-gray-500 font-medium">2</span>/3
                   </p>
                 </div>
-                <div>
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="ghost-btn"
+                    className="ghost-btn flex items-center gap-2"
                   >
+                    <FaArrowLeft />
                     Back
                   </button>
                   <button
@@ -534,12 +538,13 @@ export default function RegisterPage() {
                       <span className="text-gray-500 font-medium">3</span>/3
                     </p>
                   </div>
-                  <div>
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="ghost-btn"
+                      className="ghost-btn flex items-center gap-2"
                     >
+                      <FaArrowLeft />
                       Back
                     </button>
                     <button type="submit" className="primary-btn">

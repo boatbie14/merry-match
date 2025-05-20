@@ -59,6 +59,7 @@ export default function MultiSelectTagInput({
       )}
       <Box
         sx={{
+          backgroundColor: "#fff",
           display: "flex",
           flexWrap: "wrap",
           gap: "4px",

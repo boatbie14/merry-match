@@ -12,3 +12,8 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* override background */
+.MuiSelect-select.MuiInputBase-input, .MuiInputBase-input {
+  background-color: white !important;
+}

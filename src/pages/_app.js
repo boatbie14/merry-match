@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import "@/styles/globals.css";
 import "@/styles/base.css";
 import { Nunito } from "next/font/google";
@@ -6,6 +7,8 @@ import NavbarMain from "@/components/NavbarMain";
 import Footer from "@/components/Footer";
 import { MerryLikeProvider } from "../context/MerryLikeContext";
 import { NavbarProvider } from "@/context/NavbarContext";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "@/styles/theme";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -14,15 +17,27 @@ const nunito = Nunito({
 });
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
+
+  // รายชื่อหน้าที่ "ไม่ต้องการ" แสดง Footer
+  const noFooterRoutes = ["/login", "/register", "/matching", "/admin"];
+  const hideFooter = noFooterRoutes.includes(router.pathname);
+
+  // รายชื่อหน้าที่ "ไม่ต้องการ" แสดง Navbar
+  const noNavbarRoutes = ["/admin"];
+  const hideNavbar = noNavbarRoutes.includes(router.pathname);
+
   return (
     <AuthProvider>
       <NavbarProvider>
         <div className={nunito.className}>
-          <NavbarMain />
-          <MerryLikeProvider>
-            <Component {...pageProps} />
-          </MerryLikeProvider>
-          <Footer />
+          {!hideNavbar && <NavbarMain />}
+          <ThemeProvider theme={theme}>
+            <MerryLikeProvider>
+              <Component {...pageProps} />
+            </MerryLikeProvider>
+          </ThemeProvider>
+          {!hideFooter && <Footer />}
         </div>
       </NavbarProvider>
     </AuthProvider>
