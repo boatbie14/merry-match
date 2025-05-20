@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import CheckboxInput, { CheckIcon, StyledFormGroup } from "../form/CheckboxInput";
 import { FormControlLabel, Box } from "@mui/material";
 import AgeRangeInput from "../form/SelectAgeRange";
 import { useSwipe } from "@/context/SwipeContext";
 
-export default function MatchingRightColumn() {
+const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
   const { setUserFilters, resetUsers, filters, currentUser } = useSwipe();
 
   // Gender interests state
@@ -21,15 +21,15 @@ export default function MatchingRightColumn() {
   // เก็บค่า preference ที่จะส่งไปยัง API
   const [preference, setPreference] = useState("everyone");
 
+  // Effect เพื่อจดจำสถานะ checkbox หลังจากการค้นหา
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasSearched, setHasSearched] = useState(false);
+
   // Initial setup - run once when component mounts or when filters/currentUser updates
   useEffect(() => {
     // เมื่อโหลดครั้งแรกหรือเมื่อ currentUser เปลี่ยน ให้ทำการ initialize state
     initializeComponentState();
   }, [filters, currentUser]);
-
-  // Effect เพื่อจดจำสถานะ checkbox หลังจากการค้นหา
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [hasSearched, setHasSearched] = useState(false);
 
   // Initialize the component's state based on filters or currentUser
   const initializeComponentState = () => {
@@ -150,6 +150,7 @@ export default function MatchingRightColumn() {
   };
 
   const handleClear = () => {
+    console.log("handleClear executed inside MatchingRightColumn");
     // ตั้งค่ากลับเป็นค่าเริ่มต้น
     setGenderInterests({
       men: false,
@@ -169,6 +170,19 @@ export default function MatchingRightColumn() {
     resetUsers();
   };
 
+  // เปิดเผย method handleClear ให้กับคอมโพเนนต์แม่ผ่าน ref
+  useImperativeHandle(ref, () => ({
+    handleClear,
+  }));
+
+  // ถ้ายังมี clearCallback เดิม ก็ยังคงใช้งานได้
+  useEffect(() => {
+    if (clearCallback && typeof clearCallback === "function") {
+      console.log("Registering handleClear function to parent");
+      clearCallback(handleClear);
+    }
+  }, [clearCallback]);
+
   const handleSearch = () => {
     // สร้าง age_range แบบ string (เช่น "18-80")
     const ageRangeString = `${ageRange[0]}-${ageRange[1]}`;
@@ -181,13 +195,18 @@ export default function MatchingRightColumn() {
       sexual_preference: preference,
       age_range: ageRangeString,
     });
+
+    // เรียกใช้ onSearch callback ถ้ามี
+    if (onSearch) {
+      onSearch();
+    }
   };
 
   return (
     <>
-      <form className="flex flex-col justify-between min-h-[100vh]" onSubmit={(e) => e.preventDefault()}>
+      <form className="flex flex-col h-full justify-between" onSubmit={(e) => e.preventDefault()}>
         <div className="px-6 pt-6">
-          <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Gender you interest</h2>
+          <h2 className="md:text-2xl text-[#2A2E3F] font-bold pb-4">Gender you interest</h2>
 
           <StyledFormGroup>
             <FormControlLabel
@@ -255,12 +274,18 @@ export default function MatchingRightColumn() {
           </StyledFormGroup>
 
           <Box sx={{ mt: 4 }}>
-            <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Age Range</h2>
+            <h2 className="md:text-2xl text-[#2A2E3F] font-bold md:pb-4">Age Range</h2>
             <AgeRangeInput value={ageRange} onChange={handleAgeRangeChange} min={18} max={80} step={1} />
           </Box>
         </div>
 
-        <div className="flex flex-row justify-center gap-4 py-6 border-t-1 border-t-[#E4E6ED]">
+        <div className="w-full block lg:hidden">
+          <button type="button" className="primary-btn mt-6 w-full" onClick={handleSearch}>
+            Search
+          </button>
+        </div>
+
+        <div className="hidden lg:flex md:flex-row md:justify-center md:gap-4 py-6 border-t-1 border-t-[#E4E6ED]">
           <button type="button" className="ghost-btn" onClick={handleClear}>
             Clear
           </button>
@@ -271,4 +296,6 @@ export default function MatchingRightColumn() {
       </form>
     </>
   );
-}
+});
+
+export default MatchingRightColumn;

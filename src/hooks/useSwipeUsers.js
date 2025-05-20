@@ -24,7 +24,7 @@ export function useSwipeUsers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit] = useState(5); // Limit per page
+  const [limit] = useState(10); // Limit per page
 
   //Filter state
   const [filters, setFilters] = useState({

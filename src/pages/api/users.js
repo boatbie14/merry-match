@@ -9,13 +9,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      page = 1,
-      limit = 5, 
-      currentUserId = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a", 
-      sexual_preference, 
-      age_range, 
-    } = req.query;
+    const { page = 1, limit = 10, currentUserId = "04d3a1ca-03c6-494b-8aa8-d13c2f93325a", sexual_preference, age_range } = req.query;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);

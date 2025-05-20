@@ -2,7 +2,7 @@ import { PiSlidersBold } from "react-icons/pi";
 
 const FilterAndMerryLimit = ({ onToggleFilter, merryLimit }) => {
   return (
-    <div className="w-full max-w-[620px] mt-6 pb-4 px-4 flex justify-between">
+    <div className="w-full max-w-[620px] px-4 flex justify-between">
       <div className="w-1/2 xl:hidden ">
         <button onClick={onToggleFilter} className="xl:hidden text-white flex gap-2">
           <PiSlidersBold color="#fff" size={24} />

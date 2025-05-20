@@ -1,17 +1,25 @@
 // components/match/MatchingCenter.js
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 import Link from "next/link";
+//component
 import SimpleCard from "./SimpleCard";
+import FilterAndMerryLimit from "./FilterAndMerryLimit";
+import SwipeButtons from "./SwipeButtons";
+import { ProfilePopup } from "../popup/ProfilePopup";
+
+//icon
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
-import { GoHeartFill } from "react-icons/go";
-import { IoCloseOutline } from "react-icons/io5";
 import { AiFillEye } from "react-icons/ai";
 import { RiMapPin2Fill } from "react-icons/ri";
-import { SwipeContext } from "../../context/SwipeContext";
+import { BsHearts } from "react-icons/bs";
+
+//context
+import { SwipeContext } from "@/context/SwipeContext";
 import { useMerryLimit } from "@/context/MerryLimitContext";
 import { useAuth } from "@/context/AuthContext";
+import { useMerryLike } from "@/context/MerryLikeContext";
 
-const MatchingCenter = () => {
+const MatchingCenter = ({ onToggleFilter }) => {
   // ใช้ข้อมูลและฟังก์ชันจาก Context
   const {
     users,
@@ -29,8 +37,20 @@ const MatchingCenter = () => {
     handleHeartButton,
   } = useContext(SwipeContext) || {};
 
+  // Profile Popup
+  const [isProfilePopup, setIsProfilePopup] = useState(false);
+  const [DataProfilePopup, setDataProfilePopup] = useState({});
+
+  const handleClickEye = (user) => {
+    setDataProfilePopup(user.originalProfile || user);
+    setIsProfilePopup(true);
+  };
+
   //get merry limit
   const { merryLimit } = useMerryLimit();
+
+  //Upage Limit
+  const { limitReached } = useMerryLike();
 
   // Check login
   const { isLoggedIn, userInfo, checkingLogin } = useAuth();
@@ -43,6 +63,7 @@ const MatchingCenter = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Checking login status...</p>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
@@ -51,10 +72,10 @@ const MatchingCenter = () => {
   if (!isLoggedIn) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
-        <div className="flex flex-col justify-center items-center h-64 text-white text-center">
+        <div className="flex flex-col justify-center items-center h-64 text-white text-center p-4">
           <h3 className="text-2xl font-bold mb-2">Ready to find your Merry Match?</h3>
           <p className="text-lg text-gray-300 mb-6">Join us and start your journey to meaningful connections!</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap justify-center gap-4">
             <Link href="/login" className="secondary-btn w-[200px]">
               Login
             </Link>
@@ -63,6 +84,7 @@ const MatchingCenter = () => {
             </Link>
           </div>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
@@ -75,6 +97,7 @@ const MatchingCenter = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Loading users...</p>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
@@ -87,6 +110,7 @@ const MatchingCenter = () => {
           <h3 className="text-2xl font-bold mb-2">Error</h3>
           <p className="text-lg text-gray-300">{error}</p>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
@@ -100,6 +124,7 @@ const MatchingCenter = () => {
           <p className="text-lg text-gray-300">We couldn&apos;t find anyone matching your preferences.</p>
           <p className="text-lg text-gray-300">Try adjusting your search filters.</p>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
@@ -113,31 +138,52 @@ const MatchingCenter = () => {
           <h3 className="text-2xl font-bold my-2">Loading next matches...</h3>
           <p className="text-lg text-gray-300">Please wait while we find more people for you.</p>
         </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+      </div>
+    );
+  }
+
+  // ถ้า Limit ถึง
+  if (limitReached || merryLimit.count >= merryLimit.merry_per_day) {
+    return (
+      <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
+        <div className="flex flex-col max-w-[600px] justify-center items-center text-white text-center">
+          <BsHearts size={120} color="#FF1659" className="pb-7" />
+          <h3 className="text-2xl font-bold my-2">You&apos;ve reached your Merry limit for today!</h3>
+          <p className="text-lg text-gray-300 pb-8">
+            Upgrade to Merry Membership to get more Merry each day and boost your chances of matching.
+          </p>
+          <button href="#" className="primary-btn w-[300px] mb-10">
+            Unlock More Merries
+          </button>
+        </div>
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
       </div>
     );
   }
 
   // แสดงข้อมูลผู้ใช้
   return (
-    <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
+    <div className="matching-card-container overflow-hidden">
+      {/* Popup */}
+      <ProfilePopup isOpen={isProfilePopup} onClose={() => setIsProfilePopup(false)} items={DataProfilePopup} />
+
       {/* Debug info */}
       <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
-        Users: {users?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R: {rightSwipes})
+        Users: {users?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R: {rightSwipes}) |{" "}
+        {lastDirection && <span>Last swipe: {lastDirection}</span>}
       </div>
 
-      <div className="relative mx-auto" style={{ height: "680px", width: "620px", maxWidth: "100%" }}>
+      <div className="matching-card-size relative mx-auto ">
         {displayedUsers.map((user) => (
-          <div key={user.name} className="relative" style={{ height: "100%", width: "100%" }}>
+          <div key={user.originalProfile.id} className="relative" style={{ height: "100%", width: "100%" }}>
             <SimpleCard
               onSwipe={(dir) => handleSwipe && handleSwipe(dir, user)}
               onCardLeftScreen={() => handleOutOfFrame && handleOutOfFrame()}
             >
-              <div
-                className="bg-transparent rounded-4xl overflow-hidden h-full flex flex-col"
-                style={{ maxWidth: "620px", maxHeight: "680px" }}
-              >
+              <div className="matching-card-size bg-transparent md:rounded-4xl overflow-hidden h-full flex flex-col">
                 {/* Container for image and gradient */}
-                <div className="relative w-full md:rounded-4xl" style={{ height: "640px", overflow: "hidden" }}>
+                <div className="relative w-full rounded-b-4xl md:rounded-4xl" style={{ height: "640px", overflow: "hidden" }}>
                   {/* รูปภาพ */}
                   <img
                     src={getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)}
@@ -170,6 +216,7 @@ const MatchingCenter = () => {
                           OUserDrag: "none",
                           userDrag: "none",
                         }}
+                        /* Style อันนี้กันไม่ให้ลาก Element ได้ */
                       />
                       <button className="secondary-btn mt-6">Start Conversation</button>
                     </div>
@@ -180,12 +227,15 @@ const MatchingCenter = () => {
                           <div>
                             {user.name}, {user.age}
                           </div>
-                          <button className="w-8 h-8 flex items-center justify-center rounded-full bg-white/40 cursor-pointer">
+                          <button
+                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/40 cursor-pointer"
+                            onClick={() => handleClickEye(user)}
+                          >
                             <AiFillEye size={16} color="#fff" />
                           </button>
                         </h5>
                         {/* Arrow */}
-                        <div className="flex justify-between mt-4">
+                        <div className="hidden md:flex justify-between mt-4">
                           <button
                             className="p-2 cursor-pointer"
                             onClick={(e) => handleButtonClick && handleButtonClick(e, user.name, "prev")}
@@ -206,31 +256,13 @@ const MatchingCenter = () => {
                     </div>
                   )}
                 </div>
-
-                {/* ปุ่ม Pass และ Merry */}
                 {!user.isMatch && (
-                  <div className="flex flex-row justify-center gap-6 mt-[-40px]">
-                    <button
-                      className="gray-icon-btn"
-                      style={{ width: "80px", height: "80px" }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSwipe && handleSwipe("left", user);
-                      }}
-                    >
-                      <IoCloseOutline size={40} color="#646D89" />
-                      <span className="tooltip">Pass</span>
-                    </button>
-
-                    <button
-                      className="gray-icon-btn"
-                      style={{ width: "80px", height: "80px" }}
-                      onClick={(e) => handleHeartButton && handleHeartButton(e, user)}
-                    >
-                      <GoHeartFill size={40} color="#C70039" />
-                      <span className="tooltip">Merry</span>
-                    </button>
-                  </div>
+                  <SwipeButtons
+                    user={user}
+                    userID={user.originalProfile.id}
+                    handleSwipe={handleSwipe}
+                    handleHeartButton={handleHeartButton}
+                  />
                 )}
               </div>
             </SimpleCard>
@@ -238,20 +270,7 @@ const MatchingCenter = () => {
         ))}
       </div>
 
-      {lastDirection && (
-        <div className="text-center mt-4 text-white">
-          <p>Last swipe: {lastDirection}</p>
-        </div>
-      )}
-
-      <div className="text-center mt-4 text-[#646D89]">
-        <p>
-          Merry limit today{" "}
-          <span className="text-[#FF1659]">
-            {merryLimit.count}/{merryLimit.merry_per_day}
-          </span>
-        </p>
-      </div>
+      <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
     </div>
   );
 };
