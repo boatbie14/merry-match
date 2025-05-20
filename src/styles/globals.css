@@ -5,8 +5,11 @@
   position: fixed;
   top: 0;
   z-index: 1000;
-  /* margin-bottom: px; */
   background-color: white;
+}
+
+nav {
+  box-shadow: 2px 2px 12px 0 #4032851F!important;
 }
 
 html {

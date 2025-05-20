@@ -1,10 +1,16 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { getMerriedLike, postMerriedLike, deleteMerriedLike } from "@/services/merryServices";
+import {
+  getMerriedLike,
+  postMerriedLike,
+  deleteMerriedLike,
+} from "@/services/merryServices";
 import { useAuth } from "./AuthContext";
+import { useMerryLimit } from "@/context/MerryLimitContext"; /// TODO แก้ Limit ให้ถูกต้อง
 
 const MerryLikeContext = createContext();
 
 export const MerryLikeProvider = ({ children }) => {
+  const { refreshMerryLimit } = useMerryLimit();
   const [likedUsers, setLikedUsers] = useState([]); // เก็บ user ที่ถูก Like
   const [inProgressIds, setInProgressIds] = useState(new Set()); // userId ที่กำลังประมวลผล
   const { isLoggedIn, checkingLogin } = useAuth();
@@ -39,11 +45,15 @@ export const MerryLikeProvider = ({ children }) => {
     const alreadyLiked = isLiked(userId);
 
     // Optimistic update
-    setLikedUsers((prev) => (alreadyLiked ? prev.filter((user) => user.id !== userId) : [...prev, { id: userId }]));
+    setLikedUsers((prev) =>
+      alreadyLiked
+        ? prev.filter((user) => user.id !== userId)
+        : [...prev, { id: userId }]
+    );
 
     try {
       if (alreadyLiked) {
-       await deleteMerriedLike(userId);
+        await deleteMerriedLike(userId);
       } else {
         const result = await postMerriedLike(userId);
 
@@ -51,11 +61,16 @@ export const MerryLikeProvider = ({ children }) => {
           setLimitReached(true);
           setLikedUsers((prev) => prev.filter((user) => user.id !== userId));
         }
+        refreshMerryLimit();
       }
     } catch (err) {
       console.error("Toggle Like Failed:", err);
       // Rollback UI
-      setLikedUsers((prev) => (alreadyLiked ? [...prev, { id: userId }] : prev.filter((user) => user.id !== userId)));
+      setLikedUsers((prev) =>
+        alreadyLiked
+          ? [...prev, { id: userId }]
+          : prev.filter((user) => user.id !== userId)
+      );
     } finally {
       // Remove from "in progress"
       setInProgressIds((prev) => {
@@ -66,7 +81,13 @@ export const MerryLikeProvider = ({ children }) => {
     }
   };
 
-  return <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached }}>{children}</MerryLikeContext.Provider>;
+  return (
+    <MerryLikeContext.Provider
+      value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached }}
+    >
+      {children}
+    </MerryLikeContext.Provider>
+  );
 };
 
 export const useMerryLike = () => useContext(MerryLikeContext);

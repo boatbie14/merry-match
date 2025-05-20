@@ -1,3 +1,4 @@
+//// this is new one 
 import React from "react";
 import { useRouter } from "next/router";
 
@@ -12,7 +13,11 @@ import { IoLogOutOutline } from "react-icons/io5";
 import Link from "next/link";
 import Image from "next/image";
 
-// DesktopAlertMenuItems
+/// import Alertbox from components 
+import { DesktopAlertMenuItems, MobileAlertMenuItems } from '@/components/alert-box/Alert-box.js'
+
+
+// DesktopAlertMenuItems Old placement
 
 
 export const DesktopUserMenuItems = () => {
@@ -29,10 +34,10 @@ export const DesktopUserMenuItems = () => {
       </button>
       <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
         <div className="profile-button-mobile-menu-items ">
-          <button className="flex flex-row space-x-5 cursor-pointer ">
+          <Link href="/profile" className="flex flex-row space-x-5 cursor-pointer ">
             <FaUser color="pink" />
-            <span>Profile</span>
-          </button>
+            <span>profile</span>
+          </Link>
         </div>
         <div className="merrylist-button-mobile-menu-items">
           <Link
@@ -122,7 +127,7 @@ export const MobileMenuItems = () => {
   );
 };
 
-// MobileAlertMenuItems
+// MobileAlertMenuItems Old placement 
 
 
 const NavbarUser = () => {
@@ -135,6 +140,7 @@ const NavbarUser = () => {
     isAlertDesktopMenuOpen,
     toggleAlertDesktopMenu,
     isAlertMobileMenuOpen,
+    setIsAlertMobileMenuOpen,
     toggleAlertMobileMenu,
     toggleHamburgerBarMenu,
     userMenuRef,
@@ -148,12 +154,12 @@ const NavbarUser = () => {
           <Link
             href="/"
             className="main-logo w-auto h-auto flex flex-row space-x-2 "
-            onClick={() => setIsOpen(false)}
+            onClick={() => { setIsOpen(false); setIsAlertMobileMenuOpen(false); }}
           >
             <h1 className="flex text-4xl ">Merry</h1>{" "}
             <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
           </Link>
-          <div className="flex items-center space-x-10 ">
+          <div className="flex items-center space-x-5 ">
             <Link
               href="/matching"
               className="hidden md:flex  text-[#7D2262] font-bold "
@@ -201,7 +207,7 @@ const NavbarUser = () => {
             <div className="relative">
               <button
                 onClick={toggleAlertDesktopMenu}
-                className="alert-button-desktop hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] md:flex justify-center items-center md:mr-6 cursor-pointer "
+                className="alert-button-desktop hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] md:flex justify-center items-center md:ml-10 md:mr-1 cursor-pointer "
               >
                 <svg
                   width="30"
@@ -224,7 +230,7 @@ const NavbarUser = () => {
                   className="absolute overflow-auto  md:top-[45px] md:right-[-70px]   mt-2 w-[251px] h-[214px] bg-white  rounded-lg shadow-xl/50 "
                 >
                   {/* DesktopAlertMenuItems rendering */}
-                  {/* <DesktopAlertMenuItems /> */}
+                  <DesktopAlertMenuItems />
                 </div>
               )}
             </div>
@@ -247,7 +253,7 @@ const NavbarUser = () => {
               {isUserMenuOpen && (
                 <div
                   ref={userMenuRef}
-                  className="absolute  md:top-[45px] md:right-[-70px]   mt-2 w-[198px] h-[258px] bg-white  rounded-lg shadow-xl/50 "
+                  className="absolute  md:top-[45px] md:right-[-30px]   mt-2 w-[198px] h-[258px] bg-white  rounded-lg shadow-xl/50 "
                 >
                   <DesktopUserMenuItems setIsOpen={setIsOpen} />
                 </div>
@@ -285,7 +291,7 @@ const NavbarUser = () => {
         >
           <div className="mobile-menu items md:hidden flex flex-col h-full overflow-y-auto px-6 py-5 inset-shadow-sm/20 ">
           {/* MobileAlertMenuItems rendering */}
-            {/* <MobileAlertMenuItems /> */}
+            <MobileAlertMenuItems />
           </div>
         </div>
       </div>

@@ -49,7 +49,7 @@ const HomePage = () => {
               {/* Profile Images with Chat Bubbles */}
               <div className="Hero-profile relative w-1/2 h-[600px]  ">
                 <div>
-                  <div className="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-200 overflow-hidden">
+                  <div className="First-Profile absolute left-[-210px] bottom-[920px]  md:left-[550px] md:bottom-[760px] w-[286px] h-[500px] rounded-[999px] bg-gray-50 overflow-hidden">
                     <Image
                       src="/images/image-1.png"
                       alt="Profile1"

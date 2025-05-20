@@ -136,7 +136,8 @@ import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
     if (response) {
       setAlertMessage("Profile update successful!");
       setAlertSeverity("success");
-      router.replace(router.asPath);
+      window.location.reload();
+      // router.replace(router.asPath);
     } else {
       setAlertMessage("Profile update failed");
       setAlertSeverity("error");

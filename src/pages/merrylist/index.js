@@ -10,6 +10,8 @@
   import SkeletonMerryListCard from "@/components/MerryList/SkeletonMerryListCard";
   import { useAuth } from "@/context/AuthContext";
   import { useRouter } from "next/router";
+
+  import { useMerryLimit } from "@/context/MerryLimitContext";
   
   // TODO 💽option บีบอัดไฟล์ก่อนส่งกลับมา
   // TODO 🕐goto chat page
@@ -19,6 +21,7 @@
             // case_3 info limit is very difficult to use -> use useEffect get in fo to  useState merryLimit -> in useState create function do this
   export default function MerrylistPage() {
     const {checkingLogin,isLoggedIn}=useAuth()
+    const {merryLimit} = useMerryLimit()
     const router =useRouter()
      const [data,setData] = useState ([])
      const [merriedMe,setMerriedMe] = useState(0)
@@ -34,7 +37,7 @@
      const[DataProfilePopup,setDataProfilePopup] = useState({})
   
   
-     const [merryLimit,setmerryLimit]=useState({count:2,max:10})
+     
   
   useEffect(() => {
       if (!checkingLogin && !isLoggedIn) {
@@ -154,7 +157,7 @@
               </div>
   
               <div className="text-end ">
-              <h2 className="text-[#646D89] text-lg">Merry limit today<span className="text-[#FF1659]">&nbsp;&nbsp;{merryLimit.count}/{merryLimit.max}</span></h2>
+              <h2 className="text-[#646D89] text-lg">Merry limit today<span className="text-[#FF1659]">&nbsp;&nbsp;{merryLimit.count}/{merryLimit.merry_per_day}</span></h2>
               <h4 className="text-[#9AA1B9] text-[12px]">Reset in <span> {<CountdownDisplay/>}</span></h4>
               </div>
             </div>

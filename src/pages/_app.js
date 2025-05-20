@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import NavbarMain from "@/components/NavbarMain";
 import Footer from "@/components/Footer";
 import { MerryLikeProvider } from "../context/MerryLikeContext";
+import { MerryLimitProvider } from "@/context/MerryLimitContext";
 import { NavbarProvider } from "@/context/NavbarContext";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/styles/theme";
@@ -33,9 +34,11 @@ export default function App({ Component, pageProps }) {
         <div className={nunito.className}>
           {!hideNavbar && <NavbarMain />}
           <ThemeProvider theme={theme}>
-            <MerryLikeProvider>
-              <Component {...pageProps} />
-            </MerryLikeProvider>
+            <MerryLimitProvider>
+              <MerryLikeProvider>
+                <Component {...pageProps} />
+              </MerryLikeProvider>
+            </MerryLimitProvider>
           </ThemeProvider>
           {!hideFooter && <Footer />}
         </div>

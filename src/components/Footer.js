@@ -8,7 +8,7 @@ import { FaTwitter } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <footer className=" flex h-[371px] w-full mx-0  bg-white shadow-md">
+    <footer className=" flex h-[371px] w-full mx-0  bg-[#F6F7FC] shadow-md">
       <div className="container flex flex-col mx-auto px-6 py-4 items-center justify-center space-y-4">
         <div className="main-logo w-auto h-auto flex flex-row space-x-2 ">
           <h1 className="flex text-4xl ">Merry</h1>{" "}
