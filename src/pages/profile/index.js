@@ -18,6 +18,7 @@
   import { prepareDeleteImages } from "@/utils/image-handlers/prepareDeleteImages";
 import { Alert, Snackbar } from '@mui/material';
 import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
+import { Country, State } from "country-state-city";
 
   export default function ProfilePage() {
     const {userInfo,isLoggedIn,checkingLogin}=useAuth()
@@ -107,6 +108,21 @@ import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
       }
     }, [data,reset]);
     const images = watch("images");
+    const selectedCountry = watch("location") || data?.location || '';
+    const countries = Country.getAllCountries();
+    const states = selectedCountry
+      ? State.getStatesOfCountry(selectedCountry)
+      : [];
+    const countryOptions = countries.map((c) => ({
+      label: c.name,
+      value: c.isoCode,
+    }));
+
+    const cityOptions = states.map((s) => ({
+      label: s.name,
+      value: s.name,
+    }));
+
 
   const onSubmit = async (values) => {
   try {
@@ -246,19 +262,7 @@ const TwoButton =()=>{
                   render={({ field }) => (
                     <div>
                       <SelectInput label="Location"
-                                                  options={[
-                          { value: "thailand", label: "Thailand" },
-                          { value: "usa", label: "United States" },
-                          { value: "japan", label: "Japan" },
-                          { value: "uk", label: "United Kingdom" },
-                          { value: "germany", label: "Germany" },
-                          { value: "canada", label: "Canada" },
-                          { value: "southkorea", label: "South Korea" },
-                          { value: "australia", label: "Australia" },
-                          { value: "france", label: "France" },
-                          { value: "singapore", label: "Singapore" },
-                          { value: "vietnam", label: "Vietnam" },
-                        ]}
+                        options={countryOptions}
                         {...field}
                       />
                       {errors.location && (<p className="text-red-500 text-sm">{errors.location.message}</p>)}
@@ -274,21 +278,7 @@ const TwoButton =()=>{
                     <div>
                       <SelectInput
                         label="City"
-                                                options={[
-                          { value: "bangkok", label: "Bangkok" },
-                          { value: "chiangmai", label: "Chiang Mai" },
-                          { value: "chonburi", label: "Chonburi" },
-                          { value: "khonkaen", label: "Khon Kaen" },
-                          {
-                            value: "nakhonratchasima",
-                            label: "Nakhon Ratchasima",
-                          },
-                          { value: "phuket", label: "Phuket" },
-                          { value: "hatyai", label: "Hat Yai" },
-                          { value: "rayong", label: "Rayong" },
-                          { value: "nakhonpathom", label: "Nakhon Pathom" },
-                          { value: "ayutthaya", label: "Ayutthaya" },
-                        ]}
+                          options={cityOptions}
                         {...field}
                       />
                       {errors.city && (<p className="text-red-500 text-sm">{errors.city.message}</p>)}
@@ -334,7 +324,6 @@ const TwoButton =()=>{
                         { value: "male", label: "Male" },
                         { value: "female", label: "Female" },
                         { value: "non-binary", label: "Non-binary" },]}
-                      {...field}
                         {...field}
                       />
                     )}
@@ -406,6 +395,7 @@ const TwoButton =()=>{
                         </p>
                       )}
                 </div>
+                <div>
                   <Controller
                     name="bio"
                     control={control}
@@ -413,6 +403,7 @@ const TwoButton =()=>{
                     <TextArea label="About me (Maximum 150 characters)" rows={4} {...field}  textareaProps={{ maxLength: 150 }} />
                 )}
                 />
+                </div>
             </div>
 
             </div>

@@ -14,7 +14,12 @@ export default function TextInput({
   return (
     <Box>
       {label && (
-        <Box sx={{ fontSize: "16px", fontWeight: 500, mb: 1 }}>{label}</Box>
+        <Box  sx={{
+                fontSize: "16px",
+                fontWeight: 500,
+                mb: 1,
+                color: disabled ? "#9AA1B9" : "#000000",
+                }}>{label}</Box>
       )}
       <TextField
         name={name}
@@ -49,6 +54,9 @@ export default function TextInput({
               borderColor: "#A62D82",
               borderWidth: "1px",
             },
+          },
+           "& .MuiOutlinedInput-input": {
+            backgroundColor:"transparent !important",
           },
           "& input": {
             padding: "12px 14px 16px 14px",
