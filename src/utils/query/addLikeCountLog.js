@@ -1,7 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
   export async function addLikeCountLog(userId, count, dateString = null) {
-    //TODO 🛑อย่างลืมเอาออก
-    if (count === 9) {count = 2}
     try {
       let clientDate;
       let todayYMD;

@@ -1,6 +1,5 @@
 // components/form/Textarea.js
 import { TextField, Box } from "@mui/material";
-
 export default function TextArea({
   label = "",
   name,
@@ -10,6 +9,7 @@ export default function TextArea({
   required = false,
   rows = 4,
   disabled = false,
+  textareaProps
 }) {
   return (
     <Box>
@@ -21,6 +21,7 @@ export default function TextArea({
         multiline // ทำให้เป็น Textarea
         rows={rows}
         placeholder={placeholder}
+        slotProps={{htmlInput:textareaProps}}
         variant="outlined"
         fullWidth
         required={required}

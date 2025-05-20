@@ -36,7 +36,7 @@ export const DesktopUserMenuItems = () => {
         </div>
         <div className="merrylist-button-mobile-menu-items">
           <Link
-            href="merry/merrylist"
+            href="/merrylist"
             className="flex flex-row space-x-5 cursor-pointer"
           >
             <FaHeart color="pink" />
@@ -90,7 +90,7 @@ export const MobileMenuItems = () => {
         </div>
         <div className="merrylist-button-mobile-menu-items">
           <Link
-            href="merry/merrylist"
+            href="/merrylist"
             className="flex flex-row space-x-10"
             onClick={() => setIsOpen(false)}
           >

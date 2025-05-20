@@ -7,7 +7,6 @@ export default async function handler(req, res) {
       const {supabase,userId} = result
         
       const { data, error } = await supabase
-      // TODO 🩵เปลี่ยนให้เป็น โค้ดปกติดีไหม
         .rpc('get_user_matches', { target_user_id: userId });
       if (error) {throw new Error(error.message);}
 

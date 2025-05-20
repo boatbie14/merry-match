@@ -1,5 +1,6 @@
 import { supabase } from "./supabaseClient";
 import { v4 as uuidv4 } from "uuid";
+import { compressImage } from "./compressImage";
 
 /**
  * Upload images to Supabase Storage and return public URLs
@@ -20,13 +21,15 @@ export async function uploadImagesToSupabase(images, userId) {
     const image = images[i];
     if (!image?.file) continue;
 
-    const fileExt = image.file.name.split(".").pop();
+    const compressedFile = await compressImage(image.file);
+
+    const fileExt = compressedFile.name?.split(".").pop() || "jpg";
     const fileName = `${uuidv4()}.${fileExt}`;
     const filePath = `users/${userId}/${fileName}`;
 
     const { error } = await supabase.storage
       .from("user-photos")
-      .upload(filePath, image.file);
+      .upload(filePath, compressedFile);
 
     if (error) {
       console.error(`❌ Upload failed for ${filePath}:`, error.message);

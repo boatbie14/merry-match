@@ -14,7 +14,7 @@ export function AlertPopup({ isOpen, onClose, title, description, buttonLeftText
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-2000 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={onClose}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -55,17 +55,3 @@ export function AlertPopup({ isOpen, onClose, title, description, buttonLeftText
     </AnimatePresence>
   );
 }
-
-
-  //  const [isAlertPopup,setIsAlertPopup] =useState(false)
-  //  retrun(
-  //   <AlertPopup isOpen={isAlertPopup} 
-  //               onClose={()=>setIsAlertPopup(false)} 
-  //               title={"วันจัทย์"} 
-  //               description={"เป็นวันน่านอน"} 
-  //               buttonLeftText={"กดฉันสิ"} 
-  //               buttonRightText={"กดฉันดีกว่า"}
-  //               buttonLeftClick={()=>console.log("Left")} 
-  //               buttonRightClick={()=>console.log("Right")}/>
-  //           <button onClick={()=>setIsAlertPopup(true)}>gggg</button>
-  //   )

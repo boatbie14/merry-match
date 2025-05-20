@@ -81,14 +81,14 @@ useEffect(()=>{
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm"
+                className="fixed inset-0 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm z-2000"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
                 >
                     <motion.div
-                        className="bg-white rounded-4xl shadow-lg w-full h-full max-w-[1140px] max-h-[760px] md:w-[90%] lg:w-[70%] xl:w-[55%] md:h-auto"
+                        className="bg-white rounded-t-4xl md:rounded-4xl shadow-lg w-full h-full max-w-[1140px] max-h-[760px] md:w-[90%] lg:w-[70%] xl:w-[55%] md:h-auto"
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
@@ -122,8 +122,8 @@ useEffect(()=>{
                                         <span className="text-gray-600">{imageIndex + 1}</span>/{images.length}
                                     </h5>
                                     <div className=" flex gap-4 text-2xl">
-                                        <IoMdArrowBack color="gray" size={20} onClick={()=>handlePrevImage()}/>
-                                        <IoMdArrowForward color="gray" size={20} onClick={()=>handleNextImage()}/>
+                                        <IoMdArrowBack className='cursor-pointer' color="gray" size={20} onClick={()=>handlePrevImage()}/>
+                                        <IoMdArrowForward className='cursor-pointer' color="gray" size={20} onClick={()=>handleNextImage()}/>
                                     </div>
                                 </div>
                             </div>
