@@ -25,7 +25,7 @@ export default function MatchingLeftColumn() {
         {loading && <p>Loading matches...</p>}
         {error && <p className="text-red-500">Error: {error}</p>}
 
-        {!loading && !error && matchedUsers && matchedUsers.length === 0 && <p>You don't have any matches yet</p>}
+        {!loading && !error && matchedUsers && matchedUsers.length === 0 && <p>You don&apos;t have any matches yet</p>}
 
         {!loading && !error && matchedUsers && matchedUsers.length > 0 && (
           <div className="match-users-container w-full h-32 flex flex-row gap-3 overflow-x-auto whitespace-nowrap">

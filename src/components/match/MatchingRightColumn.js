@@ -298,4 +298,6 @@ const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
   );
 });
 
+MatchingRightColumn.displayName = "MatchingRightColumn";
+
 export default MatchingRightColumn;
