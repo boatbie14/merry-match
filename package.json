@@ -20,6 +20,7 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.9.0",
+    "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.10.1",
     "next": "15.3.1",
