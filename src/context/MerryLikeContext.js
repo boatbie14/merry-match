@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { getMerriedLike, postMerriedLike, deleteMerriedLike } from '@/services/merryServices';
-import { useAuth } from './AuthContext';
+import { createContext, useContext, useState, useEffect } from "react";
+import { getMerriedLike, postMerriedLike, deleteMerriedLike } from "@/services/merryServices";
+import { useAuth } from "./AuthContext";
 
 const MerryLikeContext = createContext();
 
@@ -8,6 +8,7 @@ export const MerryLikeProvider = ({ children }) => {
   const [likedUsers, setLikedUsers] = useState([]); // เก็บ user ที่ถูก Like
   const [inProgressIds, setInProgressIds] = useState(new Set()); // userId ที่กำลังประมวลผล
   const { isLoggedIn, checkingLogin } = useAuth();
+  const [limitReached, setLimitReached] = useState(false);
 
   // โหลดข้อมูล Like เมื่อ login เสร็จ
   useEffect(() => {
@@ -16,7 +17,7 @@ export const MerryLikeProvider = ({ children }) => {
         const res = await getMerriedLike();
         setLikedUsers(res.data); // [{id: 1}, {id: 2}, ...]
       } catch (err) {
-        console.error('Fetch Liked Users Failed:', err);
+        console.error("Fetch Liked Users Failed:", err);
       }
     };
 
@@ -33,32 +34,28 @@ export const MerryLikeProvider = ({ children }) => {
     // Mark this userId as "in progress"
     setInProgressIds((prev) => new Set(prev).add(userId));
 
+    setLimitReached(false);
+
     const alreadyLiked = isLiked(userId);
 
     // Optimistic update
-    setLikedUsers((prev) =>
-      alreadyLiked
-        ? prev.filter((user) => user.id !== userId)
-        : [...prev, { id: userId }]
-    );
+    setLikedUsers((prev) => (alreadyLiked ? prev.filter((user) => user.id !== userId) : [...prev, { id: userId }]));
 
     try {
       if (alreadyLiked) {
        await deleteMerriedLike(userId);
       } else {
-       await postMerriedLike(userId);
+        const result = await postMerriedLike(userId);
+
+        if (result && result.isLimitReached) {
+          setLimitReached(true);
+          setLikedUsers((prev) => prev.filter((user) => user.id !== userId));
+        }
       }
     } catch (err) {
-      console.error('Toggle Like Failed:', err);
-      // out of limit 
-      if(err.status === 403){console.log("Like limit reached for today")
-      }
+      console.error("Toggle Like Failed:", err);
       // Rollback UI
-      setLikedUsers((prev) =>
-        alreadyLiked
-          ? [...prev, { id: userId }]
-          : prev.filter((user) => user.id !== userId)
-      );
+      setLikedUsers((prev) => (alreadyLiked ? [...prev, { id: userId }] : prev.filter((user) => user.id !== userId)));
     } finally {
       // Remove from "in progress"
       setInProgressIds((prev) => {
@@ -69,11 +66,7 @@ export const MerryLikeProvider = ({ children }) => {
     }
   };
 
-  return (
-    <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds }}>
-      {children}
-    </MerryLikeContext.Provider>
-  );
+  return <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached }}>{children}</MerryLikeContext.Provider>;
 };
 
 export const useMerryLike = () => useContext(MerryLikeContext);
