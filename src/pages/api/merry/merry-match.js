@@ -1,4 +1,18 @@
 import { requireUser } from '@/middleware/requireUser';
+
+const today = new Date();
+const todayUTCDate = new Date(Date.UTC(
+  today.getUTCFullYear(),
+  today.getUTCMonth(),
+  today.getUTCDate()
+));
+
+const tomorrowUTCDate = new Date(Date.UTC(
+  today.getUTCFullYear(),
+  today.getUTCMonth(),
+  today.getUTCDate() + 1
+));
+
 export default async function handler(req, res) {
   if (req.method !== 'GET')return res.status(405).json({ error: 'Method Not Allowed' });
   try {
@@ -12,12 +26,12 @@ export default async function handler(req, res) {
 
     const allMatches = data.map(entry => entry.match_user_id);  // ทุก match
     const todayMatches = data
-        .filter(entry => {
-            const today = new Date();
-            const matchDate = new Date(entry.matched_at);
-            return matchDate.toDateString() === today.toDateString();
-        })
-        .map(entry => entry.match_user_id); // ถ้า match กับวันนี้
+  .filter(entry => {
+    // matchedAt from Supabase is in UTC
+    const matchedAt = new Date(entry.matched_at);
+    return matchedAt >= todayUTCDate && matchedAt < tomorrowUTCDate;
+  })
+  .map(entry => entry.match_user_id);
     
     return res.status(200).json({allMatches,todayMatches})
     

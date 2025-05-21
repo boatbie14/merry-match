@@ -5,12 +5,12 @@ import {
   deleteMerriedLike,
 } from "@/services/merryServices";
 import { useAuth } from "./AuthContext";
-import { useMerryLimit } from "@/context/MerryLimitContext"; /// TODO แก้ Limit ให้ถูกต้อง
+import { useMerryLimit } from "@/context/MerryLimitContext";
 
 const MerryLikeContext = createContext();
 
 export const MerryLikeProvider = ({ children }) => {
-  const { refreshMerryLimit } = useMerryLimit();
+  const { refreshMerryLimit,setMerryLimit } = useMerryLimit();
   const [likedUsers, setLikedUsers] = useState([]); // เก็บ user ที่ถูก Like
   const [inProgressIds, setInProgressIds] = useState(new Set()); // userId ที่กำลังประมวลผล
   const { isLoggedIn, checkingLogin } = useAuth();
@@ -36,7 +36,6 @@ export const MerryLikeProvider = ({ children }) => {
 
   const toggleLike = async (userId) => {
     if (!isLoggedIn || checkingLogin || inProgressIds.has(userId)) return;
-
     // Mark this userId as "in progress"
     setInProgressIds((prev) => new Set(prev).add(userId));
 
@@ -55,13 +54,13 @@ export const MerryLikeProvider = ({ children }) => {
       if (alreadyLiked) {
         await deleteMerriedLike(userId);
       } else {
+        setMerryLimit((prev) => ({...prev,count: prev.count + 1,}));
         const result = await postMerriedLike(userId);
-
+        refreshMerryLimit();
         if (result && result.isLimitReached) {
           setLimitReached(true);
-          setLikedUsers((prev) => prev.filter((user) => user.id !== userId));
+          setLikedUsers((prev) => prev.filter((user) => user.id !== userId));        
         }
-        refreshMerryLimit();
       }
     } catch (err) {
       console.error("Toggle Like Failed:", err);

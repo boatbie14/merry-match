@@ -185,6 +185,11 @@
   color: #646d89;
   font-size: 24px;
 }
+.gray-icon-btn.inactive svg {
+  color: #c70039;
+  font-size: 24px;
+}
+
 
 .gray-icon-btn .tooltip {
   position: absolute;

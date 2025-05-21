@@ -60,6 +60,7 @@ export function MerryLimitProvider({ children }) {
   // สร้าง value object ที่จะส่งไปยัง context
   const value = {
     merryLimit,
+    setMerryLimit,
     loading,
     error,
     refreshMerryLimit: fetchMerryLimit,
