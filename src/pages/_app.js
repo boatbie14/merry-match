@@ -29,20 +29,23 @@ export default function App({ Component, pageProps }) {
   const hideNavbar = noNavbarRoutes.includes(router.pathname);
 
   return (
-    <AuthProvider>
-      <NavbarProvider>
-        <div className={nunito.className}>
-          {!hideNavbar && <NavbarMain />}
-          <ThemeProvider theme={theme}>
-            <MerryLimitProvider>
-              <MerryLikeProvider>
+  <AuthProvider>
+    <NavbarProvider>
+      <div className={`${nunito.className} min-h-screen flex flex-col`}>
+        {!hideNavbar && <NavbarMain />}
+        <ThemeProvider theme={theme}>
+          <MerryLimitProvider>
+            <MerryLikeProvider>
+              <main className="flex-grow">
                 <Component {...pageProps} />
-              </MerryLikeProvider>
-            </MerryLimitProvider>
-          </ThemeProvider>
-          {!hideFooter && <Footer />}
-        </div>
-      </NavbarProvider>
-    </AuthProvider>
-  );
+              </main>
+            </MerryLikeProvider>
+          </MerryLimitProvider>
+        </ThemeProvider>
+        {!hideFooter && <Footer />}
+      </div>
+    </NavbarProvider>
+  </AuthProvider>
+);
+
 }
