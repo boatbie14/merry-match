@@ -1,3 +1,4 @@
+/// this is new one 1
 import React from "react";
 
 import { useState } from "react";
@@ -14,7 +15,7 @@ const NavbarNonUser = () => {
 
   return (
     /// desktop Navbar
-    <nav className="fixed flex h-[88px] w-full mx-0 top-0 left-0  bg-white shadow-md z-50">
+    <nav className="fixed flex h-[52px] sm:h-[88px] w-full mx-0 top-0 left-0  bg-white shadow-md z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* main logo */}
@@ -22,10 +23,10 @@ const NavbarNonUser = () => {
             href="/"
             className="main-logo w-auto h-auto flex flex-row space-x-2 "
           >
-            <h1 className="flex text-4xl ">Merry</h1>{" "}
-            <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
+            <h1 className="flex text-[17px] sm:text-4xl font-medium ">Merry</h1>{" "}
+            <h1 className="text-[#C70039] flex text-[17px] sm:text-4xl font-extrabold">Match</h1>
           </Link>
-          <div className="flex items-center space-x-10 ">
+          <div className="flex items-center space-x-5 ">
             {/* desktop menu list */}
             <Link
               href="/#WhyMerryMatch"
@@ -46,7 +47,7 @@ const NavbarNonUser = () => {
               Login
             </Link>
             {/* mobile menu list */}
-            <button className="md:hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr- ml-40 ">
+            <button className="md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr-10 ml- ">
               <svg
                 width="30"
                 height="30"
@@ -68,14 +69,14 @@ const NavbarNonUser = () => {
               className="bg-white rounded mr-3 md:hidden  "
             >
               {isOpen ? (
-                <IoIosMenu className="w-14 h-14 text-red-600 " />
+                <IoIosMenu className="w-7 h-7 sm:w-14 sm:h-14 text-red-600 " />
               ) : (
-                <IoIosMenu className="w-14 h-14 text-gray-600" />
+                <IoIosMenu className="w-7 h-7 sm:w-14 sm:h-14 text-gray-600" />
               )}
             </button>
             {/* Sidebar menu */}
             <div
-              className={`md:hidden fixed top-16 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
+              className={`md:hidden fixed top-13 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
                 isOpen
                   ? "translate-x-0 opacity-100"
                   : "translate-x-full opacity-0 pointer-events-none"

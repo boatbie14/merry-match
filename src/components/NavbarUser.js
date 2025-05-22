@@ -1,4 +1,4 @@
-//// this is new one
+//// this is new one 1
 import React from "react";
 import { useRouter } from "next/router";
 
@@ -10,6 +10,8 @@ import { FaHeart } from "react-icons/fa";
 import { BsFillBoxFill } from "react-icons/bs";
 import { GoAlertFill } from "react-icons/go";
 import { IoLogOutOutline } from "react-icons/io5";
+import { BsFillSearchHeartFill } from "react-icons/bs";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -40,7 +42,7 @@ export const DesktopUserMenuItems = () => {
             className="flex flex-row space-x-5 cursor-pointer "
           >
             <FaUser color="pink" />
-            <span>profile</span>
+            <span>Profile</span>
           </Link>
         </div>
         <div className="merrylist-button-mobile-menu-items">
@@ -87,10 +89,10 @@ export const MobileMenuItems = () => {
 
   return (
     <div className="flex flex-col ">
-      <div className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-4 rounded-4xl mx-4 my-6 text-white flex items-center justify-center">
-        <span className="text-3xl font-bold">✨ More limit Merry!</span>
+      <div className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
+        <span className=" sm:text-3xl font-bold">✨ More limit Merry!</span>
       </div>
-      <div className="profile-menu-items space-y-10 px-10 mt-10 mb-10 text-3xl text-[#646D89] ">
+      <div className="profile-menu-items space-y-10 px-10  mt-5 mb-5 sm:mt-10 sm:mb-10 sm:text-3xl text-[#646D89] ">
         <div className="profile-button-mobile-menu-items ">
           <Link
             href="/profile"
@@ -101,6 +103,18 @@ export const MobileMenuItems = () => {
             <span>Profile</span>
           </Link>
         </div>
+        {/* Start matching mobile menu */}
+        <div className="profile-button-mobile-menu-items ">
+          <Link
+            href="/matching"
+            onClick={() => setIsOpen(false)}
+            className="flex flex-row space-x-10 "
+          >
+            <BsFillSearchHeartFill color="pink" />
+            <span>Start Matching</span>
+          </Link>
+        </div>
+
         <div className="merrylist-button-mobile-menu-items">
           <Link
             href="/merrylist"
@@ -108,7 +122,7 @@ export const MobileMenuItems = () => {
             onClick={() => setIsOpen(false)}
           >
             <FaHeart color="pink" />
-            <span>Merry list</span>
+            <span>Merry List</span>
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
@@ -126,16 +140,15 @@ export const MobileMenuItems = () => {
       </div>
       <button
         onClick={handleLogout}
-        className=" md:hidden flex flex-row space-x-10 text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-10 py-6 mt-5  "
+        className=" md:hidden flex flex-row space-x-10 sm:text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-10 py-6 mt-5  "
       >
-        <IoLogOutOutline />
+        <IoLogOutOutline style={{ marginTop: "4px" }} />
         <span>Log out</span>
       </button>
     </div>
   );
 };
 
-// MobileAlertMenuItems Old placement
 
 const NavbarUser = () => {
   const { userInfo } = useAuth();
@@ -155,7 +168,7 @@ const NavbarUser = () => {
   } = useNavbar();
 
   return (
-    <nav className="fixed flex h-[88px] w-full mx-0 top-0 left-0  bg-white shadow-2xl/30 z-50">
+    <nav className="fixed flex h-[52px] sm:h-[88px] w-full mx-0 top-0 left-0  bg-white shadow-2xl/30 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link
@@ -166,10 +179,12 @@ const NavbarUser = () => {
               setIsAlertMobileMenuOpen(false);
             }}
           >
-            <h1 className="flex text-4xl ">Merry</h1>{" "}
-            <h1 className="text-[#C70039] flex text-4xl font-bold">Match</h1>
+            <h1 className="flex text-[17px] sm:text-4xl font-medium ">Merry</h1>{" "}
+            <h1 className="text-[#C70039] flex text-[17px] sm:text-4xl font-extrabold">
+              Match
+            </h1>
           </Link>
-          <div className="flex items-center space-x-5 ">
+          <div className="flex items-center space-x-3.5 ">
             <Link
               href="/matching"
               className="hidden md:flex  text-[#7D2262] font-bold "
@@ -179,7 +194,7 @@ const NavbarUser = () => {
             <a href="#" className="hidden md:flex text-[#7D2262] font-bold">
               Merry Membership
             </a>
-            <button className="talk-button md:hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center ">
+            <button className="talk-button md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center ">
               <svg
                 width="30"
                 height="30"
@@ -197,7 +212,7 @@ const NavbarUser = () => {
             </button>
             <button
               onClick={toggleAlertMobileMenu}
-              className="alert-button-mobile w-[40px] h-[40px] md:hidden rounded-3xl bg-[#F6F7FC] flex justify-center items-center md:mr-6 cursor-pointer "
+              className="alert-button-mobile w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] md:hidden rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr-0 cursor-pointer "
             >
               <svg
                 width="30"
@@ -274,13 +289,13 @@ const NavbarUser = () => {
               className="bg-white rounded mr-3 md:hidden  "
             >
               {isOpen ? (
-                <IoIosMenu className="w-14 h-14 text-red-600 " />
+                <IoIosMenu className=" w-7 h-7   sm:w-14 sm:h-14 text-red-600 " />
               ) : (
-                <IoIosMenu className="w-14 h-14 text-gray-600" />
+                <IoIosMenu className=" w-7 h-7 sm:w-14 sm:h-14 text-gray-600" />
               )}
             </button>
             <div
-              className={`md:hidden fixed top-20 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
+              className={`md:hidden fixed sm:top-[80px] top-[52px] left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
                 isOpen
                   ? "translate-x-0 opacity-100"
                   : "translate-x-full opacity-0 pointer-events-none"
@@ -293,7 +308,7 @@ const NavbarUser = () => {
           </div>
         </div>
         <div
-          className={`md:hidden fixed top-22 left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
+          className={`md:hidden fixed sm:top-[80px] top-[52px] left-0 right-0 bottom-0 bg-white transform transition-all duration-300 ${
             isAlertMobileMenuOpen
               ? "translate-x-0 opacity-100"
               : "translate-x-full opacity-0 pointer-events-none"
