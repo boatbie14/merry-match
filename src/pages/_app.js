@@ -36,7 +36,7 @@ export default function App({ Component, pageProps }) {
         <ThemeProvider theme={theme}>
           <MerryLimitProvider>
             <MerryLikeProvider>
-              <main className="flex-grow">
+              <main className="flex-grow bg-[#FCFCFE]">
                 <Component {...pageProps} />
               </main>
             </MerryLikeProvider>

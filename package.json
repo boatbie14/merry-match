@@ -23,6 +23,7 @@
     "browser-image-compression": "^2.0.2",
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "framer-motion": "^12.10.1",
     "lottie-react": "^2.4.1",
     "micro": "^10.0.1",
