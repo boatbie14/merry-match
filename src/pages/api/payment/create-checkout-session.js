@@ -9,7 +9,10 @@ export default async function handler(req, res) {
 
   const { userId, plan } = req.body;
 
+  console.log("📩 Received body:", { userId, plan });
+
   if (!userId || !plan) {
+    console.warn("⛔ Missing userId or plan");
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -20,12 +23,14 @@ export default async function handler(req, res) {
   };
 
   const priceId = priceMap[plan];
+  console.log("💰 Mapped priceId:", priceId);
+
   if (!priceId) {
+    console.warn("⛔ Invalid plan selected:", plan);
     return res.status(400).json({ error: "Invalid plan selected" });
   }
 
   try {
-    // 👉 สร้าง Checkout Session สำหรับ Subscription
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -43,9 +48,10 @@ export default async function handler(req, res) {
       },
     });
 
+    console.log("✅ Created Stripe session:", session.id);
     return res.status(200).json({ url: session.url });
   } catch (err) {
-    console.error("❌ Error creating checkout session:", err);
+    console.error("❌ Error creating checkout session:", err.message);
     return res.status(500).json({ error: "Internal server error" });
   }
 }
