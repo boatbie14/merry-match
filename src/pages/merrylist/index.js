@@ -159,9 +159,7 @@
   
               {loadingData? 
                   (<div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0">
-                    <SkeletonMerryListCard/>
-                    <SkeletonMerryListCard/>
-                    <SkeletonMerryListCard/>
+                    {Array.from({ length: 3 }).map((_,i)=><SkeletonMerryListCard key={i}/>)}
                   </div>)
                   :
                   filterData

@@ -107,7 +107,7 @@ useEffect(()=>{
                                         <ImageSlide
                                         key={imageIndex}
                                         src={images[imageIndex]}
-                                        alt={items.name}
+                                        alt={items?.name}
                                         />
                                     </AnimatePresence>
                                     <div className="absolute bottom-[-24px]  left-1/2 transform -translate-x-1/2 flex gap-4 z-10 ">
@@ -115,7 +115,7 @@ useEffect(()=>{
                                             <IoClose className="text-gray-600 " size={36} />
                                             <span className="tooltip">close</span>
                                         </button>
-                                        <LikeButton userId={items.id}/>
+                                        <LikeButton userId={items?.id}/>
                                     </div>
                                 </div>
 
@@ -135,11 +135,11 @@ useEffect(()=>{
                                 <div className="flex justify-between items-start mt-2 md:mt-0">
                                     <div>
                                         <h2 className="text-4xl md:text-4xl font-bold text-[#2A2E3F]">
-                                            {items.name} <span className="text-gray-500">{calculateAge(new Date(items.date_of_birth))}</span>
+                                            {items?.name} <span className="text-gray-500">{calculateAge(new Date(items?.date_of_birth))}</span>
                                         </h2>
                                         <div className="flex items-center gap-1 text-gray-500 text-md md:text-sm lg:text-sm pt-2 ">
                                             <IoLocationSharp color="#FFB1C8" />
-                                            <span>{items.city}, {items.location}</span>
+                                            <span>{items?.city}, {items?.location}</span>
                                         </div>
                                     </div>
                                 </div>  
@@ -149,19 +149,19 @@ useEffect(()=>{
                                     <tbody>
                                     <tr>
                                         <td className=" w-3/5 md:w-2/5 xs:w-1/2 py-1.5  md:py-1 lg:py-2 xl:py-2  text-[#2A2E3F] ">Sexual identities</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px]   text-[#646D89]">{items.sexual_identity}</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]   text-[#646D89]">{items?.sexual_identity}</td>
                                     </tr>
                                     <tr>
                                         <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2 text-[#2A2E3F] ">Sexual preferences</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items.sexual_preference}</td> 
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items?.sexual_preference}</td> 
                                     </tr>
                                     <tr>
                                         <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2 text-[#2A2E3F] ">Racial preferences</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items.racial_preference}</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items?.racial_preference}</td>
                                     </tr>
                                     <tr>
                                         <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2     text-[#2A2E3F]">Meeting interests</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89] ">{items.meeting_interest}</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89] ">{items?.meeting_interest}</td>
                                     </tr>
                                 </tbody>
                                 </table>
@@ -169,7 +169,7 @@ useEffect(()=>{
 
                             <div className=" w-full">
                                 <h3 className="font-bold text-xl md:font-semibold lg:pb-1 xl:pb-1.5">About me</h3>
-                                <p className="text-gray-600 pt-2 break-words text-md md:text-sm w-full">{items.bio}</p>
+                                <p className="text-gray-600 pt-2 break-words text-md md:text-sm w-full">{items?.bio}</p>
                             </div>
 
                             <div className="">
@@ -177,14 +177,9 @@ useEffect(()=>{
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {loadingHobbies ? (
                                         <>
-                                        <Skeleton variant="rounded" width={74} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={94} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={62} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={94} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={60} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={100} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={80} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={50} height={28} animation="wave"/>
+                                        {[74,94,62,94,60,100,80,50].map((value,i)=>
+                                            <Skeleton variant="rounded" width={value} height={28} animation="wave" key={i}/>
+                                        )}
                                         </>) : (
                                     hobbies.map((tag) => (
                                         <span
