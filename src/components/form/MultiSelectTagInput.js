@@ -65,7 +65,7 @@ export default function MultiSelectTagInput({
           gap: "4px",
           minHeight: "48px",
           width: "100%",
-          border: "1px solid #D6D9E4",
+          border: "2px solid #D6D9E4",
           borderRadius: "8px",
           padding: "8px",
           "&:focus-within": {
