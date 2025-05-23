@@ -67,7 +67,7 @@ export default function SuccessPage() {
           THB {data.packages.price}.00 <span className="text-xs">/Month</span>
         </p>
         <ul className="text-sm space-y-1 mb-4">
-          <li>✔ "Merry" more than a daily limited</li>
+          <li>✔ &quot;Merry&quot; more than a daily limited</li>
           <li>✔ Up to {data.packages.merry_per_day} Merry per day</li>
         </ul>
         <hr className="border-white border-opacity-30 my-2" />
