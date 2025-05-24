@@ -4,6 +4,7 @@ import { useSwipeUsers } from "../hooks/useSwipeUsers";
 import { useMerryLimit } from "../context/MerryLimitContext";
 
 export const SwipeContext = createContext();
+
 export const SwipeProvider = ({ children }) => {
   const matchUserFunctions = useSwipeUsers();
   const { merryLimit, refreshMerryLimit } = useMerryLimit();

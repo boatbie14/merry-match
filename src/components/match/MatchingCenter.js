@@ -27,9 +27,9 @@ const MatchingCenter = ({ onToggleFilter }) => {
     imageIndexes = {},
     loading,
     error,
-    swipeCount = 0, // รับค่า swipeCount
-    leftSwipes = 0, // รับค่า leftSwipes
-    rightSwipes = 0, // รับค่า rightSwipes
+    swipeCount = 0,
+    leftSwipes = 0,
+    rightSwipes = 0,
     handleSwipe,
     handleOutOfFrame,
     handleButtonClick,
@@ -197,9 +197,9 @@ const MatchingCenter = ({ onToggleFilter }) => {
                     }}
                   ></div>
 
-                  {/* เพิ่มเงื่อนไขการแสดงผลส่วน match */}
+                  {/* =================> EDIT: แก้ไขเงื่อนไขการแสดงผล match card */}
                   {user.isMatch ? (
-                    //#### Add: เพิ่มส่วนแสดงผลเมื่อเป็น match
+                    //=================> EDIT: Match card - สามารถ swipe ได้
                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-24">
                       <img
                         src="./images/merry-match.png"
@@ -213,11 +213,14 @@ const MatchingCenter = ({ onToggleFilter }) => {
                           OUserDrag: "none",
                           userDrag: "none",
                         }}
-                        /* Style อันนี้กันไม่ให้ลาก Element ได้ */
                       />
                       <button className="secondary-btn mt-6">Start Conversation</button>
+
+                      {/* =================> ADD: แสดงข้อความว่าสามารถ swipe ได้ */}
+                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">Swipe left or right to continue</p>
                     </div>
                   ) : (
+                    //=================> ไม่แก้ไข: Normal card แสดงตามเดิม
                     <div className="absolute bottom-0 left-0 right-0 px-6 pb-14 text-white">
                       <div className="flex justify-between items-center">
                         <h5 className="text-3xl font-bold flex gap-4">
@@ -253,6 +256,8 @@ const MatchingCenter = ({ onToggleFilter }) => {
                     </div>
                   )}
                 </div>
+
+                {/* =================> EDIT: แสดง SwipeButtons เฉพาะ normal card */}
                 {!user.isMatch && (
                   <SwipeButtons
                     user={user}

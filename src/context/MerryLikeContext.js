@@ -1,19 +1,23 @@
+// context/MerryLikeContext.js
 import { createContext, useContext, useState, useEffect } from "react";
 import { getMerriedLike, postMerriedLike, deleteMerriedLike } from "@/services/merryServices";
 import { useAuth } from "./AuthContext";
+import { useMerryLimit } from "@/context/MerryLimitContext";
 import { useMerryLimit } from "@/context/MerryLimitContext";
 
 const MerryLikeContext = createContext();
 
 export const MerryLikeProvider = ({ children }) => {
   const { refreshMerryLimit,setMerryLimit } = useMerryLimit();
-  const [likedUsers, setLikedUsers] = useState([]); // เก็บ user ที่ถูก Like
-  const [inProgressIds, setInProgressIds] = useState(new Set()); // userId ที่กำลังประมวลผล
+  const [likedUsers, setLikedUsers] = useState([]);
+  const [inProgressIds, setInProgressIds] = useState(new Set());
   const { isLoggedIn, checkingLogin } = useAuth();
   const [limitReached, setLimitReached] = useState(false);
 
   //Check Match
   const [matchedUser, setMatchedUser] = useState(false);
+
+  const [shouldRefreshMatches, setShouldRefreshMatches] = useState(0);
 
   // โหลดข้อมูล Like เมื่อ login เสร็จ
   useEffect(() => {
@@ -59,6 +63,12 @@ export const MerryLikeProvider = ({ children }) => {
 
         setMatchedUser(result.checkMatchUser);
 
+        console.log("Match or Not : " + result?.checkMatchUser);
+
+        if (result?.checkMatchUser) {
+          setShouldRefreshMatches(Date.now());
+        }
+
         if (shouldRefresh) {
           refreshMerryLimit();
         }
@@ -79,8 +89,10 @@ export const MerryLikeProvider = ({ children }) => {
     }
   };
 
+  console.log("shouldRefreshMatches in MerryLikeContext:" + shouldRefreshMatches);
+
   return (
-    <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached, matchedUser }}>
+    <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached, matchedUser, shouldRefreshMatches }}>
       {children}
     </MerryLikeContext.Provider>
   );
