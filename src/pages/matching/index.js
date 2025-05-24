@@ -27,7 +27,7 @@ export default function MatchPage() {
     <SwipeProvider>
       <MerryLimitProvider>
         <MerryLikeProvider>
-          <div className="row pt-[88px]">
+          <div className="row pt-[52px] md:pt-[88px]">
             <div className="container-full flex flex-col xl:flex-row">
               <div id="match-chat" className="w-full hidden xl:w-3/12 xl:block">
                 <MatchingLeftColumn />

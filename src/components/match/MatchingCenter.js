@@ -15,7 +15,6 @@ import { BsHearts } from "react-icons/bs";
 
 //context
 import { SwipeContext } from "@/context/SwipeContext";
-import { useMerryLimit } from "@/context/MerryLimitContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMerryLike } from "@/context/MerryLikeContext";
 
@@ -35,6 +34,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
     handleOutOfFrame,
     handleButtonClick,
     handleHeartButton,
+    currentMerryLimit,
   } = useContext(SwipeContext) || {};
 
   // Profile Popup
@@ -45,9 +45,6 @@ const MatchingCenter = ({ onToggleFilter }) => {
     setDataProfilePopup(user.originalProfile || user);
     setIsProfilePopup(true);
   };
-
-  //get merry limit
-  const { merryLimit } = useMerryLimit();
 
   //Upage Limit
   const { limitReached } = useMerryLike();
@@ -63,7 +60,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Checking login status...</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -84,7 +81,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
             </Link>
           </div>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -97,7 +94,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Loading users...</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -110,13 +107,13 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <h3 className="text-2xl font-bold mb-2">Error</h3>
           <p className="text-lg text-gray-300">{error}</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
 
   // ไม่มีข้อมูลผู้ใช้เมื่อการโหลดเสร็จสิ้นแล้วเท่านั้น
-  if (!loading && (!users || users.length === 0)) {
+  if (!loading && (!users || users.length === 0) && (!displayedUsers || displayedUsers.length === 0)) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64 text-white text-center">
@@ -124,7 +121,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <p className="text-lg text-gray-300">We couldn&apos;t find anyone matching your preferences.</p>
           <p className="text-lg text-gray-300">Try adjusting your search filters.</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -138,13 +135,13 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <h3 className="text-2xl font-bold my-2">Loading next matches...</h3>
           <p className="text-lg text-gray-300">Please wait while we find more people for you.</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
 
   // ถ้า Limit ถึง
-  if (limitReached || merryLimit.count >= merryLimit.merry_per_day) {
+  if (limitReached || currentMerryLimit.count <= 0) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col max-w-[600px] justify-center items-center text-white text-center">
@@ -157,7 +154,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
             Unlock More Merries
           </button>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -169,10 +166,10 @@ const MatchingCenter = ({ onToggleFilter }) => {
       <ProfilePopup isOpen={isProfilePopup} onClose={() => setIsProfilePopup(false)} items={DataProfilePopup} />
 
       {/* Debug info */}
-      <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
+      {/*       <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
         Users: {users?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R: {rightSwipes}) |{" "}
         {lastDirection && <span>Last swipe: {lastDirection}</span>}
-      </div>
+      </div> */}
 
       <div className="matching-card-size relative mx-auto ">
         {displayedUsers.map((user) => (
@@ -270,7 +267,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
         ))}
       </div>
 
-      <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+      <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
     </div>
   );
 };

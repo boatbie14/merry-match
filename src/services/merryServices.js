@@ -42,13 +42,17 @@ export const getMerriedLike = async () => {
 
 export const postMerriedLike = async (toUserId) => {
   try {
-    const options = { timeZone: "Asia/Bangkok" };
-    const bangkokDate = new Date(new Date().toLocaleString("en-US", options));
-    const dateString = bangkokDate.toISOString();
+    //New timezone
+    const currentDate = new Date();
+    const todayYMD =
+      currentDate.getFullYear() +
+      "-" +
+      String(currentDate.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(currentDate.getDate()).padStart(2, "0");
+    const timezoneOffset = currentDate.getTimezoneOffset();
 
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    const response = await apiClient.post("/merry/like", { toUserId, dateString, timezone });
+    const response = await apiClient.post("/merry/like", { toUserId, todayYMD, timezoneOffset });
     return response.data;
   } catch (error) {
     console.error("Error fetching merried users:", error);

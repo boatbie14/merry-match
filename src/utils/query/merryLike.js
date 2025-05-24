@@ -23,9 +23,29 @@ export async function deleteMerryLike(from_user_id, to_user_id) {
 }
 
 export async function insertMerryLike(from_user_id, to_user_id) {
+  // 1. Insert ก่อน
   const { data, error } = await supabase
     .from('merry_list')
     .insert([{ from_user_id, to_user_id }]);
-  return {data,error};
+  
+  if (error) {
+    return { data, error, checkMatchUser: false };
+  }
+
+  // Check Match
+  const { data: mutualCheck, error: mutualError } = await supabase
+    .from('merry_list')
+    .select('*')
+    .eq('from_user_id', to_user_id)
+    .eq('to_user_id', from_user_id)
+    .single();
+
+  const checkMatchUser = mutualCheck ? true : false;
+
+  return { 
+    data, 
+    error: null, 
+    checkMatchUser 
+  };
 }
 

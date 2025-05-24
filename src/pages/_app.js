@@ -10,6 +10,8 @@ import { MerryLimitProvider } from "@/context/MerryLimitContext";
 import { NavbarProvider } from "@/context/NavbarContext";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/styles/theme";
+import { LottieProvider } from "@/context/LottieContext";
+import LottieContainer from "@/components/LottieContainer";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -29,23 +31,25 @@ export default function App({ Component, pageProps }) {
   const hideNavbar = noNavbarRoutes.includes(router.pathname);
 
   return (
-  <AuthProvider>
-    <NavbarProvider>
-      <div className={`${nunito.className} min-h-screen flex flex-col`}>
-        {!hideNavbar && <NavbarMain />}
-        <ThemeProvider theme={theme}>
-          <MerryLimitProvider>
-            <MerryLikeProvider>
-              <main className="flex-grow bg-[#FCFCFE]">
-                <Component {...pageProps} />
-              </main>
-            </MerryLikeProvider>
-          </MerryLimitProvider>
-        </ThemeProvider>
-        {!hideFooter && <Footer />}
-      </div>
-    </NavbarProvider>
-  </AuthProvider>
-);
-
+    <AuthProvider>
+      <NavbarProvider>
+        <div className={`${nunito.className} min-h-screen flex flex-col`}>
+          {!hideNavbar && <NavbarMain />}
+          <ThemeProvider theme={theme}>
+            <LottieProvider>
+              <MerryLimitProvider>
+                <MerryLikeProvider>
+                  <main className="flex-grow">
+                    <Component {...pageProps} />
+                  </main>
+                  <LottieContainer />
+                </MerryLikeProvider>
+              </MerryLimitProvider>
+            </LottieProvider>
+          </ThemeProvider>
+          {!hideFooter && <Footer />}
+        </div>
+      </NavbarProvider>
+    </AuthProvider>
+  );
 }

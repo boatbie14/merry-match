@@ -1,9 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import {
-  getMerriedLike,
-  postMerriedLike,
-  deleteMerriedLike,
-} from "@/services/merryServices";
+import { getMerriedLike, postMerriedLike, deleteMerriedLike } from "@/services/merryServices";
 import { useAuth } from "./AuthContext";
 import { useMerryLimit } from "@/context/MerryLimitContext";
 
@@ -15,6 +11,9 @@ export const MerryLikeProvider = ({ children }) => {
   const [inProgressIds, setInProgressIds] = useState(new Set()); // userId ที่กำลังประมวลผล
   const { isLoggedIn, checkingLogin } = useAuth();
   const [limitReached, setLimitReached] = useState(false);
+
+  //Check Match
+  const [matchedUser, setMatchedUser] = useState(false);
 
   // โหลดข้อมูล Like เมื่อ login เสร็จ
   useEffect(() => {
@@ -34,7 +33,7 @@ export const MerryLikeProvider = ({ children }) => {
 
   const isLiked = (userId) => likedUsers.some((user) => user.id === userId);
 
-  const toggleLike = async (userId) => {
+  const toggleLike = async (userId, shouldRefresh = true) => {
     if (!isLoggedIn || checkingLogin || inProgressIds.has(userId)) return;
     // Mark this userId as "in progress"
     setInProgressIds((prev) => new Set(prev).add(userId));
@@ -44,11 +43,7 @@ export const MerryLikeProvider = ({ children }) => {
     const alreadyLiked = isLiked(userId);
 
     // Optimistic update
-    setLikedUsers((prev) =>
-      alreadyLiked
-        ? prev.filter((user) => user.id !== userId)
-        : [...prev, { id: userId }]
-    );
+    setLikedUsers((prev) => (alreadyLiked ? prev.filter((user) => user.id !== userId) : [...prev, { id: userId }]));
 
     try {
       if (alreadyLiked) {
@@ -61,15 +56,19 @@ export const MerryLikeProvider = ({ children }) => {
           setLimitReached(true);
           setLikedUsers((prev) => prev.filter((user) => user.id !== userId));        
         }
+
+        setMatchedUser(result.checkMatchUser);
+
+        if (shouldRefresh) {
+          refreshMerryLimit();
+        }
+
+        return result;
       }
     } catch (err) {
       console.error("Toggle Like Failed:", err);
       // Rollback UI
-      setLikedUsers((prev) =>
-        alreadyLiked
-          ? [...prev, { id: userId }]
-          : prev.filter((user) => user.id !== userId)
-      );
+      setLikedUsers((prev) => (alreadyLiked ? [...prev, { id: userId }] : prev.filter((user) => user.id !== userId)));
     } finally {
       // Remove from "in progress"
       setInProgressIds((prev) => {
@@ -81,9 +80,7 @@ export const MerryLikeProvider = ({ children }) => {
   };
 
   return (
-    <MerryLikeContext.Provider
-      value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached }}
-    >
+    <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached, matchedUser }}>
       {children}
     </MerryLikeContext.Provider>
   );

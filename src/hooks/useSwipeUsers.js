@@ -2,9 +2,22 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
+import { useMerryLike } from "@/context/MerryLikeContext";
+import { useMerryLimit } from "@/context/MerryLimitContext";
+import { useLottie } from "@/hooks/useLottie";
 
 export function useSwipeUsers() {
   const { userInfo } = useAuth();
+
+  // add merry
+  const { toggleLike } = useMerryLike();
+
+  // refresh merry
+  const { refreshMerryLimit, merryLimit } = useMerryLimit();
+
+  // show lottie
+  const { playHeart, playBrokenHeart } = useLottie();
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,7 +74,7 @@ export function useSwipeUsers() {
       setLoading(true);
       const currentUserId = userInfo.id;
 
-      let url = `/api/users?page=${page}&limit=${limit}`;
+      let url = `/api/users/not-merry-users?page=${page}&limit=${limit}`;
 
       // Only add currentUserId if it exists
       if (currentUserId) {
@@ -244,7 +257,7 @@ export function useSwipeUsers() {
   };
 
   // Swipe
-  const handleSwipe = (direction, user) => {
+  const handleSwipe = async (direction, user) => {
     if (!userInfo || !user || loading || !user.originalProfile?.id) {
       console.warn("Invalid swipe. Possibly still loading or user is invalid.", { direction, user });
       return;
@@ -258,10 +271,9 @@ export function useSwipeUsers() {
     if (direction === "left") {
       setLeftSwipes((prev) => prev + 1);
     } else if (direction === "right") {
-      setRightSwipes((prev) => prev + 1);
+      addMerry(user.originalProfile.id);
 
-      // ✅ ป้องกัน error ถ้า originalProfile.id ไม่ถูกต้อง
-      createMatch(user.originalProfile.id);
+      setRightSwipes((prev) => prev + 1);
     }
 
     // ลบการ์ดหลัง swipe
@@ -271,6 +283,27 @@ export function useSwipeUsers() {
     });
 
     setTimeout(() => {
+      // ตรวจสอบว่าเป็นคนสุดท้ายหรือไม่
+      const isLastUser = currentIndex >= users.length - 1;
+      const isLastPage = currentPage >= totalPages;
+      const isLastSwipe = swipeCount >= totalCount - 1;
+
+      // ถ้าเป็นคนสุดท้ายในระบบ
+      if (isLastUser && isLastPage && isLastSwipe) {
+        // ล้าง displayedUsers ให้หมดก่อน reset
+        setDisplayedUsers([]);
+
+        setTimeout(() => {
+          setSwipeCount(0);
+          setLeftSwipes(0);
+          setRightSwipes(0);
+          setCurrentIndex(0);
+          fetchUsers(1); // reset กลับหน้าแรก
+        }, 500);
+        return; // จบการทำงาน ไม่ต้องทำส่วนล่างแล้ว
+      }
+
+      // ถ้าไม่ใช่คนสุดท้าย ให้ทำงานปกติ
       if (displayedUsers.length <= 1) {
         loadNextUser();
       }
@@ -278,36 +311,25 @@ export function useSwipeUsers() {
       if (users.length - currentIndex <= 2 && currentPage < totalPages) {
         fetchUsers(currentPage + 1);
       }
-
-      if (swipeCount >= totalCount && currentPage >= totalPages) {
-        setTimeout(() => {
-          setSwipeCount(0);
-          setLeftSwipes(0);
-          setRightSwipes(0);
-          fetchUsers(1);
-        }, 500);
-      }
     }, 300);
   };
 
-  // Function to create a match when swiping right
-  const createMatch = async (targetUserId) => {
-    if (!userInfo?.id || !targetUserId || typeof targetUserId !== "string") {
-      console.warn("Invalid parameters for createMatch", { userId: userInfo?.id, targetUserId });
-      return;
-    }
-
+  // Function to create a merry
+  const addMerry = async (userId) => {
+    playHeart();
     try {
-      const response = await axios.post("/api/match", {
-        user_id: userInfo.id,
-        target_user_id: targetUserId,
-      });
+      // ใช้ await เพื่อรอให้ toggleLike ทำงานเสร็จ
+      const result = await toggleLike(userId);
+      console.log("checkMatchUser from addMerry:", result?.checkMatchUser);
 
-      if (response.data?.isMatch) {
-        // TODO: แสดง popup หรือเสียงดนตรี 🎉
-      }
-    } catch (err) {
-      console.error("Error creating match:", err?.response?.data || err.message);
+      const isMatchUser = result?.checkMatchUser;
+
+      // เพิ่มการหน่วงเวลาเล็กน้อยเพื่อให้แน่ใจว่า API ได้บันทึกข้อมูลแล้ว
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      return isMatchUser;
+    } catch (error) {
+      console.error("Error in addMerry:", error);
     }
   };
 
@@ -344,5 +366,7 @@ export function useSwipeUsers() {
     handleHeartButton,
     setUserFilters,
     resetUsers,
+    merryLimit,
+    refreshMerryLimit,
   };
 }

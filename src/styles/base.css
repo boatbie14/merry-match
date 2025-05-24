@@ -267,8 +267,9 @@
   align-items: center;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 481px) {
   .matching-card-container {
+    height: calc(100vh - 52px);
     padding: 0px 0px 24px 0px;
     justify-content: space-between;
   }
@@ -289,7 +290,7 @@
 
 @media (max-width: 480px) {
   .matching-card-size {
-    height: 70vh;
+    height: 72vh;
   }
 }
 
