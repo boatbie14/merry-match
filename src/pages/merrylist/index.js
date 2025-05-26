@@ -12,13 +12,8 @@
   import { useRouter } from "next/router";
 
   import { useMerryLimit } from "@/context/MerryLimitContext";
-  
-  // TODO 💽option บีบอัดไฟล์ก่อนส่งกลับมา
+
   // TODO 🕐goto chat page
-  // TODO limit like
-            // case_1 use limit by P.bost = is a context-update -> when like or unlike -> if ok use in page
-            // case_2 use function get limit(api) by P.bost ->in MerryLikeContext ->use function get limit in toggleLike after end api -> get value and use context -> use in this page
-            // case_3 info limit is very difficult to use -> use useEffect get in fo to  useState merryLimit -> in useState create function do this
   export default function MerrylistPage() {
     const {checkingLogin,isLoggedIn}=useAuth()
     const {merryLimit} = useMerryLimit()
@@ -164,9 +159,7 @@
   
               {loadingData? 
                   (<div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0">
-                    <SkeletonMerryListCard/>
-                    <SkeletonMerryListCard/>
-                    <SkeletonMerryListCard/>
+                    {Array.from({ length: 3 }).map((_,i)=><SkeletonMerryListCard key={i}/>)}
                   </div>)
                   :
                   filterData

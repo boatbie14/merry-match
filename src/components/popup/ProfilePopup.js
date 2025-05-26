@@ -81,31 +81,33 @@ useEffect(()=>{
         <AnimatePresence>
             {isOpen && (
                 <motion.div
-                className="fixed inset-0 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm z-2000"
+                className="fixed inset-0 flex items-end md:items-center justify-center bg-black/40 backdrop-blur-sm mt-[88px] md:mt-0 z-900 md:z-1000 "
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={onClose}
                 >
                     <motion.div
-                        className="bg-white rounded-t-4xl md:rounded-4xl shadow-lg w-full h-full max-w-[1140px] max-h-[760px] md:w-[90%] lg:w-[70%] xl:w-[55%] md:h-auto"
+                        className="bg-white rounded-t-4xl md:rounded-4xl shadow-lg w-full h-full max-h-[760px] max-w-[840px] md:max-h-full md:w-[90%] lg:w-[70%] xl:w-[55%] md:h-auto "
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ duration: 0.4, ease: 'easeOut' }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-col md:flex-row md:gap-8 md:pr-8 md:pl-14 md:py-10 relative md:mt-3 ">
+                        <div className="flex flex-col md:flex-row md:gap-8 lg:gap-12 2xl:gap-14  md:pr-8 md:pl-14 md:py-10 relative md:mt-3 ">
                             <IoCloseOutline onClick={()=>{handleClose()}} className="hidden md:flex text-gray-600 text-2xl absolute top-0 right-5" />
                             <IoMdArrowBack onClick={()=>{handleClose()}} className="md:hidden text-white hover:text-gray-600 text-2xl absolute top-4 left-5 z-20" />
 
-                            <div className="md:w-1/2 w-full h-auto relative  overflow-hidden">
-                                <div className="h-[478px] w-full relative max-h-[320px] ">
+                            <div className="md:w-1/2 w-full h-auto relative  overflow-hidden ">
+                                <div className="w-full h-[320px] relative md:max-w-[468px] md:aspect-square md:mx-auto md:h-auto ">
+
+                                {/* <div className="w-full md:max-w-[468px] md:aspect-square md:relative md:mx-auto"    > */}
                                     <AnimatePresence custom={direction} mode="popLayout">
                                         <ImageSlide
                                         key={imageIndex}
                                         src={images[imageIndex]}
-                                        alt={items.name}
+                                        alt={items?.name}
                                         />
                                     </AnimatePresence>
                                     <div className="absolute bottom-[-24px]  left-1/2 transform -translate-x-1/2 flex gap-4 z-10 ">
@@ -113,7 +115,7 @@ useEffect(()=>{
                                             <IoClose className="text-gray-600 " size={36} />
                                             <span className="tooltip">close</span>
                                         </button>
-                                        <LikeButton userId={items.id}/>
+                                        <LikeButton userId={items?.id}/>
                                     </div>
                                 </div>
 
@@ -128,45 +130,46 @@ useEffect(()=>{
                                 </div>
                             </div>
 
-                            <div className="pb-8 px-6 md:px-3 md:py-2 md:w-1/2 w-full max-h-[375px] md:max-h-[500px] overflow-y-auto flex flex-col gap-5.5 md:gap-7.5">
+                            <div className="pb-8 px-6 pt-6 md:px-3 md:py-2 md:w-1/2 w-full max-h-[375px] md:max-h-[min(80vh,740px)] overflow-y-auto flex flex-col gap-5.5">
+
                                 <div className="flex justify-between items-start mt-2 md:mt-0">
                                     <div>
                                         <h2 className="text-4xl md:text-4xl font-bold text-[#2A2E3F]">
-                                            {items.name} <span className="text-gray-500">{calculateAge(new Date(items.date_of_birth))}</span>
+                                            {items?.name} <span className="text-gray-500">{calculateAge(new Date(items?.date_of_birth))}</span>
                                         </h2>
                                         <div className="flex items-center gap-1 text-gray-500 text-md md:text-sm lg:text-sm pt-2 ">
                                             <IoLocationSharp color="#FFB1C8" />
-                                            <span>{items.city}, {items.location}</span>
+                                            <span>{items?.city}, {items?.location}</span>
                                         </div>
                                     </div>
                                 </div>  
 
-                                <div className=" text-md md:text-xs">
+                                <div className=" text-md md:text-xs xl:text-lg">
                                 <table className="w-full  md:w-full md:text-[14px] text-[#2A2E3F] table-fixed ">
                                     <tbody>
                                     <tr>
-                                        <td className=" w-3/5 md:w-2/5 xs:w-1/2 py-1.5  md:py-1 text-[#2A2E3F] ">Sexual identities</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.sexual_identity}</td>
+                                        <td className=" w-3/5 md:w-2/5 xs:w-1/2 py-1.5  md:py-1 lg:py-2 xl:py-2  text-[#2A2E3F] ">Sexual identities</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]   text-[#646D89]">{items?.sexual_identity}</td>
                                     </tr>
                                     <tr>
-                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F] ">Sexual preferences</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.sexual_preference}</td> 
+                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2 text-[#2A2E3F] ">Sexual preferences</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items?.sexual_preference}</td> 
                                     </tr>
                                     <tr>
-                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F] ">Racial preferences</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89]">{items.racial_preference}</td>
+                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2 text-[#2A2E3F] ">Racial preferences</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89]">{items?.racial_preference}</td>
                                     </tr>
                                     <tr>
-                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 text-[#2A2E3F]">Meeting interests</td>
-                                        <td className="w-2/5 xs:w-1/2 text-[16px] text-[#646D89] ">{items.meeting_interest}</td>
+                                        <td className="w-2/5 xs:w-1/2 py-1.5 md:py-1 lg:py-2 xl:py-2     text-[#2A2E3F]">Meeting interests</td>
+                                        <td className="w-2/5 xs:w-1/2 text-[16px]  text-[#646D89] ">{items?.meeting_interest}</td>
                                     </tr>
                                 </tbody>
                                 </table>
                             </div>
 
-                            <div className="">
-                                <h3 className="font-bold text-xl md:font-semibold ">About me</h3>
-                                <p className="text-gray-600 pt-2 text-md md:text-sm">&nbsp;&nbsp;&nbsp;&nbsp;{items.bio}</p>
+                            <div className=" w-full">
+                                <h3 className="font-bold text-xl md:font-semibold lg:pb-1 xl:pb-1.5">About me</h3>
+                                <p className="text-gray-600 pt-2 break-words text-md md:text-sm w-full">{items?.bio}</p>
                             </div>
 
                             <div className="">
@@ -174,19 +177,14 @@ useEffect(()=>{
                                 <div className="flex flex-wrap gap-2 mt-2">
                                     {loadingHobbies ? (
                                         <>
-                                        <Skeleton variant="rounded" width={74} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={94} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={62} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={94} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={60} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={100} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={80} height={28} animation="wave"/>
-                                        <Skeleton variant="rounded" width={50} height={28} animation="wave"/>
+                                        {[74,94,62,94,60,100,80,50].map((value,i)=>
+                                            <Skeleton variant="rounded" width={value} height={28} animation="wave" key={i}/>
+                                        )}
                                         </>) : (
                                     hobbies.map((tag) => (
                                         <span
                                             key={tag}
-                                            className="border-1 border-pink-600 text-[#7D2262] text-sm px-4 py-1 rounded-lg">
+                                            className="break-words border-1 border-pink-600 text-[#7D2262] text-sm px-4 py-1 rounded-lg">
                                             {tag}
                                         </span>)
                                     ))}

@@ -2,7 +2,7 @@ import { requireUser } from "@/middleware/requireUser";
 import { getMerryLike, insertMerryLike } from "@/utils/query/merryLike";
 import { addLikeCountLog } from "@/utils/query/addLikeCountLog";
 import { checkMerryLimit } from "@/utils/query/checkMerryLimit";
-// TODO 🔳💙โลจิกการ แจ้งให้ client รู้ว่า limit เกิน คือ 403 ทำแล้วแต่ยังไม่เช็ค
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
