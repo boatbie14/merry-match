@@ -3,12 +3,11 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { getMerriedLike, postMerriedLike, deleteMerriedLike } from "@/services/merryServices";
 import { useAuth } from "./AuthContext";
 import { useMerryLimit } from "@/context/MerryLimitContext";
-import { useMerryLimit } from "@/context/MerryLimitContext";
 
 const MerryLikeContext = createContext();
 
 export const MerryLikeProvider = ({ children }) => {
-  const { refreshMerryLimit,setMerryLimit } = useMerryLimit();
+  const { refreshMerryLimit, setMerryLimit } = useMerryLimit();
   const [likedUsers, setLikedUsers] = useState([]);
   const [inProgressIds, setInProgressIds] = useState(new Set());
   const { isLoggedIn, checkingLogin } = useAuth();
@@ -53,12 +52,12 @@ export const MerryLikeProvider = ({ children }) => {
       if (alreadyLiked) {
         await deleteMerriedLike(userId);
       } else {
-        setMerryLimit((prev) => ({...prev,count: prev.count + 1,}));
+        setMerryLimit((prev) => ({ ...prev, count: prev.count + 1 }));
         const result = await postMerriedLike(userId);
         refreshMerryLimit();
         if (result && result.isLimitReached) {
           setLimitReached(true);
-          setLikedUsers((prev) => prev.filter((user) => user.id !== userId));        
+          setLikedUsers((prev) => prev.filter((user) => user.id !== userId));
         }
 
         setMatchedUser(result.checkMatchUser);
