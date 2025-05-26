@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 
-export function useMatchedUsers() {
+// ✅ เพิ่มพารามิเตอร์ refreshTrigger
+export function useMatchedUsers(refreshTrigger = null) {
   const { userInfo } = useAuth();
   const [matchedUsers, setMatchedUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // ตรวจสอบว่ามี userInfo หรือไม่
     if (!userInfo) return;
 
     const fetchMatchedUsers = async () => {
@@ -17,13 +17,8 @@ export function useMatchedUsers() {
       setError(null);
 
       try {
-        // เรียกใช้ API endpoint
         const response = await fetch(`/api/match-list?user_id=${userInfo.id}`);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch matched users");
-        }
+        if (!response.ok) throw new Error("Failed to fetch matched users");
 
         const data = await response.json();
         setMatchedUsers(data.matches);
@@ -36,7 +31,7 @@ export function useMatchedUsers() {
     };
 
     fetchMatchedUsers();
-  }, [userInfo]);
+  }, [userInfo, refreshTrigger]); // ✅ trigger เมื่อ refreshKey เปลี่ยน
 
   return { matchedUsers, loading, error };
 }

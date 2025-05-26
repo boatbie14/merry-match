@@ -1,7 +1,7 @@
 // contexts/MerryLimitContext.js
 
 import { createContext, useState, useContext, useEffect } from "react";
-import { useAuth } from "@/context/AuthContext"; 
+import { useAuth } from "@/context/AuthContext";
 
 // สร้าง Context
 const MerryLimitContext = createContext();
@@ -30,18 +30,30 @@ export function MerryLimitProvider({ children }) {
 
     try {
       setLoading(true);
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      /*       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const currentDate = new Date(); */
+
+      const currentDate = new Date();
+      const todayYMD =
+        currentDate.getFullYear() +
+        "-" +
+        String(currentDate.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(currentDate.getDate()).padStart(2, "0");
+      const timezoneOffset = currentDate.getTimezoneOffset();
 
       // ส่ง user_id จาก userInfo ไปยัง API
-      const response = await fetch(`/api/merry-limit?timezone=${timezone}&user_id=${userInfo.id}`);
+      const response = await fetch(`/api/merry-limit?today=${todayYMD}&timezone_offset=${timezoneOffset}&user_id=${userInfo.id}`);
 
       if (!response.ok) {
         throw new Error("Failed to fetch merry limit");
       }
 
       const data = await response.json();
-      setMerryLimit(data);
+
+      setMerryLimit({ ...data });
       setError(null);
+      return data;
     } catch (err) {
       console.error("Error fetching merry limit:", err);
       setError(err.message);

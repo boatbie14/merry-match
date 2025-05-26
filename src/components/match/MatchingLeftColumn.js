@@ -1,11 +1,20 @@
-import React from "react";
+//component/MatchingLeftColumn.js
+import React, { useEffect } from "react";
+import { useMerryLike } from "@/context/MerryLikeContext";
+import { useMatchedUsers } from "@/hooks/useMatchedUsers";
 import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
 import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
-import { useMatchedUsers } from "@/hooks/useMatchedUsers";
 
 export default function MatchingLeftColumn() {
   // ใช้ Hook ที่เราสร้างไว้เพื่อดึงข้อมูล matchedUsers
-  const { matchedUsers, loading, error } = useMatchedUsers();
+  const { shouldRefreshMatches } = useMerryLike();
+  const { matchedUsers, loading, error } = useMatchedUsers(shouldRefreshMatches);
+
+  useEffect(() => {
+    console.log("MatchingLeftColumn: shouldRefreshMatches changed to:", shouldRefreshMatches);
+  }, [shouldRefreshMatches]);
+
+  console.log("shouldRefreshMatches : " + shouldRefreshMatches);
 
   return (
     <>

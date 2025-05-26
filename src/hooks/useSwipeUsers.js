@@ -2,9 +2,19 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "@/context/AuthContext";
+import { useMerryLike } from "@/context/MerryLikeContext";
+import { useMerryLimit } from "@/context/MerryLimitContext";
+import { useLottie } from "@/hooks/useLottie";
 
 export function useSwipeUsers() {
   const { userInfo } = useAuth();
+  const { toggleLike } = useMerryLike();
+  const { refreshMerryLimit, merryLimit } = useMerryLimit();
+
+  //lottie
+  const { playHeart, playBrokenHeart } = useLottie();
+
+  // users
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +34,7 @@ export function useSwipeUsers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [limit] = useState(10); // Limit per page
+  const [limit] = useState(10);
 
   //Filter state
   const [filters, setFilters] = useState({
@@ -38,7 +48,6 @@ export function useSwipeUsers() {
   // Start load component on mount - only if userInfo exists
   useEffect(() => {
     if (userInfo) {
-      // call first page only if user is logged in
       fetchUsers(1);
     }
   }, [userInfo]);
@@ -61,9 +70,8 @@ export function useSwipeUsers() {
       setLoading(true);
       const currentUserId = userInfo.id;
 
-      let url = `/api/users?page=${page}&limit=${limit}`;
+      let url = `/api/users/not-merry-users?page=${page}&limit=${limit}`;
 
-      // Only add currentUserId if it exists
       if (currentUserId) {
         url += `&currentUserId=${currentUserId}`;
       }
@@ -81,7 +89,6 @@ export function useSwipeUsers() {
       if (response.data && response.data.users) {
         if (page === 1) {
           setUsers(response.data.users);
-          // Reset swipe counters after load first page
           setSwipeCount(0);
           setLeftSwipes(0);
           setRightSwipes(0);
@@ -160,29 +167,23 @@ export function useSwipeUsers() {
     const nextIndex = currentIndex + 1;
 
     if (nextIndex >= users.length) {
-      // Check whether the next page should be loaded.
       if (currentPage < totalPages) {
         fetchUsers(currentPage + 1);
         return;
       } else {
-        //if last page and swipeCount = totalCount
         if (swipeCount >= totalCount - 1) {
-          // reset swipe and load first page
           setSwipeCount(0);
           setLeftSwipes(0);
           setRightSwipes(0);
           fetchUsers(1);
           return;
         }
-
-        // If the totalCount hasn't been reached yet but there are no more pages (special case).
         return;
       }
     }
 
     const user = users[nextIndex];
 
-    // เพิ่มการตรวจสอบว่ามี user ข้อมูล
     if (!user) {
       console.warn("User not found at index:", nextIndex);
       return;
@@ -208,7 +209,6 @@ export function useSwipeUsers() {
     // Card out of frame handler
   };
 
-  // Change Click Arrow icon to change images
   const handleButtonClick = (e, userName, direction) => {
     e.stopPropagation();
     handleImageChange(userName, direction);
@@ -237,77 +237,137 @@ export function useSwipeUsers() {
     setImageIndexes(newImageIndexes);
   };
 
+  //=================> EDIT: แก้ไข handleHeartButton
   const handleHeartButton = (e, user) => {
     e.stopPropagation();
-    // Click heart then do swipe right
+
+    // ถ้าเป็น match card ให้ทำการ swipe right ปกติ (ลบและไปต่อ)
+    if (user.isMatch) {
+      removeCurrentCardAndLoadNext(user);
+      return;
+    }
+
+    // ถ้าไม่ใช่ match card ให้ทำ swipe right ที่จะเรียก addMerry
     handleSwipe("right", user);
   };
 
-  // Swipe
-  const handleSwipe = (direction, user) => {
+  //=================> EDIT: แก้ไข handleSwipe function - แสดงหัวใจก่อน ลบ delay
+  const handleSwipe = async (direction, user) => {
     if (!userInfo || !user || loading || !user.originalProfile?.id) {
       console.warn("Invalid swipe. Possibly still loading or user is invalid.", { direction, user });
       return;
     }
 
     setLastDirection(direction);
-
-    // count swipe
     setSwipeCount((prev) => prev + 1);
 
     if (direction === "left") {
       setLeftSwipes((prev) => prev + 1);
+
+      //=================> ADD: ถ้าเป็น match card ให้ปัดซ้ายได้
+      if (user.isMatch) {
+        removeCurrentCardAndLoadNext(user);
+        return;
+      }
+
+      // ปกติ swipe left
+      removeCurrentCardAndLoadNext(user);
     } else if (direction === "right") {
       setRightSwipes((prev) => prev + 1);
 
-      // ✅ ป้องกัน error ถ้า originalProfile.id ไม่ถูกต้อง
-      createMatch(user.originalProfile.id);
-    }
+      //=================> ADD: ถ้าเป็น match card ให้ปัดขวาได้
+      if (user.isMatch) {
+        removeCurrentCardAndLoadNext(user);
+        return;
+      }
 
-    // ลบการ์ดหลัง swipe
+      //=================> EDIT: เล่น playHeart ก่อนทุกอย่าง
+      playHeart();
+
+      //=================> EDIT: ลบ card ทันทีหลังจาก playHeart
+      setDisplayedUsers((prevUsers) => {
+        const remaining = prevUsers.filter((item) => item.name !== user.name);
+        return remaining;
+      });
+
+      try {
+        const result = await addMerry(user.originalProfile.id);
+        const isMatchUser = result?.checkMatchUser;
+
+        if (isMatchUser) {
+          //=================> ADD: ถ้า match ให้ card เด้งกลับมาเป็น match card
+          const matchedUser = {
+            ...user,
+            isMatch: true,
+          };
+          // แสดง match card กลับมาทันที
+          setDisplayedUsers([matchedUser]);
+        } else {
+          //=================> ADD: ถ้าไม่ match ให้โหลด card ถัดไป
+          loadNextUserAfterSwipe();
+        }
+      } catch (error) {
+        console.error("Error in addMerry:", error);
+        // ถ้า error ให้โหลด card ถัดไป
+        loadNextUserAfterSwipe();
+      }
+    }
+  };
+
+  //=================> EDIT: ลบ delay ออกจาก removeCurrentCardAndLoadNext
+  const removeCurrentCardAndLoadNext = (user) => {
+    // ลบ card ปัจจุบัน
     setDisplayedUsers((prevUsers) => {
       const remaining = prevUsers.filter((item) => item.name !== user.name);
       return remaining;
     });
 
-    setTimeout(() => {
-      if (displayedUsers.length <= 1) {
-        loadNextUser();
-      }
-
-      if (users.length - currentIndex <= 2 && currentPage < totalPages) {
-        fetchUsers(currentPage + 1);
-      }
-
-      if (swipeCount >= totalCount && currentPage >= totalPages) {
-        setTimeout(() => {
-          setSwipeCount(0);
-          setLeftSwipes(0);
-          setRightSwipes(0);
-          fetchUsers(1);
-        }, 500);
-      }
-    }, 300);
+    // โหลด card ถัดไปทันที (ไม่มี setTimeout)
+    loadNextUserAfterSwipe();
   };
 
-  // Function to create a match when swiping right
-  const createMatch = async (targetUserId) => {
-    if (!userInfo?.id || !targetUserId || typeof targetUserId !== "string") {
-      console.warn("Invalid parameters for createMatch", { userId: userInfo?.id, targetUserId });
+  //=================> EDIT: แก้ไข loadNextUserAfterSwipe - ลด delay เหลือเฉพาะที่จำเป็น
+  const loadNextUserAfterSwipe = () => {
+    const isLastUser = currentIndex >= users.length - 1;
+    const isLastPage = currentPage >= totalPages;
+    const isLastSwipe = swipeCount >= totalCount - 1;
+
+    if (isLastUser && isLastPage && isLastSwipe) {
+      // หมดคนแล้ว reset กลับหน้าแรก
+      setDisplayedUsers([]);
+      // ลด delay ลงเหลือแค่ 100ms สำหรับ state update
+      setTimeout(() => {
+        setSwipeCount(0);
+        setLeftSwipes(0);
+        setRightSwipes(0);
+        setCurrentIndex(0);
+        fetchUsers(1);
+      }, 100);
       return;
     }
 
-    try {
-      const response = await axios.post("/api/match", {
-        user_id: userInfo.id,
-        target_user_id: targetUserId,
-      });
+    // โหลด user ถัดไปทันที
+    if (displayedUsers.length <= 1) {
+      loadNextUser();
+    }
 
-      if (response.data?.isMatch) {
-        // TODO: แสดง popup หรือเสียงดนตรี 🎉
-      }
-    } catch (err) {
-      console.error("Error creating match:", err?.response?.data || err.message);
+    // โหลดหน้าถัดไปถ้าจำเป็น
+    if (users.length - currentIndex <= 2 && currentPage < totalPages) {
+      fetchUsers(currentPage + 1);
+    }
+  };
+
+  //=================> EDIT: ลบ delay ออกจาก addMerry
+  const addMerry = async (userId) => {
+    try {
+      const result = await toggleLike(userId);
+      console.log("checkMatchUser from addMerry:", result?.checkMatchUser);
+
+      // ไม่ต้องหน่วงเวลา - ลบ Promise timeout ออก
+      return result;
+    } catch (error) {
+      console.error("Error in addMerry:", error);
+      throw error;
     }
   };
 
@@ -322,6 +382,7 @@ export function useSwipeUsers() {
     });
   };
 
+  //=================> EDIT: เพิ่มฟังก์ชันใหม่ใน return
   return {
     users,
     displayedUsers,
@@ -344,5 +405,10 @@ export function useSwipeUsers() {
     handleHeartButton,
     setUserFilters,
     resetUsers,
+    merryLimit,
+    refreshMerryLimit,
+    removeCurrentCardAndLoadNext,
+    loadNextUserAfterSwipe,
+    shouldRefreshMatches: null,
   };
 }

@@ -1,6 +1,9 @@
 // components/match/MatchingCenter.js
 import React, { useState, useContext } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { encryptUserId } from "@/utils/crypto";
+
 //component
 import SimpleCard from "./SimpleCard";
 import FilterAndMerryLimit from "./FilterAndMerryLimit";
@@ -15,11 +18,12 @@ import { BsHearts } from "react-icons/bs";
 
 //context
 import { SwipeContext } from "@/context/SwipeContext";
-import { useMerryLimit } from "@/context/MerryLimitContext";
 import { useAuth } from "@/context/AuthContext";
 import { useMerryLike } from "@/context/MerryLikeContext";
 
 const MatchingCenter = ({ onToggleFilter }) => {
+  const router = useRouter();
+
   // ใช้ข้อมูลและฟังก์ชันจาก Context
   const {
     users,
@@ -28,13 +32,14 @@ const MatchingCenter = ({ onToggleFilter }) => {
     imageIndexes = {},
     loading,
     error,
-    swipeCount = 0, // รับค่า swipeCount
-    leftSwipes = 0, // รับค่า leftSwipes
-    rightSwipes = 0, // รับค่า rightSwipes
+    swipeCount = 0,
+    leftSwipes = 0,
+    rightSwipes = 0,
     handleSwipe,
     handleOutOfFrame,
     handleButtonClick,
     handleHeartButton,
+    currentMerryLimit,
   } = useContext(SwipeContext) || {};
 
   // Profile Popup
@@ -46,8 +51,26 @@ const MatchingCenter = ({ onToggleFilter }) => {
     setIsProfilePopup(true);
   };
 
-  //get merry limit
-  const { merryLimit } = useMerryLimit();
+  const handleStartConversation = (user) => {
+    try {
+      // แก้ไข: รับ user object แทน userID
+      const chatToUserID = user.originalProfile.id;
+      console.log("Starting conversation with user ID:", chatToUserID);
+
+      // เข้ารหัส user ID
+      const encryptedId = encryptUserId(chatToUserID);
+
+      if (encryptedId) {
+        console.log("Navigating to chat with encrypted ID");
+        // นำทางไปหน้า chat พร้อม encrypted ID
+        router.push(`/chat?u=${encryptedId}`);
+      } else {
+        console.error("Failed to encrypt user ID");
+      }
+    } catch (error) {
+      console.error("Error in handleStartConversation:", error);
+    }
+  };
 
   //Upage Limit
   const { limitReached } = useMerryLike();
@@ -63,7 +86,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Checking login status...</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -84,7 +107,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
             </Link>
           </div>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -97,7 +120,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-700 border-t-[#C70039]"></div>
           <p className="mt-4 text-white">Loading users...</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -110,13 +133,13 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <h3 className="text-2xl font-bold mb-2">Error</h3>
           <p className="text-lg text-gray-300">{error}</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
 
   // ไม่มีข้อมูลผู้ใช้เมื่อการโหลดเสร็จสิ้นแล้วเท่านั้น
-  if (!loading && (!users || users.length === 0)) {
+  if (!loading && (!users || users.length === 0) && (!displayedUsers || displayedUsers.length === 0)) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col justify-center items-center h-64 text-white text-center">
@@ -124,7 +147,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <p className="text-lg text-gray-300">We couldn&apos;t find anyone matching your preferences.</p>
           <p className="text-lg text-gray-300">Try adjusting your search filters.</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -138,13 +161,13 @@ const MatchingCenter = ({ onToggleFilter }) => {
           <h3 className="text-2xl font-bold my-2">Loading next matches...</h3>
           <p className="text-lg text-gray-300">Please wait while we find more people for you.</p>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
 
   // ถ้า Limit ถึง
-  if (limitReached || merryLimit.count >= merryLimit.merry_per_day) {
+  if (limitReached || currentMerryLimit.count <= 0) {
     return (
       <div className="w-full bg-[#160404] flex flex-col items-center justify-center h-screen overflow-hidden">
         <div className="flex flex-col max-w-[600px] justify-center items-center text-white text-center">
@@ -157,7 +180,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
             Unlock More Merries
           </button>
         </div>
-        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+        <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
       </div>
     );
   }
@@ -169,10 +192,10 @@ const MatchingCenter = ({ onToggleFilter }) => {
       <ProfilePopup isOpen={isProfilePopup} onClose={() => setIsProfilePopup(false)} items={DataProfilePopup} />
 
       {/* Debug info */}
-      <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
+      {/*       <div className="absolute top-2 left-2 text-xs text-white bg-black/50 p-1 z-50">
         Users: {users?.length || 0} | Swipe Count: {swipeCount} (L: {leftSwipes}, R: {rightSwipes}) |{" "}
         {lastDirection && <span>Last swipe: {lastDirection}</span>}
-      </div>
+      </div> */}
 
       <div className="matching-card-size relative mx-auto ">
         {displayedUsers.map((user) => (
@@ -200,9 +223,8 @@ const MatchingCenter = ({ onToggleFilter }) => {
                     }}
                   ></div>
 
-                  {/* เพิ่มเงื่อนไขการแสดงผลส่วน match */}
+                  {/* =================> EDIT: แก้ไขเงื่อนไขการแสดงผล match card */}
                   {user.isMatch ? (
-                    //#### Add: เพิ่มส่วนแสดงผลเมื่อเป็น match
                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-24">
                       <img
                         src="./images/merry-match.png"
@@ -216,11 +238,20 @@ const MatchingCenter = ({ onToggleFilter }) => {
                           OUserDrag: "none",
                           userDrag: "none",
                         }}
-                        /* Style อันนี้กันไม่ให้ลาก Element ได้ */
                       />
-                      <button className="secondary-btn mt-6">Start Conversation</button>
+                      <button className="secondary-btn mt-6" onClick={() => handleStartConversation(user)}>
+                        Start Conversation
+                      </button>
+
+                      {/* =================> ADD: แสดงข้อความว่าสามารถ swipe ได้ */}
+                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">
+                        Swipe left or right to continue
+                        <br />
+                        {user.originalProfile.id}
+                      </p>
                     </div>
                   ) : (
+                    //=================> ไม่แก้ไข: Normal card แสดงตามเดิม
                     <div className="absolute bottom-0 left-0 right-0 px-6 pb-14 text-white">
                       <div className="flex justify-between items-center">
                         <h5 className="text-3xl font-bold flex gap-4">
@@ -256,6 +287,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
                     </div>
                   )}
                 </div>
+
                 {!user.isMatch && (
                   <SwipeButtons
                     user={user}
@@ -270,7 +302,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
         ))}
       </div>
 
-      <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={merryLimit} />
+      <FilterAndMerryLimit onToggleFilter={onToggleFilter} merryLimit={currentMerryLimit} />
     </div>
   );
 };

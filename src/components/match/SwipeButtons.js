@@ -1,20 +1,11 @@
+// components/match/SwipeButtons.js (ลบ Lottie ออก)
 import React from "react";
-import dynamic from "next/dynamic";
-import { useMerryLimit } from "@/context/MerryLimitContext";
+import { useMerryLike } from "@/context/MerryLikeContext";
 import { IoCloseOutline } from "react-icons/io5";
 import { GoHeartFill } from "react-icons/go";
-import { useMerryLike } from "@/context/MerryLikeContext";
-import { useMerryLottie } from "@/hooks/useMerryLottie";
-
-// Load LottieModal ด้วย dynamic import แบบไม่มี SSR
-const LottieModal = dynamic(() => import("../LottieModal"), { ssr: false });
 
 const SwipeButtons = ({ user, userID, handleSwipe, handleHeartButton }) => {
-  const { toggleLike, isLiked } = useMerryLike();
-  const { refreshMerryLimit } = useMerryLimit(); //เช็ค Merry Limit หน่อย
-
-  // ใช้ Hook ใหม่ที่รองรับทั้งการไลค์และยกเลิกไลค์
-  const { heart, brokenHeart, showLottieBasedOnAction } = useMerryLottie();
+  const { isLiked } = useMerryLike();
 
   const handleMerryClick = async (e) => {
     e.stopPropagation();
@@ -26,11 +17,7 @@ const SwipeButtons = ({ user, userID, handleSwipe, handleHeartButton }) => {
 
     const alreadyLiked = isLiked(userID);
 
-    // เรียกใช้ toggleLike
-    toggleLike(userID);
-
-    // แสดง animation ตามสถานะการไลค์
-    await showLottieBasedOnAction(!alreadyLiked); // true = กำลังไลค์, false = กำลังยกเลิกไลค์
+    // ไม่ต้องเรียก toggleLike ที่นี่ เพราะ handleSwipe จะจัดการให้
 
     // เรียกใช้ handleHeartButton หรือ handleSwipe
     if (handleHeartButton) {
@@ -39,20 +26,14 @@ const SwipeButtons = ({ user, userID, handleSwipe, handleHeartButton }) => {
       // เลื่อนการ์ดไปทางขวาเมื่อไลค์เท่านั้น ไม่ใช่เมื่อยกเลิกไลค์
       handleSwipe && handleSwipe("right", user);
     }
-    //Refresh Merry Limit
-    refreshMerryLimit();
+
+    // ไม่ต้องเรียก refreshMerryLimit ที่นี่ เพราะ handleSwipe จะจัดการให้
   };
 
   if (!user || user.isMatch) return null;
 
   return (
     <div className="relative flex flex-row justify-center gap-6 mt-[-40px]">
-      {/* Heart Lottie Modal */}
-      <LottieModal show={heart.showLottie} lottieData={heart.lottieData} onClose={() => {}} />
-
-      {/* Broken Heart Lottie Modal */}
-      <LottieModal show={brokenHeart.showLottie} lottieData={brokenHeart.lottieData} onClose={() => {}} />
-
       <button
         className="gray-icon-btn"
         style={{ width: "80px", height: "80px" }}

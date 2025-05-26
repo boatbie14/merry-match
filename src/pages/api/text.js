@@ -1,15 +1,44 @@
-// utils/query/checkMerryLimit.js
-import { supabase } from "@/lib/supabaseClient";
+// pages/api/merry-limit.js
+import { createClient } from "@supabase/supabase-js";
 
+// ตั้งค่า Supabase client
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+// ID ของ Free Package
 const FREE_PACKAGE_ID = "6c3e5251-6ba4-4c79-a305-22cfaaecb47c";
 
-export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
+export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
+
   try {
-    console.log("user_id = " + user_id);
+    // ใช้ user_id จาก query params
+    const user_id = req.query.user_id;
 
     // ถ้าไม่มี user_id ให้ส่ง error กลับไป
     if (!user_id) {
-      throw new Error("User ID is required");
+      return res.status(400).json({
+        error: "User ID is required",
+        count: packageInfo.merry_per_day, // เปลี่ยนจาก 0 เป็น merry_per_day
+        merry_per_day: 10,
+      });
+    }
+
+    // รับวันที่จาก client หรือใช้วันที่ปัจจุบัน
+    let clientDate;
+    let todayYMD;
+
+    if (req.query.date) {
+      // ถ้า client ส่งวันที่มา ใช้วันที่นั้น
+      clientDate = new Date(req.query.date);
+      todayYMD = clientDate.toISOString().split("T")[0];
+    } else {
+      // ถ้า client ไม่ได้ส่งวันที่มา ใช้วันที่ของ server แต่ปรับตาม timezone ของไทย (UTC+7)
+      clientDate = new Date();
+      // ปรับ timezone เป็นของไทย (UTC+7)
+      clientDate.setHours(clientDate.getHours() + 7);
+      todayYMD = clientDate.toISOString().split("T")[0];
     }
 
     // 1. เช็คว่า user มี package active อยู่หรือไม่
@@ -66,7 +95,27 @@ export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
       user_package_id = newUserPackage.id;
     }
 
-    // 2. ดึง merry_count_log ล่าสุดของ user นี้
+    // 2. เช็คว่ามี merry_count_log ของวันนี้หรือไม่
+    const { data: merryLog, error: logError } = await supabase
+      .from("merry_count_log")
+      .select("*")
+      .eq("user_id", user_id)
+      .eq("log_date", todayFromUser)
+      .single();
+
+    if (logError && logError.code !== "PGRST116") {
+      throw new Error(logError.message);
+    }
+
+    let merryCount;
+
+    //############# Check Date #############
+    //3. เช็คว่าวันนี้มี log แล้วยัง
+    // ดึงข้อมูลจาก query params
+    const todayFromUser = req.query.today; // ตัวอย่าง 2025-06-02
+    const timezoneOffset = parseInt(req.query.timezone_offset || "0"); // ตัวอย่าง -420
+
+    // ดึง merry_count_log ล่าสุดของ user นี้
     const { data: latestLog, error: latestLogError } = await supabase
       .from("merry_count_log")
       .select("*")
@@ -76,7 +125,7 @@ export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
       .single();
 
     let createNewLog = true;
-    let merryCount = packageInfo.merry_per_day;
+    let log_create_time = null;
 
     if (latestLog && !latestLogError) {
       // แปลง created_at (server time) เป็น user timezone
@@ -85,14 +134,16 @@ export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
       const userTime = new Date(serverTime.getTime() - timezoneOffset * 60 * 1000);
       const userDateYMD = userTime.toISOString().split("T")[0];
 
+      log_create_time = latestLog.created_at;
+
       // เช็คว่าเป็นวันเดียวกันหรือไม่
       if (userDateYMD === todayFromUser) {
         createNewLog = false;
-        merryCount = latestLog.count; // ใช้ count เดิม
       }
     }
+    //############# End Check #############
 
-    // 3. ถ้าไม่มี log วันนี้ ให้สร้างใหม่ด้วย count = merry_per_day
+    // 4. ถ้าไม่มี log วันนี้ ให้สร้างใหม่ด้วย count = merry_per_day
     if (createNewLog) {
       const now = new Date();
       const { data: newLog, error: createError } = await supabase
@@ -101,7 +152,7 @@ export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
           user_id: user_id,
           user_package_id: user_package_id,
           log_date: todayFromUser,
-          count: packageInfo.merry_per_day,
+          count: packageInfo.merry_per_day, // เปลี่ยนจาก 0 เป็น merry_per_day
           created_at: now.toISOString(),
         })
         .select()
@@ -112,24 +163,25 @@ export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
       }
 
       merryCount = newLog.count;
+    } else {
+      // ถ้ามี log แล้ว ใช้ count เดิม (ไม่อัปเดต)
+      merryCount = merryLog.count;
     }
 
-    // 4. Return ข้อมูลตามที่ต้องการ
-    return {
-      success: true,
-      data: {
-        user_id: user_id,
-        package_name: packageInfo.package_name,
-        count: merryCount,
-        merry_per_day: packageInfo.merry_per_day,
-        log_date: todayFromUser,
-      },
-    };
+    // 5. Return ข้อมูลตามที่ต้องการ
+    return res.status(200).json({
+      user_id: user_id,
+      package_name: packageInfo.package_name,
+      count: merryCount,
+      merry_per_day: packageInfo.merry_per_day,
+      log_date: todayFromUser, // ส่งกลับเป็นรูปแบบ YYYY-MM-DD
+    });
   } catch (error) {
-    console.error("Error in checkMerryLimit:", error);
-    return {
-      success: false,
+    console.error("Error checking merry limit:", error);
+    return res.status(500).json({
       error: error.message,
-    };
+      count: 0, // ส่งค่าเริ่มต้นกลับไปเมื่อเกิดข้อผิดพลาด
+      merry_per_day: 10, // ส่งค่าเริ่มต้นกลับไปเมื่อเกิดข้อผิดพลาด
+    });
   }
 }

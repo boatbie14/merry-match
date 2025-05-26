@@ -1,12 +1,21 @@
 // context/SwipeContext.js
 import React, { createContext, useContext } from "react";
 import { useSwipeUsers } from "../hooks/useSwipeUsers";
+import { useMerryLimit } from "../context/MerryLimitContext";
 
 export const SwipeContext = createContext();
+
 export const SwipeProvider = ({ children }) => {
   const matchUserFunctions = useSwipeUsers();
+  const { merryLimit, refreshMerryLimit } = useMerryLimit();
 
-  return <SwipeContext.Provider value={matchUserFunctions}>{children}</SwipeContext.Provider>;
+  const enhancedFunctions = {
+    ...matchUserFunctions,
+    currentMerryLimit: merryLimit,
+    refreshMerryLimitGlobal: refreshMerryLimit,
+  };
+
+  return <SwipeContext.Provider value={enhancedFunctions}>{children}</SwipeContext.Provider>;
 };
 
 export const useSwipe = () => {
