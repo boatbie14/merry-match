@@ -1,6 +1,9 @@
 // components/match/MatchingCenter.js
 import React, { useState, useContext } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { encryptUserId } from "@/utils/crypto";
+
 //component
 import SimpleCard from "./SimpleCard";
 import FilterAndMerryLimit from "./FilterAndMerryLimit";
@@ -19,6 +22,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useMerryLike } from "@/context/MerryLikeContext";
 
 const MatchingCenter = ({ onToggleFilter }) => {
+  const router = useRouter();
+
   // ใช้ข้อมูลและฟังก์ชันจาก Context
   const {
     users,
@@ -44,6 +49,27 @@ const MatchingCenter = ({ onToggleFilter }) => {
   const handleClickEye = (user) => {
     setDataProfilePopup(user.originalProfile || user);
     setIsProfilePopup(true);
+  };
+
+  const handleStartConversation = (user) => {
+    try {
+      // แก้ไข: รับ user object แทน userID
+      const chatToUserID = user.originalProfile.id;
+      console.log("Starting conversation with user ID:", chatToUserID);
+
+      // เข้ารหัส user ID
+      const encryptedId = encryptUserId(chatToUserID);
+
+      if (encryptedId) {
+        console.log("Navigating to chat with encrypted ID");
+        // นำทางไปหน้า chat พร้อม encrypted ID
+        router.push(`/chat?u=${encryptedId}`);
+      } else {
+        console.error("Failed to encrypt user ID");
+      }
+    } catch (error) {
+      console.error("Error in handleStartConversation:", error);
+    }
   };
 
   //Upage Limit
@@ -199,7 +225,6 @@ const MatchingCenter = ({ onToggleFilter }) => {
 
                   {/* =================> EDIT: แก้ไขเงื่อนไขการแสดงผล match card */}
                   {user.isMatch ? (
-                    //=================> EDIT: Match card - สามารถ swipe ได้
                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-24">
                       <img
                         src="./images/merry-match.png"
@@ -214,10 +239,16 @@ const MatchingCenter = ({ onToggleFilter }) => {
                           userDrag: "none",
                         }}
                       />
-                      <button className="secondary-btn mt-6">Start Conversation</button>
+                      <button className="secondary-btn mt-6" onClick={() => handleStartConversation(user)}>
+                        Start Conversation
+                      </button>
 
                       {/* =================> ADD: แสดงข้อความว่าสามารถ swipe ได้ */}
-                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">Swipe left or right to continue</p>
+                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">
+                        Swipe left or right to continue
+                        <br />
+                        {user.originalProfile.id}
+                      </p>
                     </div>
                   ) : (
                     //=================> ไม่แก้ไข: Normal card แสดงตามเดิม
@@ -257,7 +288,6 @@ const MatchingCenter = ({ onToggleFilter }) => {
                   )}
                 </div>
 
-                {/* =================> EDIT: แสดง SwipeButtons เฉพาะ normal card */}
                 {!user.isMatch && (
                   <SwipeButtons
                     user={user}

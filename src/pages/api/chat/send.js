@@ -1,66 +1,86 @@
 // pages/api/chat/send.js
 import { createClient } from "@supabase/supabase-js";
 
-// ตั้งค่า Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
   try {
-    // รับข้อมูลจาก request body
-    const { sender_id, receiver_id, content, username } = req.body;
-    
-    // ตรวจสอบข้อมูลที่จำเป็น
-    if (!sender_id || !receiver_id || !content) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
+    const { sender_id, receiver_id, room_id, content, username } = req.body;
 
-    // กำหนดค่า username เป็น "Boat" หากไม่มีค่าส่งมา
-    const usernameToUse = username || "Boat";
-    
-    // ดึง IP address ของผู้ใช้
-    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "unknown";
-
-    // แสดงข้อมูลที่จะบันทึกเพื่อตรวจสอบ
-    console.log("Data to insert:", {
+    console.log("📤 Send message request:", {
       sender_id,
       receiver_id,
-      content,
-      sender_ip: ip,
-      chat_status: "sent",
-      username: usernameToUse
+      room_id,
+      content: content?.substring(0, 50) + "...",
+      username,
     });
 
-    // บันทึกข้อความลงฐานข้อมูล
-    const { data, error } = await supabase
+    // Validation
+    if (!sender_id || !receiver_id || !room_id || !content?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: sender_id, receiver_id, room_id, content",
+      });
+    }
+
+    // ตรวจสอบว่า chat room มีอยู่จริง และ user มีสิทธิ์ใช้
+    const { data: chatRoom, error: roomError } = await supabase
+      .from("chat_rooms")
+      .select("*")
+      .eq("id", room_id)
+      .or(`user1_id.eq.${sender_id},user2_id.eq.${sender_id}`)
+      .single();
+
+    if (roomError || !chatRoom) {
+      console.error("Invalid chat room:", roomError);
+      return res.status(403).json({
+        success: false,
+        message: "Invalid chat room or no permission",
+      });
+    }
+
+    // บันทึกข้อความลง database
+    const { data: message, error: insertError } = await supabase
       .from("messages")
       .insert({
         sender_id,
         receiver_id,
-        content,
-        sender_ip: ip,
+        room_id,
+        content: content.trim(),
+        username: username || "Unknown",
+        sender_ip: req.headers["x-forwarded-for"] || req.connection.remoteAddress || "unknown",
         chat_status: "sent",
-        username: usernameToUse  // ใช้ค่าที่กำหนดไว้แล้ว
+        created_at: new Date().toISOString(),
       })
-      .select();
+      .select()
+      .single();
 
-    // ตรวจสอบข้อผิดพลาด
-    if (error) {
-      console.error("Supabase error:", error);
-      return res.status(500).json({ error: error.message });
+    if (insertError) {
+      console.error("Error inserting message:", insertError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send message",
+        error: insertError.message,
+      });
     }
 
-    // ส่งข้อมูลกลับไปยัง client
-    return res.status(200).json({ 
-      success: true, 
-      message: data[0] 
+    console.log("✅ Message sent successfully:", message.id);
+
+    res.status(200).json({
+      success: true,
+      message,
+      chat_room: chatRoom,
     });
-    
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return res.status(500).json({ error: "An unexpected error occurred" });
+    console.error("💥 Send message error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 }

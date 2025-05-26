@@ -23,7 +23,7 @@ export default function App({ Component, pageProps }) {
   const router = useRouter();
 
   // รายชื่อหน้าที่ "ไม่ต้องการ" แสดง Footer
-  const noFooterRoutes = ["/login", "/register", "/matching", "/admin"];
+  const noFooterRoutes = ["/login", "/register", "/matching", "/admin", "/chat"];
   const hideFooter = noFooterRoutes.includes(router.pathname);
 
   // รายชื่อหน้าที่ "ไม่ต้องการ" แสดง Navbar
