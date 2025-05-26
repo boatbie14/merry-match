@@ -1,1 +1,80 @@
 @import "tailwindcss";
+
+/* NavbarMain style */
+.navbarmain {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  background-color: white;
+}
+
+nav {
+  box-shadow: 2px 2px 12px 0 #4032851f !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (min-width: 0px) and (max-width: 320px) {
+  html {
+    font-size: 11px;
+  }
+  .navMarginTop {
+    margin-top: 0px;
+    padding-top: 500px;
+  }
+}
+
+/* Max-width: 498px */
+@media (min-width: 0px) and (max-width: 498px) {
+  .niceTMY {
+    position: absolute;
+    right: 50px;
+  }
+  .niceTMYtoo {
+    position: absolute;
+    left: 50px;
+  }
+}
+
+/* Max-width: 320px */
+@media (min-width: 0px) and (max-width: 320px) {
+  .niceTMYtoo {
+    width: 130px;
+  }
+   .arrowBig {
+    position: absolute;
+    top: -16px
+  }
+  .starSM {
+    position: absolute;
+    top: -63px;
+    left: 108px;
+  }
+}
+
+@media (min-width: 0px) and (max-width: 768px) {
+  .ctaSection2 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+/* override background */
+.MuiSelect-select.MuiInputBase-input,
+.MuiInputBase-input {
+  background-color: white !important;
+}
+
+@media (min-width: 375px) and (max-width: 768px) {
+  .merry-match-card {
+    padding-left: 15px;
+  }
+}
+
+@media (min-width: 642px) and (max-width: 770px) {
+  .merry-match-card {
+    padding-right: 0px;
+  }
+}
