@@ -9,6 +9,7 @@ export default function TextArea({
   required = false,
   rows = 4,
   disabled = false,
+  maxLength = 150,
   textareaProps
 }) {
   return (
@@ -34,7 +35,7 @@ export default function TextArea({
           fontSize: "16px",
           "& .MuiOutlinedInput-root": {
             borderRadius: "8px",
-            padding: "16px",
+            padding: "12px",
             "&.Mui-disabled": {
               backgroundColor: "#F1F2F6",
             },
@@ -53,6 +54,7 @@ export default function TextArea({
             },
           },
           "& textarea": {
+            padding: "2px 1px",
             "::placeholder": {
               color: "#A0A3BD",
               opacity: 1,
@@ -60,6 +62,17 @@ export default function TextArea({
           },
         }}
       />
+       <Box
+        sx={{
+          fontSize: "16px",
+          color: value.length > maxLength ? "error.main" : "text.secondary",
+          textAlign: "right",
+          mt: 0.5,
+          mr: 1
+        }}
+      >
+        {value.length}/{maxLength}
+      </Box>
     </Box>
   );
 }

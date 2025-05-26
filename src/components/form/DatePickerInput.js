@@ -4,6 +4,16 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { IoCalendarOutline } from "react-icons/io5";
+import { createTheme, ThemeProvider } from '@mui/material';
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#A62D82',
+    },
+  },
+});
+
+
 
 /**
  * Flexible DatePickerInput
@@ -55,6 +65,7 @@ export default function DatePickerInput({
       {label && (
         <Box sx={{ fontSize: "16px", fontWeight: 500, mb: 1 }}>{label}</Box>
       )}
+          <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <DatePicker
           value={internalValue}
@@ -102,6 +113,7 @@ export default function DatePickerInput({
           {...props}
         />
       </LocalizationProvider>
+      </ThemeProvider>
     </Box>
   );
 }

@@ -11,9 +11,15 @@ import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
 import { validateRegisterForm } from "@/utils/validateRegisterForm";
 import { Country, State } from "country-state-city";
 import { FaArrowLeft } from "react-icons/fa6";
+import { sortImages } from "@/utils/image-handlers/sortImage";
+import { Alert, Snackbar } from '@mui/material';
+import { LoadingPop } from "@/components/popup/LoadingPop";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("error");
+  const [isLoading,setIsLoading] = useState(false)
   const [step, setStep] = useState(1);
   const [generalError, setGeneralError] = useState("");
   const {
@@ -67,10 +73,9 @@ export default function RegisterPage() {
     setGeneralError("");
 
     console.log(values);
-
     const isValid = validateRegisterForm(values, setError);
-    if (!isValid) return;
-
+    if (!isValid){onError(errors); return}
+    setIsLoading(true)
     try {
       const signUpRes = await fetch("/api/pre-signup", {
         method: "POST",
@@ -84,10 +89,13 @@ export default function RegisterPage() {
 
       if (!signUpRes.ok) {
         return setGeneralError(signUpData.error || "Sign up failed");
+
       }
 
       const userId = signUpData.userId;
-      const imageUrls = await uploadImagesToSupabase(images, userId);
+
+      const imagesSort =sortImages(images)
+      const imageUrls = await uploadImagesToSupabase(imagesSort, userId);
 
       const response = await fetch("/api/signup", {
         method: "POST",
@@ -103,9 +111,19 @@ export default function RegisterPage() {
 
       router.push("/login");
     } catch (err) {
+      setAlertMessage("Unexpected error occurred. Please try again.");
       setGeneralError("Unexpected error occurred. Please try again.");
     }
   };
+  const onError = (errors) => {
+  const firstField = Object.keys(errors)[0]; // หาชื่อ field แรกที่ error
+  if (firstField) {
+    const firstError = errors[firstField];
+    const message = firstError?.message || "Unexpected error occurred. Please try again.";
+    setAlertMessage(message);
+  }else setAlertMessage("Incorrect information. Please check the information")
+  return;
+}
 
   const stepTitles = {
     1: "Basic Information",
@@ -114,11 +132,13 @@ export default function RegisterPage() {
   };
 
   return (
+    <>
+    <LoadingPop isLoading={isLoading}/>
     <div className="row bg-[#FCFCFE] min-h-screen pb-32 bg-deco-circle mt-14 md:mt-20">
       <div className="container mx-auto px-4 md:px-8 lg:px-20">
         <form
           id="register-form"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit,onError)}
           className="w-full max-w-full  pt-16 md:pt-[85px] md:max-w-4xl lg:max-w-6xl mx-auto"
         >
           <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-0">
@@ -562,5 +582,21 @@ export default function RegisterPage() {
         </form>
       </div>
     </div>
+  
+   <Snackbar className="mt-[100px]"
+        open={!!alertMessage}
+        autoHideDuration={4000}
+        onClose={() => setAlertMessage("")}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlertMessage("")}
+          severity={alertSeverity}
+          sx={{ width: "100%" }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+  </>
   );
 }

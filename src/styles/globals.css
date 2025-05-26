@@ -73,6 +73,17 @@ html {
   }
 }
 
+/* Hover ขอบดำ */
+.MuiOutlinedInput-root:hover:not(.Mui-focused) .MuiOutlinedInput-notchedOutline {
+  border-color: black !important;
+}
+
+/* Focus ขอบหนา 2px สีม่วง และทับ hover */
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #A62D82 !important;
+  border-width: 2px !important;
+}
+
 @media (min-width: 642px) and (max-width: 770px) {
   .merry-match-card {
     padding-right: 0px;

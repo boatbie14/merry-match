@@ -18,6 +18,7 @@
   import { prepareDeleteImages } from "@/utils/image-handlers/prepareDeleteImages";
 import { Alert, Snackbar } from '@mui/material';
 import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
+import { Country, State } from "country-state-city";
 
   export default function ProfilePage() {
     const {userInfo,isLoggedIn,checkingLogin}=useAuth()
@@ -107,6 +108,21 @@ import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
       }
     }, [data,reset]);
     const images = watch("images");
+    const selectedCountry = watch("location") || data?.location || '';
+    const countries = Country.getAllCountries();
+    const states = selectedCountry
+      ? State.getStatesOfCountry(selectedCountry)
+      : [];
+    const countryOptions = countries.map((c) => ({
+      label: c.name,
+      value: c.isoCode,
+    }));
+
+    const cityOptions = states.map((s) => ({
+      label: s.name,
+      value: s.name,
+    }));
+
 
   const onSubmit = async (values) => {
   try {
@@ -114,8 +130,7 @@ import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
 
     const isValid = validateUpdateForm(values, setError);
     if (!isValid){
-    setAlertMessage("Profile update failed");
-    setAlertSeverity("error");
+    onError(errors)
     setLoading(false);
       return };
 
@@ -150,6 +165,19 @@ import { validateUpdateForm } from "@/utils/validateUpdateProfileForm";
     setLoading(false);
   }
 };
+
+  const onError = (errors) => {
+  setAlertSeverity("error");
+  const firstField = Object.keys(errors)[0]; // หาชื่อ field แรกที่ error
+  if (firstField) {
+    const firstError = errors[firstField];
+    const message = firstError?.message || "Unexpected error occurred. Please try again.";
+    setAlertMessage(message);
+  }else setAlertMessage("Incorrect information. Please check the information")
+  return;
+}
+
+
 
   const handleDeleteUser = async() =>{
     try{
@@ -201,7 +229,7 @@ const TwoButton =()=>{
       <div className="row pt-[88px]"> 
         <div className="container flex flex-col items-start md:items-center mt-[80px] ">
           <div className="max-w-[968px] w-full">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit,onError)}>
             <div className="md:flex w-full my-10 md:justify-between items-end md:my-20">
               <div className="flex flex-col gap-2 font-bold md:w-full lg:max-w-[520px] md:max-w-[420px] md:break-words ">
                 <h4 className="text-[#7B4429] font-bold">PROFILE</h4>
@@ -246,19 +274,7 @@ const TwoButton =()=>{
                   render={({ field }) => (
                     <div>
                       <SelectInput label="Location"
-                                                  options={[
-                          { value: "thailand", label: "Thailand" },
-                          { value: "usa", label: "United States" },
-                          { value: "japan", label: "Japan" },
-                          { value: "uk", label: "United Kingdom" },
-                          { value: "germany", label: "Germany" },
-                          { value: "canada", label: "Canada" },
-                          { value: "southkorea", label: "South Korea" },
-                          { value: "australia", label: "Australia" },
-                          { value: "france", label: "France" },
-                          { value: "singapore", label: "Singapore" },
-                          { value: "vietnam", label: "Vietnam" },
-                        ]}
+                        options={countryOptions}
                         {...field}
                       />
                       {errors.location && (<p className="text-red-500 text-sm">{errors.location.message}</p>)}
@@ -274,21 +290,7 @@ const TwoButton =()=>{
                     <div>
                       <SelectInput
                         label="City"
-                                                options={[
-                          { value: "bangkok", label: "Bangkok" },
-                          { value: "chiangmai", label: "Chiang Mai" },
-                          { value: "chonburi", label: "Chonburi" },
-                          { value: "khonkaen", label: "Khon Kaen" },
-                          {
-                            value: "nakhonratchasima",
-                            label: "Nakhon Ratchasima",
-                          },
-                          { value: "phuket", label: "Phuket" },
-                          { value: "hatyai", label: "Hat Yai" },
-                          { value: "rayong", label: "Rayong" },
-                          { value: "nakhonpathom", label: "Nakhon Pathom" },
-                          { value: "ayutthaya", label: "Ayutthaya" },
-                        ]}
+                          options={cityOptions}
                         {...field}
                       />
                       {errors.city && (<p className="text-red-500 text-sm">{errors.city.message}</p>)}
@@ -334,7 +336,6 @@ const TwoButton =()=>{
                         { value: "male", label: "Male" },
                         { value: "female", label: "Female" },
                         { value: "non-binary", label: "Non-binary" },]}
-                      {...field}
                         {...field}
                       />
                     )}
@@ -406,6 +407,7 @@ const TwoButton =()=>{
                         </p>
                       )}
                 </div>
+                <div>
                   <Controller
                     name="bio"
                     control={control}
@@ -413,6 +415,7 @@ const TwoButton =()=>{
                     <TextArea label="About me (Maximum 150 characters)" rows={4} {...field}  textareaProps={{ maxLength: 150 }} />
                 )}
                 />
+                </div>
             </div>
 
             </div>
@@ -432,11 +435,7 @@ const TwoButton =()=>{
                         <p className="text-red-500 text-sm mt-2">{errors.images.message}</p>
                       )}
             
-                      {images && (!images[0]?.src ? (<p className="text-red-500 text-sm">First image is required as your profile picture.</p>) 
-                                                  : images.filter((img) => img.src).length < 2 && (<p className="text-red-500 text-sm">Please upload at least 2 photos.</p>
-                                                    )
-                                                  )
-                      }
+                      {images && (!images[0]?.src && (<p className="text-red-500 text-sm">First image is required as your profile picture.</p>) )}
                       
               </div>
             </div>
