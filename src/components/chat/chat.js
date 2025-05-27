@@ -1,6 +1,7 @@
 // components/Chat.js
 import { useState } from "react";
 import { useChatMessages } from "@/hooks/useChatMessages";
+import { HiPaperAirplane } from "react-icons/hi2";
 
 export default function Chat({ chatData, currentUser }) {
   const [newMessage, setNewMessage] = useState("");
@@ -60,23 +61,28 @@ export default function Chat({ chatData, currentUser }) {
       )}
 
       {/* กล่องข้อความ */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 p-4 overflow-y-auto px-24">
         {loading ? (
           <div className="text-center text-gray-500 py-4">กำลังโหลด...</div>
         ) : messages.length === 0 ? (
           <div className="text-center text-gray-500 py-4">ยังไม่มีข้อความ</div>
         ) : (
           messages.map((message) => (
-            <div key={message.id} className={`mb-2 ${isOwnMessage(message) ? "text-right" : "text-left"}`}>
-              <span
-                className={`inline-block px-3 py-2 max-w-[75%] rounded-lg ${
-                  isOwnMessage(message) ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                <div className="text-xs font-bold mb-1">{isOwnMessage(message) ? "คุณ" : message.username || "ไม่ระบุชื่อ"}</div>
-                <div>{message.content}</div>
-                <div className="text-xs opacity-75 mt-1">{formatTime(message.created_at)}</div>
-              </span>
+            <div key={message.id} className={`mb-3 ${isOwnMessage(message) ? "text-right" : "text-left"}`}>
+              {isOwnMessage(message) ? (
+                <span className="inline-block px-6 py-4 max-w-[75%] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
+                  {/* <div className="text-xs font-bold mb-1">คุณ</div> */}
+                  <div>{message.content}</div>
+                </span>
+              ) : (
+                <div className="flex items-end gap-3">
+                  <img src={message.sender.profile_image_url} className="rounded-full w-10 h-10 object-cover flex-shrink-0" />
+                  <span className="inline-block px-6 py-4 max-w-[75%] rounded-tl-[24px] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-black">
+                    {/* <div className="text-xs font-bold mb-1">{message.username || "ไม่ระบุชื่อ"}</div> */}
+                    <div>{message.content}</div>
+                  </span>
+                </div>
+              )}
             </div>
           ))
         )}
@@ -84,22 +90,23 @@ export default function Chat({ chatData, currentUser }) {
       </div>
 
       {/* ฟอร์มส่งข้อความ */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-t-[#424C6B] px-24">
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="พิมพ์ข้อความ..."
-            className="flex-1 p-2 border rounded"
+            placeholder="Message..."
+            className="flex-1 p-2 border-none rounded text-[#9B9EAD] outline-none focus:outline-none"
             disabled={loading || sending}
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            className="bg-[#C70039] text-white w-12 h-12 flex justify-center items-center rounded-full  hover:bg-[#95002B]"
             disabled={loading || sending || !newMessage.trim()}
           >
-            {sending ? "กำลังส่ง..." : "ส่ง"}
+            {/* {sending ? "กำลังส่ง..." : "ส่ง"} */}
+            <HiPaperAirplane size={24} color="#fff" />
           </button>
         </form>
       </div>

@@ -127,7 +127,16 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
             setMessages((prev) => {
               const exists = prev.some((msg) => msg.id === message.id);
               if (exists) return prev;
-              return [...prev, message];
+
+              // เพิ่ม message ใหม่ (จาก realtime จะไม่มี user data join มา)
+              return [
+                ...prev,
+                {
+                  ...message,
+                  sender: null, // จะไม่มี user data จาก realtime
+                  receiver: null,
+                },
+              ];
             });
           }
         }

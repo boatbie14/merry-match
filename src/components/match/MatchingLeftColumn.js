@@ -1,7 +1,9 @@
 //component/MatchingLeftColumn.js
 import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 import { useMerryLike } from "@/context/MerryLikeContext";
 import { useMatchedUsers } from "@/hooks/useMatchedUsers";
+import { encryptUserId } from "@/utils/crypto";
 import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
 import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
 
@@ -14,7 +16,23 @@ export default function MatchingLeftColumn() {
     console.log("MatchingLeftColumn: shouldRefreshMatches changed to:", shouldRefreshMatches);
   }, [shouldRefreshMatches]);
 
-  console.log("shouldRefreshMatches : " + shouldRefreshMatches);
+  const router = useRouter();
+
+  const handleStartConversation = (userId) => {
+    try {
+      console.log("Hey User Id = " + userId);
+      const chatToUserID = userId;
+      const encryptedId = encryptUserId(chatToUserID);
+
+      if (encryptedId) {
+        router.push(`/chat?u=${encryptedId}`);
+      } else {
+        console.error("Failed to encrypt user ID");
+      }
+    } catch (error) {
+      console.error("Error in handleStartConversation:", error);
+    }
+  };
 
   return (
     <>
@@ -41,6 +59,7 @@ export default function MatchingLeftColumn() {
             {matchedUsers.map((user) => (
               <div key={user.id} className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
                 <img
+                  onClick={() => handleStartConversation(user.id)}
                   src={user.profile_image_url || "/default-avatar.png"}
                   alt={user.name}
                   className="rounded-3xl w-full h-full object-cover"
