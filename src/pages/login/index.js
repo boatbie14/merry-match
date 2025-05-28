@@ -34,7 +34,7 @@ export default function LoginPage() {
       const { data: userByName, error: userNameError } = await supabase
         .from('users')
         .select('email')
-        .eq('name', emailOrName)
+        .eq('username', emailOrName)
         .single();
 
       if (userNameError || !userByName) {
