@@ -49,13 +49,19 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
     }
   };
 
-  // ส่งข้อความ
-  const sendMessage = async (content) => {
-    if (!content.trim() || !senderId || !receiverId || !roomId || sending) return false;
+  // ส่งข้อความ (รองรับทั้งข้อความและรูป)
+  const sendMessage = async (content, imageUrl = null) => {
+    // ตรวจสอบว่ามีข้อความหรือรูป
+    if ((!content || !content.trim()) && !imageUrl) return false;
+    if (!senderId || !receiverId || !roomId || sending) return false;
 
     try {
       setSending(true);
       setError(null);
+
+      // กำหนดประเภทข้อความ
+      const messageType = imageUrl ? "image" : "text";
+      const messageContent = content?.trim() || null;
 
       const response = await fetch("/api/chat/send", {
         method: "POST",
@@ -64,7 +70,9 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
           sender_id: senderId,
           receiver_id: receiverId,
           room_id: roomId,
-          content: content.trim(),
+          content: messageContent,
+          message_type: messageType,
+          image_url: imageUrl,
           username,
         }),
       });
@@ -165,7 +173,7 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
     loading,
     error,
     sending,
-    sendMessage,
+    sendMessage, // ตอนนี้รองรับ sendMessage(content, imageUrl)
     isOwnMessage,
     scrollToBottom,
     messagesEndRef,

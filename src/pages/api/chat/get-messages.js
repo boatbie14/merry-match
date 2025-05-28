@@ -24,12 +24,15 @@ export default async function handler(req, res) {
     // วิธีที่ 1: ใช้ explicit join syntax
     let query = supabase
       .from("messages")
-      .select(`
+      .select(
+        `
         id,
         sender_id,
         receiver_id,
         room_id,
         content,
+        message_type,
+        image_url,
         username,
         chat_status,
         created_at,
@@ -45,7 +48,8 @@ export default async function handler(req, res) {
           name,
           profile_image_url
         )
-      `)
+      `
+      )
       .order("created_at", { ascending: true });
 
     // ถ้ามี room_id ให้ filter ตาม room_id
@@ -62,23 +66,27 @@ export default async function handler(req, res) {
 
     if (error) {
       console.error("❌ Supabase error:", error);
-      
+
       // ถ้า join ไม่ได้ ลองแบบแยก query
       console.log("🔄 Fallback to separate queries...");
-      
+
       // ดึง messages ก่อน
       let fallbackQuery = supabase
         .from("messages")
-        .select(`
+        .select(
+          `
           id,
           sender_id,
           receiver_id,
           room_id,
           content,
+          message_type,
+          image_url,
           username,
           chat_status,
           created_at
-        `)
+        `
+        )
         .order("created_at", { ascending: true });
 
       if (room_id) {
@@ -90,7 +98,7 @@ export default async function handler(req, res) {
       }
 
       const { data: basicMessages, error: basicError } = await fallbackQuery;
-      
+
       if (basicError) {
         console.error("❌ Basic query error:", basicError);
         return res.status(500).json({
@@ -101,10 +109,7 @@ export default async function handler(req, res) {
       }
 
       // ดึง user data แยก
-      const userIds = [...new Set([
-        ...basicMessages.map(msg => msg.sender_id),
-        ...basicMessages.map(msg => msg.receiver_id)
-      ])];
+      const userIds = [...new Set([...basicMessages.map((msg) => msg.sender_id), ...basicMessages.map((msg) => msg.receiver_id)])];
 
       const { data: users, error: userError } = await supabase
         .from("users")
@@ -122,10 +127,10 @@ export default async function handler(req, res) {
       }
 
       // รวม data
-      const messagesWithUsers = basicMessages.map(message => ({
+      const messagesWithUsers = basicMessages.map((message) => ({
         ...message,
-        sender: users.find(user => user.id === message.sender_id) || null,
-        receiver: users.find(user => user.id === message.receiver_id) || null
+        sender: users.find((user) => user.id === message.sender_id) || null,
+        receiver: users.find((user) => user.id === message.receiver_id) || null,
       }));
 
       return res.status(200).json({

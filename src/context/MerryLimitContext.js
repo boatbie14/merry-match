@@ -30,8 +30,6 @@ export function MerryLimitProvider({ children }) {
 
     try {
       setLoading(true);
-      /*       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const currentDate = new Date(); */
 
       const currentDate = new Date();
       const todayYMD =
@@ -45,8 +43,17 @@ export function MerryLimitProvider({ children }) {
       // ส่ง user_id จาก userInfo ไปยัง API
       const response = await fetch(`/api/merry-limit?today=${todayYMD}&timezone_offset=${timezoneOffset}&user_id=${userInfo.id}`);
 
+      // ⭐ จัดการ 401 Unauthorized
+      if (response.status === 401) {
+        console.log("🔐 Authentication expired, user will be redirected to login");
+        setError("Authentication expired");
+        setLoading(false);
+        // ไม่ throw error เพื่อป้องกัน app crash
+        return;
+      }
+
       if (!response.ok) {
-        throw new Error("Failed to fetch merry limit");
+        throw new Error(`HTTP ${response.status}: Failed to fetch merry limit`);
       }
 
       const data = await response.json();
@@ -56,7 +63,17 @@ export function MerryLimitProvider({ children }) {
       return data;
     } catch (err) {
       console.error("Error fetching merry limit:", err);
-      setError(err.message);
+
+      // ⭐ แยกประเภท error
+      if (err.name === "TypeError" && err.message.includes("Failed to fetch")) {
+        setError("Network connection error");
+        console.log("🌐 Network error - might be offline or server down");
+      } else if (err.message.includes("401")) {
+        setError("Authentication expired");
+        console.log("🔐 Authentication error detected");
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -64,10 +81,24 @@ export function MerryLimitProvider({ children }) {
 
   // เรียกใช้เมื่อ component โหลดครั้งแรกและเมื่อ userInfo เปลี่ยนแปลง
   useEffect(() => {
+    // ⭐ เพิ่มการตรวจสอบเพิ่มเติม
     if (userInfo?.id) {
+      console.log("🚀 MerryLimitContext: Fetching for user", userInfo.id);
       fetchMerryLimit();
+    } else if (userInfo === null) {
+      // userInfo เป็น null หมายถึง user ไม่ได้ login
+      console.log("❌ MerryLimitContext: No user logged in, skipping fetch");
+      setLoading(false);
+      setError(null);
     }
+    // ถ้า userInfo เป็น undefined หมายถึงยังโหลดอยู่ ให้รอต่อ
   }, [userInfo]); // เพิ่ม userInfo เป็น dependency
+
+  // ⭐ เพิ่ม retry function
+  const retryFetch = () => {
+    setError(null);
+    fetchMerryLimit();
+  };
 
   // สร้าง value object ที่จะส่งไปยัง context
   const value = {
@@ -76,6 +107,7 @@ export function MerryLimitProvider({ children }) {
     loading,
     error,
     refreshMerryLimit: fetchMerryLimit,
+    retryFetch, // ⭐ เพิ่ม retry function
   };
 
   return <MerryLimitContext.Provider value={value}>{children}</MerryLimitContext.Provider>;

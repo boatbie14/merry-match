@@ -1,11 +1,25 @@
 import React from "react";
 import MatchingLeftColumn from "@/components/match/MatchingLeftColumn";
-import Chat from "@/components/chat/chat";
+import Chat from "@/components/chat/ChatBox";
 import { useChatUser } from "@/hooks/useChatUser";
+import { useChatUserDetail } from "@/hooks/useChatUserDetail";
 import DoubleHeartsIcon from "@/components/icons";
 
 export default function MatchPage() {
-  const { chatData, loading, error, currentUser } = useChatUser();
+  const { chatData, loading: chatLoading, error: chatError, currentUser } = useChatUser();
+  const { chatUserDetail, loading: userDetailLoading, error: userDetailError, getChatUserName } = useChatUserDetail();
+
+  // รวม loading states
+  const isLoading = chatLoading || userDetailLoading;
+  const hasError = chatError || userDetailError;
+
+  console.log("🏠 Chat Page State:", {
+    chatData: !!chatData,
+    currentUser: !!currentUser,
+    chatUserDetail,
+    isLoading,
+    hasError,
+  });
 
   return (
     <div className="row pt-[52px] md:pt-[88px]">
@@ -15,24 +29,31 @@ export default function MatchPage() {
         </div>
 
         <div id="chat-container" className="w-full xl:w-9/12 h-[calc(100vh-88px)] relative">
-          {loading && (
+          {isLoading && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">กำลังโหลด...</p>
+              <p className="text-gray-500">Loading...</p>
             </div>
           )}
 
-          {error && (
+          {hasError && (
             <div className="flex items-center justify-center h-full">
-              <p className="text-red-500">Error: {error}</p>
+              <div className="text-center">
+                <p className="text-red-500">Error loading chat:</p>
+                {chatError && <p className="text-sm text-red-400 mt-1">Chat: {chatError}</p>}
+                {userDetailError && <p className="text-sm text-red-400 mt-1">User: {userDetailError}</p>}
+              </div>
             </div>
           )}
 
-          {chatData && currentUser && (
+          {chatData && currentUser && !isLoading && (
             <div className="h-full flex flex-col bg-[#160404]">
               {/* แสดงข้อมูลพื้นฐาน - ซ่อนได้ถ้าไม่ต้องการ */}
               <div className="hidden p-2 bg-gray-50 border-b text-sm text-gray-600">
                 <p>
                   <strong>Room:</strong> {chatData.chatRoom.id}
+                </p>
+                <p>
+                  <strong>Chat User:</strong> {getChatUserName()} (ID: {chatUserDetail?.id})
                 </p>
               </div>
 
@@ -41,7 +62,8 @@ export default function MatchPage() {
                 <div className="max-w-[740px] flex flex-row justify-center items-center gap-8 border-1 border-[#DF89C6] bg-[#F4EBF2] rounded-3xl p-6 mx-auto">
                   <DoubleHeartsIcon size={48} color="#FF1659" />
                   <p className="text-[#64001D]">
-                    Now you and Daeny are Merry Match! You can messege something nice and make a good conversation. Happy Merry!
+                    Now you and <span className="font-semibold">{getChatUserName()}</span> are Merry Match! You can messege something nice
+                    and make a good conversation. Happy Merry!
                   </p>
                 </div>
               </div>
