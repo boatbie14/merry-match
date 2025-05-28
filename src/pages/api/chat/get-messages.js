@@ -21,6 +21,7 @@ export default async function handler(req, res) {
       });
     }
 
+    // วิธีที่ 1: ใช้ explicit join syntax
     let query = supabase
       .from("messages")
       .select(
@@ -30,9 +31,23 @@ export default async function handler(req, res) {
         receiver_id,
         room_id,
         content,
+        message_type,
+        image_url,
         username,
         chat_status,
-        created_at
+        created_at,
+        sender:sender_id!inner(
+          id,
+          username,
+          name,
+          profile_image_url
+        ),
+        receiver:receiver_id!inner(
+          id,
+          username,
+          name,
+          profile_image_url
+        )
       `
       )
       .order("created_at", { ascending: true });
@@ -50,11 +65,78 @@ export default async function handler(req, res) {
     const { data: messages, error } = await query;
 
     if (error) {
-      console.error("Error fetching messages:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch messages",
-        error: error.message,
+      console.error("❌ Supabase error:", error);
+
+      // ถ้า join ไม่ได้ ลองแบบแยก query
+      console.log("🔄 Fallback to separate queries...");
+
+      // ดึง messages ก่อน
+      let fallbackQuery = supabase
+        .from("messages")
+        .select(
+          `
+          id,
+          sender_id,
+          receiver_id,
+          room_id,
+          content,
+          message_type,
+          image_url,
+          username,
+          chat_status,
+          created_at
+        `
+        )
+        .order("created_at", { ascending: true });
+
+      if (room_id) {
+        fallbackQuery = fallbackQuery.eq("room_id", room_id);
+      } else {
+        fallbackQuery = fallbackQuery.or(
+          `and(sender_id.eq.${sender_id},receiver_id.eq.${receiver_id}),and(sender_id.eq.${receiver_id},receiver_id.eq.${sender_id})`
+        );
+      }
+
+      const { data: basicMessages, error: basicError } = await fallbackQuery;
+
+      if (basicError) {
+        console.error("❌ Basic query error:", basicError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to fetch messages",
+          error: basicError.message,
+        });
+      }
+
+      // ดึง user data แยก
+      const userIds = [...new Set([...basicMessages.map((msg) => msg.sender_id), ...basicMessages.map((msg) => msg.receiver_id)])];
+
+      const { data: users, error: userError } = await supabase
+        .from("users")
+        .select("id, username, name, profile_image_url")
+        .in("id", userIds);
+
+      if (userError) {
+        console.error("❌ Users query error:", userError);
+        // ส่งแค่ messages โดยไม่มี user data
+        return res.status(200).json({
+          success: true,
+          messages: basicMessages || [],
+          count: basicMessages?.length || 0,
+        });
+      }
+
+      // รวม data
+      const messagesWithUsers = basicMessages.map((message) => ({
+        ...message,
+        sender: users.find((user) => user.id === message.sender_id) || null,
+        receiver: users.find((user) => user.id === message.receiver_id) || null,
+      }));
+
+      return res.status(200).json({
+        success: true,
+        messages: messagesWithUsers,
+        count: messagesWithUsers.length,
       });
     }
 
