@@ -111,37 +111,32 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
     // โหลดข้อความเก่า
     loadMessages();
 
-    // ตั้งค่า realtime subscription
+    // 🎯 ตั้งค่า realtime subscription ที่มี filter
     const channel = supabase
-      .channel(`chat-${senderId}-${receiverId}`)
+      .channel(`chat-room-${roomId}`)
       .on(
         "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
+          filter: `room_id=eq.${roomId}`, // 🎯 เฉพาะ room นี้
         },
         (payload) => {
           console.log("📩 Realtime message received:", payload);
           const message = payload.new;
 
-          // ตรวจสอบว่าข้อความเกี่ยวข้องกับการสนทนานี้หรือไม่
-          const isRelevant =
-            (message.sender_id === senderId && message.receiver_id === receiverId) ||
-            (message.sender_id === receiverId && message.receiver_id === senderId);
-
-          if (isRelevant) {
-            // ตรวจสอบว่าข้อความนี้มีอยู่แล้วหรือไม่ (เพื่อป้องกัน duplicate)
+          // 🎯 ไม่แสดงข้อความของตัวเอง (เพราะเรา optimistic update ไปแล้ว)
+          if (message.sender_id !== senderId) {
             setMessages((prev) => {
               const exists = prev.some((msg) => msg.id === message.id);
               if (exists) return prev;
 
-              // เพิ่ม message ใหม่ (จาก realtime จะไม่มี user data join มา)
               return [
                 ...prev,
                 {
                   ...message,
-                  sender: null, // จะไม่มี user data จาก realtime
+                  sender: null,
                   receiver: null,
                 },
               ];

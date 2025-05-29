@@ -31,8 +31,6 @@ export const useChatUser = () => {
       setError(null);
 
       try {
-        console.log("🚀 Calling chat room API...");
-
         const response = await fetch("/api/chat/chat-room", {
           method: "POST",
           headers: {

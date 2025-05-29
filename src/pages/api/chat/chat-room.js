@@ -57,8 +57,6 @@ export default async function handler(req, res) {
     let isNewRoom = false;
 
     if (!chatRoom) {
-      console.log("No existing chat room found, attempting to create new one...");
-
       // ขั้นตอน 2: ลองสร้างใหม่
       const { data: newRoom, error: createError } = await supabase
         .from("chat_rooms")

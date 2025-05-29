@@ -17,14 +17,6 @@ export default function MatchPage() {
   const isLoading = chatLoading || userDetailLoading;
   const hasError = chatError || userDetailError;
 
-  console.log("🏠 Chat Page State:", {
-    chatData: !!chatData,
-    currentUser: !!currentUser,
-    chatUserDetail,
-    isLoading,
-    hasError,
-  });
-
   return (
     <div className="row pt-[52px] md:pt-[88px]">
       <div className="container-full flex flex-col xl:flex-row relative">

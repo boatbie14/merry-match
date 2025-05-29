@@ -1,79 +1,109 @@
 import { supabase } from "@/lib/supabaseClient";
 
-export async function addNotifications_Log(type, from_user_id, to_user_id,match=false,firstMessage=false) {
-try {
-  switch (type) {
-    case 'like': {
-          let insertType = ""
-          if(match){ insertType = "match"} 
-          else{
-            const { data: matchData, error: matchError } = await supabase.from('merry_list')
-              .select('id')
-              .eq('from_user_id', to_user_id)
-              .eq('to_user_id', from_user_id)
-              .single();
-            if (matchError && matchError.code !== 'PGRST116') {
-              throw matchError;
-            }
-            insertType = matchData ? 'match' : 'like';
-          }
-            const message = insertType === 'match'
-                                          ?`‘${from_user_id}’ Merry you back! Let’s start conversation now`
-                                          :`‘${from_user_id}’ Just Merry you! Click here to see profile`;
-        
-            const { error: insertError } = await supabase.from('notifications').insert({
-              from_user_id,
-              to_user_id,
-              type: insertType,
-              created_at: new Date(),
-              is_read: true,
-              message: message,
-            });
-            if (insertError) throw insertError;
-              break;
+export async function addNotifications_Log(type, from_user_id, to_user_id, match = false, firstMessage = false) {
+  try {
+    //Get From user data
+    const { data: fromUser, error: userError } = await supabase
+      .from("users")
+      .select("name, profile_image_url")
+      .eq("id", from_user_id)
+      .single();
+
+    if (userError) {
+      console.error("❌ Error fetching user data:", userError);
     }
 
-    case 'message': {
-          let insertType = ""
-          if(firstMessage){ insertType = "first time"} 
-          else{
-            const { data: messagesData, error: messagesError } = await supabase.from('messages')
-              .select('id')
-              .eq('sender_id', from_user_id)
-              .eq('receiver_id', to_user_id)
-              .single();
-            if (messagesError && messagesError.code !== 'PGRST116') {
-              throw matchError;
-            }
-            insertType = messagesData ? 'first time' : 'Not the first time';
-          }
-            const message = insertType === 'first time'
-                                          ?`‘${from_user_id}’ ---`
-                                          :`‘${from_user_id}’ ===`;
-      
-            const { error: msgError } = await supabase.from('notifications').insert({
-              from_user_id,
-              to_user_id,
-              type: insertType,
-              created_at: new Date(),
-              is_read: true,
-              message: message,
-            });
-            if (msgError) throw msgError;
-              break;
-            }
+    const fromUserName = fromUser?.name || from_user_id; //name
+    const fromUserImage = fromUser?.profile_image_url || null; //profile image
 
-    default:
-      throw new Error(`Invalid type: ${type}`);
+    switch (type) {
+      case "like": {
+        let insertType = "";
+        if (match) {
+          insertType = "match";
+        } else {
+          const { data: matchData, error: matchError } = await supabase
+            .from("merry_list")
+            .select("id")
+            .eq("from_user_id", to_user_id)
+            .eq("to_user_id", from_user_id)
+            .single();
+          if (matchError && matchError.code !== "PGRST116") {
+            throw matchError;
+          }
+          insertType = matchData ? "match" : "like";
+        }
+        const message =
+          insertType === "match"
+            ? `${fromUserName} Merry you back! Let's start conversation now`
+            : `${fromUserName} Just Merry you! Click here to see profile`;
+
+        const { error: insertError } = await supabase.from("notifications").insert({
+          from_user_id,
+          to_user_id,
+          noti_type: insertType,
+          created_at: new Date(),
+          is_read: false,
+          message: message,
+        });
+        if (insertError) throw insertError;
+        break;
+      }
+
+      case "message": {
+        let insertType = "";
+        let notiMessage = "";
+
+        if (firstMessage) {
+          insertType = "first_chat";
+          notiMessage = `${fromUserName} Just message you for the first time!`;
+        } else {
+          // ดึง notification ล่าสุดของ user คู่นี้ (chat type)
+          const { data: latestNotifications, error: checkError } = await supabase
+            .from("notifications")
+            .select("id, noti_type, is_read, created_at")
+            .eq("from_user_id", from_user_id)
+            .eq("to_user_id", to_user_id)
+            .eq("noti_type", "chat")
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          const latestNotification = latestNotifications?.[0] || null;
+
+          // ถ้ามี notification ล่าสุดและยังไม่อ่าน ก็ไม่ส่งใหม่
+          if (latestNotification && latestNotification.is_read === false) {
+            return;
+          }
+
+          insertType = "chat";
+          notiMessage = `${fromUserName} Just message you!`;
+        }
+
+        const { error: msgError } = await supabase.from("notifications").insert({
+          from_user_id,
+          to_user_id,
+          noti_type: insertType,
+          created_at: new Date(),
+          is_read: false,
+          message: notiMessage,
+        });
+
+        if (msgError) {
+          throw msgError;
+        }
+        break;
+      }
+
+      default:
+        throw new Error(`Invalid type: ${type}`);
     }
-  
-}catch (err) {
-    console.error('recordAction error:', err);
-    await supabase.from('error_logs').insert({
-      function: 'recordAction',
+  } catch (err) {
+    console.error("recordAction error:", err);
+    await supabase.from("error_logs").insert({
+      function: "recordAction",
       input: { type, from_user_id, to_user_id },
       error_message: String(err),
-      location:"addNotifications_Log"
+      location: "addNotifications_Log",
     });
   }
 }

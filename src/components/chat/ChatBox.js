@@ -1,7 +1,7 @@
 // components/ChatBox.js
 import { useState, useRef } from "react";
 import { useChatMessages } from "@/hooks/useChatMessages";
-import { HiPaperAirplane, HiPaperClip } from "react-icons/hi2";
+import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
 import { PiImageFill } from "react-icons/pi";
 
