@@ -12,8 +12,6 @@ export default async function handler(req, res) {
   try {
     const { encryptedTargetUserId, currentUserId } = req.body;
 
-    console.log("Chat room API called with:", { encryptedTargetUserId, currentUserId });
-
     if (!encryptedTargetUserId || !currentUserId) {
       return res.status(400).json({
         message: "Encrypted target user ID and current user ID are required",
@@ -35,8 +33,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: "Cannot create chat room with yourself" });
     }
 
-    console.log("Decrypted target user ID:", targetUserId);
-
     // ฟังก์ชันสำหรับหา existing room
     const findExistingRoom = async () => {
       const { data, error } = await supabase
@@ -46,7 +42,6 @@ export default async function handler(req, res) {
         .maybeSingle();
 
       if (error) {
-        console.error("Error searching for existing room:", error);
         return null;
       }
       return data;
@@ -69,16 +64,12 @@ export default async function handler(req, res) {
         .single();
 
       if (createError) {
-        console.error("Create error:", createError);
-
         // ขั้นตอน 3: ถ้าสร้างไม่ได้ (อาจเป็น constraint) ลองหาอีกครั้ง
         if (
           createError.code === "23505" ||
           createError.message?.includes("duplicate") ||
           createError.message?.includes("idx_chat_rooms_unique_users")
         ) {
-          console.log("Constraint violation detected, retrying search...");
-
           // รอสักครู่เผื่อ concurrent request เสร็จ
           await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -86,16 +77,13 @@ export default async function handler(req, res) {
 
           if (chatRoom) {
             isNewRoom = false;
-            console.log("Found existing room after constraint violation:", chatRoom.id);
           } else {
-            console.error("Still no room found after constraint violation");
             return res.status(500).json({
               message: "Failed to create or find chat room",
               error: "Constraint violation but no existing room found",
             });
           }
         } else {
-          console.error("Non-constraint error:", createError);
           return res.status(500).json({
             message: "Error creating chat room",
             error: createError.message,
@@ -105,10 +93,7 @@ export default async function handler(req, res) {
       } else {
         chatRoom = newRoom;
         isNewRoom = true;
-        console.log("New chat room created successfully:", chatRoom.id);
       }
-    } else {
-      console.log("Existing chat room found:", chatRoom.id);
     }
 
     // ตรวจสอบว่าได้ chatRoom แล้ว
@@ -128,10 +113,8 @@ export default async function handler(req, res) {
       .single();
 
     if (profileError) {
-      console.error("Error fetching target user profile:", profileError);
+      // Handle profile error silently or log if needed
     }
-
-    console.log("✅ Sending successful response for room:", chatRoom.id);
 
     res.status(200).json({
       success: true,
@@ -144,7 +127,6 @@ export default async function handler(req, res) {
       isNewRoom,
     });
   } catch (error) {
-    console.error("💥 Unexpected API error:", error);
     res.status(500).json({
       message: "Internal server error",
       error: error.message,

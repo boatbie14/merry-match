@@ -137,7 +137,6 @@ export function useSwipeUsers() {
         }
       }
     } catch (err) {
-      console.error("Error fetching users:", err);
       setError(err.message || "Failed to fetch users");
     } finally {
       setLoading(false);
@@ -185,7 +184,6 @@ export function useSwipeUsers() {
     const user = users[nextIndex];
 
     if (!user) {
-      console.warn("User not found at index:", nextIndex);
       return;
     }
 
@@ -254,7 +252,6 @@ export function useSwipeUsers() {
   //=================> EDIT: แก้ไข handleSwipe function - แสดงหัวใจก่อน ลบ delay
   const handleSwipe = async (direction, user) => {
     if (!userInfo || !user || loading || !user.originalProfile?.id) {
-      console.warn("Invalid swipe. Possibly still loading or user is invalid.", { direction, user });
       return;
     }
 
@@ -307,7 +304,6 @@ export function useSwipeUsers() {
           loadNextUserAfterSwipe();
         }
       } catch (error) {
-        console.error("Error in addMerry:", error);
         // ถ้า error ให้โหลด card ถัดไป
         loadNextUserAfterSwipe();
       }
@@ -361,12 +357,10 @@ export function useSwipeUsers() {
   const addMerry = async (userId) => {
     try {
       const result = await toggleLike(userId);
-      console.log("checkMatchUser from addMerry:", result?.checkMatchUser);
 
       // ไม่ต้องหน่วงเวลา - ลบ Promise timeout ออก
       return result;
     } catch (error) {
-      console.error("Error in addMerry:", error);
       throw error;
     }
   };

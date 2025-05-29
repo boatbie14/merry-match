@@ -28,11 +28,8 @@ export default function MatchingLeftColumn({ onNavigate }) {
       }
 
       try {
-        console.log("🔍 Finding room ID for encrypted user:", u);
-
         // Decrypt target user ID
         const targetUserId = decryptUserId(u);
-        console.log("🔓 Decrypted target user ID:", targetUserId);
 
         if (!targetUserId) {
           setCurrentRoomId(null);
@@ -52,14 +49,11 @@ export default function MatchingLeftColumn({ onNavigate }) {
         const data = await response.json();
 
         if (data.success && data.chatRoom?.id) {
-          console.log("🏠 Found room ID:", data.chatRoom.id);
           setCurrentRoomId(data.chatRoom.id);
         } else {
-          console.log("❌ Room not found or error:", data.message);
           setCurrentRoomId(null);
         }
       } catch (error) {
-        console.error("💥 Error finding room ID:", error);
         setCurrentRoomId(null);
       }
     };
@@ -67,19 +61,8 @@ export default function MatchingLeftColumn({ onNavigate }) {
     findCurrentRoomId();
   }, [router.query.u, userInfo?.id]);
 
-  useEffect(() => {
-    console.log("MatchingLeftColumn: shouldRefreshMatches changed to:", shouldRefreshMatches);
-    console.log("MatchingLeftColumn: userInfo:", {
-      id: userInfo?.id,
-      name: userInfo?.name,
-      authLoading,
-    });
-    console.log("MatchingLeftColumn: currentRoomId:", currentRoomId);
-  }, [shouldRefreshMatches, userInfo, authLoading, currentRoomId]);
-
   const handleStartConversation = (userId) => {
     try {
-      console.log("Hey User Id = " + userId);
       const chatToUserID = userId;
       const encryptedId = encryptUserId(chatToUserID);
 
@@ -89,11 +72,9 @@ export default function MatchingLeftColumn({ onNavigate }) {
           onNavigate();
         }
         router.push(`/chat?u=${encryptedId}`);
-      } else {
-        console.error("Failed to encrypt user ID");
       }
     } catch (error) {
-      console.error("Error in handleStartConversation:", error);
+      // Handle error silently
     }
   };
 
@@ -126,7 +107,7 @@ export default function MatchingLeftColumn({ onNavigate }) {
         </div>
       </div>
 
-      <hr className="hidden lg:block text-[#E4E6ED] my-11" />
+      <hr className="hidden lg:block text-[#E4E6ED] mt-10 mb-4" />
 
       {/* Merry Match Section */}
       <div className="px-6 pt-4">
@@ -154,7 +135,7 @@ export default function MatchingLeftColumn({ onNavigate }) {
         )}
       </div>
 
-      <hr className="hidden lg:block text-[#E4E6ED] my-11" />
+      <hr className="hidden lg:block text-[#E4E6ED] mt-4 mb-8" />
 
       {/* Chat Rooms Section */}
       <div className="px-6 pb-6">

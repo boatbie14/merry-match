@@ -22,11 +22,8 @@ export function useChatUserDetail() {
         setLoading(true);
         setError(null);
 
-        console.log("🔍 Fetching chat user detail for encrypted ID:", u);
-
         // Decrypt user ID
         const userId = decryptUserId(u);
-        console.log("🔓 Decrypted user ID:", userId);
 
         if (!userId) {
           throw new Error("Invalid encrypted user ID");
@@ -47,7 +44,6 @@ export function useChatUserDetail() {
         }
 
         if (data.success && data.user) {
-          console.log("👤 Found chat user detail:", data.user.name);
           setChatUserDetail({
             id: data.user.id,
             name: data.user.name,
@@ -58,7 +54,6 @@ export function useChatUserDetail() {
           throw new Error("User not found");
         }
       } catch (err) {
-        console.error("💥 Error fetching chat user detail:", err);
         setError(err.message);
         setChatUserDetail(null);
       } finally {

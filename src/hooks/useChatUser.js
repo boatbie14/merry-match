@@ -42,29 +42,18 @@ export const useChatUser = () => {
           }),
         });
 
-        console.log("📡 Response status:", response.status);
-
         const data = await response.json();
-        console.log("📄 Response data:", data);
 
         if (!response.ok) {
-          console.error("❌ API Error Response:", data);
           throw new Error(data.message || "Failed to setup chat room");
         }
 
         if (data.success) {
           setChatData(data);
-          console.log("✅ Chat room ready:", {
-            roomId: data.chatRoom.id,
-            isNew: data.isNewRoom,
-          });
         } else {
           throw new Error("Invalid response data");
         }
       } catch (err) {
-        console.error("❌ Complete error object:", err);
-        console.error("❌ Error message:", err.message);
-        console.error("❌ Error stack:", err.stack);
         setError(err.message || "Unknown error occurred");
       } finally {
         setLoading(false);
