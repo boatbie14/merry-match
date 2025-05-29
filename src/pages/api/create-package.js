@@ -6,20 +6,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { package_name, merry_per_day, details, iconUrl } = req.body;
+  const { package_name, merry_per_day, details, iconUrl } = req.body;
 
-    if (!package_name || !iconUrl || merry_per_day === undefined || merry_per_day === null) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
+  if (!package_name || !iconUrl || merry_per_day === undefined || merry_per_day === null) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-    const { error } = await supabase.from("packages").insert([
-      {
-        package_name,
-        merry_per_day: Number(merry_per_day),
-        details: details || [],
-        icon_url: iconUrl,
-      },
-    ]);
+  const { error } = await supabase.from("packages").insert([
+    {
+      package_name,
+      merry_per_day: Number(merry_per_day),
+      details: details || [],
+      icon_url: iconUrl,
+    },
+  ]);
 
     if (error) {
       console.error("Insert error:", error);

@@ -35,7 +35,7 @@ export default function CreatePackageForm() {
   };
 
   const onSubmit = async (data) => {
-    console.log("🧪 packageName =", data.packageName); 
+
     try {
       const imageUrls = await uploadImagesToSupabase(data.icon, 'admin');
 
@@ -43,10 +43,8 @@ export default function CreatePackageForm() {
         package_name: data.packageName,
         merry_per_day: Number(data.merryLimit), 
         details: details.filter((d) => d.trim() !== ''),
-        iconUrl: imageUrls.imageUrl || '',
+        iconUrl: imageUrls.profile_image_url || '',
       };
-      
-      console.log('✅ Payload sent to API:', payload);
 
       const res = await fetch('/api/create-package', {
         method: 'POST',
