@@ -2,6 +2,28 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function bufferNotificationMerry(from_user_id, to_user_id) {
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+const { data, error } = await supabase
+  .from('notifications')
+  .select('created_at')
+  .eq('from_user_id', from_user_id)
+  .eq('to_user_id', to_user_id)
+  .in('noti_type', ['merry', 'match']) // ✅ เปลี่ยนตรงนี้
+  .gte('created_at', thirtyMinutesAgo)
+  .order('created_at', { ascending: false })
+  .limit(1);
+  if (error) {
+    console.error('Supabase error:', error.message);
+    return false; // ไม่ควรสร้างถ้ามีปัญหาเชื่อมต่อ
+  }
+  if (data && data.length > 0) {
+    return false;
+  }
+  return true;
+}
+
+
+export async function bufferNotificationMerry(from_user_id, to_user_id) {
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from("notifications")
     .select("created_at")
@@ -78,49 +100,35 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
         break;
       }
 
-      case "message": {
-        let insertType = "";
-        let notiMessage = "";
-
-        if (firstMessage) {
-          insertType = "first_chat";
-          notiMessage = `${fromUserName} Just message you for the first time!`;
-        } else {
-          // ดึง notification ล่าสุดของ user คู่นี้ (chat type)
-          const { data: latestNotifications, error: checkError } = await supabase
-            .from("notifications")
-            .select("id, noti_type, is_read, created_at")
-            .eq("from_user_id", from_user_id)
-            .eq("to_user_id", to_user_id)
-            .eq("noti_type", "chat")
-            .order("created_at", { ascending: false })
-            .limit(1);
-
-          const latestNotification = latestNotifications?.[0] || null;
-
-          // ถ้ามี notification ล่าสุดและยังไม่อ่าน ก็ไม่ส่งใหม่
-          if (latestNotification && latestNotification.is_read === false) {
-            return;
+    case 'message': {
+          let insertType = ""
+          if(firstMessage){ insertType = "first time"} 
+          else{
+            const { data: messagesData, error: messagesError } = await supabase.from('messages')
+              .select('id')
+              .eq('sender_id', from_user_id)
+              .eq('receiver_id', to_user_id)
+              .single();
+            if (messagesError && messagesError.code !== 'PGRST116') {
+              throw matchError;
+            }
+            insertType = messagesData ? 'first time' : 'Not the first time';
           }
-
-          insertType = "chat";
-          notiMessage = `${fromUserName} Just message you!`;
-        }
-
-        const { error: msgError } = await supabase.from("notifications").insert({
-          from_user_id,
-          to_user_id,
-          noti_type: insertType,
-          created_at: new Date(),
-          is_read: false,
-          message: notiMessage,
-        });
-
-        if (msgError) {
-          throw msgError;
-        }
-        break;
-      }
+            const message = insertType === 'first time'
+                                          ?`‘${from_user_id}’ ---`
+                                          :`‘${from_user_id}’ ===`;
+      
+            const { error: msgError } = await supabase.from('notifications').insert({
+              from_user_id,
+              to_user_id,
+              noti_type: insertType,
+              created_at: new Date(),
+              is_read: true,
+              message: message,
+            });
+            if (msgError) throw msgError;
+              break;
+            }
 
       default:
         throw new Error(`Invalid type: ${type}`);

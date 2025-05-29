@@ -27,11 +27,10 @@ export async function insertMerryLike(from_user_id, to_user_id) {
   const { data, error } = await supabase
     .from('merry_list')
     .insert([{ from_user_id, to_user_id }]);
-  
+  console.log(error)
   if (error) {
     return { data, error, checkMatchUser: false };
   }
-
   // Check Match
   const { data: mutualCheck, error: mutualError } = await supabase
     .from('merry_list')
@@ -41,7 +40,7 @@ export async function insertMerryLike(from_user_id, to_user_id) {
     .single();
 
   const checkMatchUser = mutualCheck ? true : false;
-
+console.log(4)
   return { 
     data, 
     error: null, 

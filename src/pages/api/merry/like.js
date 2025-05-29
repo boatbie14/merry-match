@@ -2,7 +2,7 @@ import { requireUser } from "@/middleware/requireUser";
 import { getMerryLike, insertMerryLike } from "@/utils/query/merryLike";
 import { addLikeCountLog } from "@/utils/query/addLikeCountLog";
 import { checkMerryLimit } from "@/utils/query/checkMerryLimit";
-
+import { addNotifications_Log } from "@/utils/query/addNotifications_Log";
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -32,20 +32,17 @@ export default async function handler(req, res) {
         message: "Like limit reached for today",
       });
     }
-
     // 3. เพิ่ม log การกด like วันนี้
     const logResult = await addLikeCountLog(userId, count, log_date);
     if (!logResult.success) {
       return res.status(500).json({ error: "Failed to log like count" });
     }
-
     // 4. เพิ่ม like ลงใน merry_list
     const { error, checkMatchUser } = await insertMerryLike(userId, toUserId);
     if (error) {
       return res.status(500).json({ error: error.message });
     }
-
-    console.log("Match User on Like.js === " + checkMatchUser);
+    addNotifications_Log("merry", userId, toUserId);
 
     return res.status(200).json({ isLimitReached: false, message: "User liked successfully", checkMatchUser: checkMatchUser });
   } catch (e) {

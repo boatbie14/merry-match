@@ -10,39 +10,37 @@
   import SkeletonMerryListCard from "@/components/MerryList/SkeletonMerryListCard";
   import { useAuth } from "@/context/AuthContext";
   import { useRouter } from "next/router";
-
+  import { encryptUserId } from "@/utils/crypto";
   import { useMerryLimit } from "@/context/MerryLimitContext";
+  import { AlertPopup } from '../../components/popup/AlertPopup';
 
-  // TODO 🕐goto chat page
   export default function MerrylistPage() {
-    const {checkingLogin,isLoggedIn}=useAuth()
+    
+    const {userInfo,checkingLogin,isLoggedIn}=useAuth()
     const {merryLimit} = useMerryLimit()
     const router =useRouter()
      const [data,setData] = useState ([])
+     const [filterData,setfilterData]=useState([])
      const [merriedMe,setMerriedMe] = useState(0)
      const [merriedMatch,setMerriedMatch] = useState(0)  
-     
-     const [selectedBox, setSelectedBox] = useState(0);
-     
+// TODO ทดสอบการเข้ามาของข้อมูล noti เพื่อเปิด merryme
+// TODO ใช้ useContext ทำตัวตรวจสอบ
+     const initialSelectedBox = parseInt(router.query.selectedBox) || 0;
+     const [selectedBox, setSelectedBox] = useState(initialSelectedBox);
      const [loadingData,setLoadingData] = useState(false)
      const [loadingMerriedMe,setLoadingMerriedMe] = useState(false)
      const [loadingMerriedMatch,setLoadingMerriedMatch] = useState(false)  
-  
+    const[isOpenAlert,setIsOpenAlert] = useState(false)
      const[isProfilePopup,setIsProfilePopup] = useState(false)
      const[DataProfilePopup,setDataProfilePopup] = useState({})
-  
-  
-     
-  
   useEffect(() => {
       if (!checkingLogin && !isLoggedIn) {
-        router.push('/');
+        router.push('/login');
       }
-    }, [checkingLogin, isLoggedIn, router]);
-  
+    }, [checkingLogin, isLoggedIn]);
+
     useEffect(() => {
       if (checkingLogin || !isLoggedIn) return;
-  
       const fetchAllData = async () => {
         try {
           setLoadingData(true);
@@ -68,8 +66,38 @@
       };
   
       fetchAllData();
-    }, [checkingLogin, isLoggedIn]);
+    }, [checkingLogin, isLoggedIn,userInfo]);
   
+      useEffect(()=>{
+    let filterDataTemp = data
+      if(selectedBox==="merry to you"){
+        if("package"==="free"){
+            setIsOpenAlert(true);
+            setSelectedBox(0);
+        }else{filterDataTemp = merriedMe}
+      }else if(selectedBox ==="merry me"){
+        filterDataTemp = data.filter((obj) => {return merriedMatch?.allMatches.includes(obj?.id)})
+                             .sort((a, b) =>merriedMatch.allMatches.indexOf(a.id)-merriedMatch.allMatches.indexOf(b.id)
+  );}
+     setfilterData(filterDataTemp)
+  },[selectedBox,data])
+
+const handleStartConversation = (userId) => {
+  try {
+    console.log("Hey User Id = " + userId);
+    const chatToUserID = userId;
+    const encryptedId = encryptUserId(chatToUserID);
+
+    if (encryptedId) {
+      router.push(`/chat?u=${encryptedId}`);
+    } else {
+      console.error("Failed to encrypt user ID");
+    }
+  } catch (error) {
+    console.error("Error in handleStartConversation:", error);
+  }
+};
+
    const CountdownDisplay = () => {
      const now = new Date();
       const midnightUTC = new Date(Date.UTC(
@@ -84,27 +112,12 @@
   };
   const handleClickTopBox = (boxId) => {
       setSelectedBox((prev) => (prev === boxId ? 0 : boxId));
-      
     };
-  
-  
-  const handleClickChat = () =>{
-  
-     }
      
-    const handleClickEye = (index) =>{ 
-      setDataProfilePopup(data[index])
+  const handleClickEye = (index) =>{ 
+      setDataProfilePopup(filterData[index])
       setIsProfilePopup(true)
-      }
-  
-  let filterData = data
-   if(selectedBox===1){
-    filterData = merriedMe
-   }else if(selectedBox ===2){
-     filterData = data.filter((obj) => {return merriedMatch?.allMatches.includes(obj?.id)})
-                       .sort((a, b) =>merriedMatch.allMatches.indexOf(a.id)-merriedMatch.allMatches.indexOf(b.id)
-    );
-    }      
+  }   
   
     return (
       <>
@@ -113,6 +126,17 @@
                     onClose={()=>setIsProfilePopup(false)} 
                     items={DataProfilePopup} 
                     />
+
+      <AlertPopup isOpen = {isOpenAlert}
+                    onClose = {()=>setIsOpenAlert(false)}
+                    title = "Who pressed merry on me?"
+                    description ="Sign up for more Merry Membership"
+                    buttonLeftText = "Go apply now"
+                    buttonRightText = "Not now" 
+                    buttonLeftClick = {()=>{router.push("/merry-membership");}}
+                    buttonRightClick = {()=>setIsOpenAlert(false)}
+                    />
+
       <div className="row bg-[#FCFCFE] pt-[88px] ">
         <div className="container flex flex-col items-center mt-[80px] ">
             <div className="flex flex-col gap-2 font-bold my-10 md:mt-24 md:w-full max-w-[930px]">
@@ -125,10 +149,10 @@
               
               <div className="flex flex-row gap-5 mx-1  text-[#646D89] justify-center">
                 <div className={`hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
-                                selectedBox === 1
+                                selectedBox === "merry to you"
                                 ? "scale-110 bg-pink-100 "
                                 : "bg-white"} `}
-                     onClick={() => handleClickTopBox(1)}>
+                     onClick={() => {handleClickTopBox("merry to you")}}>
                   <div className="flex flex-row gap-2 items-center">
                     {loadingMerriedMe?<CircularProgress color="secondary" size="30px" />:<h2 className="text-[#C70039] text-[24px] font-bold"> {merriedMe?.length} </h2>}
                     <GoHeartFill size={25} color="#FF1659"/>
@@ -137,10 +161,10 @@
                 </div>
                   
                 <div className={`hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
-                                selectedBox === 2
+                                selectedBox === "merry me"
                                 ? "scale-110 bg-pink-100 "
                                 : "bg-white"} `}
-                     onClick={() => handleClickTopBox(2)}>
+                     onClick={() => handleClickTopBox("merry me")}>
                   <div className="flex flex-row  gap-2 items-center">
                     <h2 className="text-[#C70039] text-[24px] font-bold"> 
                       {loadingMerriedMatch? <CircularProgress color="secondary" size="30px" />:merriedMatch?.allMatches?.length} 
@@ -167,7 +191,7 @@
                         return(
                           <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
                             <MarryListCard items={obj}
-                                       clickChat={{}}
+                                       clickChat={()=>handleStartConversation(obj.id)}
                                        clickEye={(isMerry,setIsMerry)=>handleClickEye(index,isMerry,setIsMerry)}
                                        isMatched={merriedMatch?.allMatches?.includes(obj.id)}
                                        matchToday={merriedMatch?.todayMatches?.includes(obj.id)}
