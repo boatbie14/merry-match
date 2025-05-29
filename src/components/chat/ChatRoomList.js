@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useChatRooms } from "@/hooks/useChatRooms";
 import { encryptUserId } from "@/utils/crypto";
 
-export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
+export default function ChatRoomList({ currentUserId, activeRoomId = null, onNavigate }) {
   console.log("🏠 ChatRoomList props:", { currentUserId, activeRoomId });
 
   const { chatRooms, loading, error } = useChatRooms(currentUserId);
@@ -24,6 +24,10 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
       console.log("💬 Opening chat with user:", otherUserId);
       const encryptedId = encryptUserId(otherUserId);
       if (encryptedId) {
+        // เรียก onNavigate เพื่อปิดเมนูซ้าย (สำหรับ mobile)
+        if (onNavigate) {
+          onNavigate();
+        }
         router.push(`/chat?u=${encryptedId}`);
       } else {
         console.error("Failed to encrypt user ID");

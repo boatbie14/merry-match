@@ -42,8 +42,10 @@ export default function MatchPage() {
                   <button onClick={toggleFilter} className="p-2 rounded-full hover:bg-gray-100">
                     <IoCloseOutline size={24} />
                   </button>
-                  <h3 className="text-lg font-bold">Filter</h3>
-                  <button onClick={handleClearClick}>Clear</button>
+                  <h3 className="text-[#191C77] text-xl font-bold">Filter</h3>
+                  <button onClick={handleClearClick} className="text-[#C70039] font-bold">
+                    Clear
+                  </button>
                 </div>
                 <MatchingRightColumn ref={rightColumnRef} onSearch={toggleFilter} />
               </div>

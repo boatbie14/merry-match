@@ -22,7 +22,7 @@ export function MerryLimitProvider({ children }) {
   const [error, setError] = useState(null);
 
   const fetchMerryLimit = async () => {
-    // ตรวจสอบว่ามี userInfo หรือไม่
+    
     if (!userInfo?.id) {
       setLoading(false);
       return;

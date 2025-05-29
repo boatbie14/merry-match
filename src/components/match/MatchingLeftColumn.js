@@ -9,7 +9,7 @@ import ChatRoomList from "@/components/chat/ChatRoomList";
 import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
 import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
 
-export default function MatchingLeftColumn() {
+export default function MatchingLeftColumn({ onNavigate }) {
   const { userInfo, loading: authLoading } = useAuth();
   const { shouldRefreshMatches } = useMerryLike();
   const { matchedUsers, loading, error } = useMatchedUsers(shouldRefreshMatches);
@@ -84,6 +84,10 @@ export default function MatchingLeftColumn() {
       const encryptedId = encryptUserId(chatToUserID);
 
       if (encryptedId) {
+        // เรียก onNavigate เพื่อปิดเมนูซ้าย (สำหรับ mobile)
+        if (onNavigate) {
+          onNavigate();
+        }
         router.push(`/chat?u=${encryptedId}`);
       } else {
         console.error("Failed to encrypt user ID");
@@ -115,17 +119,17 @@ export default function MatchingLeftColumn() {
     <>
       {/* Discover New Match Section */}
       <div className="px-6 pt-6">
-        <div className="flex flex-col items-center gap-1 p-6 bg-[#F6F7FC] border-1 border-[#A62D82] rounded-2xl">
+        <div className="flex flex-col items-center gap-1 p-4 lg:p-6 bg-[#F6F7FC] border-1 border-[#A62D82] rounded-2xl">
           <DiscoverMatchIcon size={64} primaryColor="#FF1659" secondaryColor="#95002B" />
           <h1 className="text-2xl text-[#95002B] font-bold">Discover New Match</h1>
           <p className="text-sm text-center">Start find and Merry to get know and connect with new friend!</p>
         </div>
       </div>
 
-      <hr className="text-[#E4E6ED] my-11" />
+      <hr className="hidden lg:block text-[#E4E6ED] my-11" />
 
       {/* Merry Match Section */}
-      <div className="px-6">
+      <div className="px-6 pt-4">
         <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Merry Match!</h2>
 
         {loading && <p>Loading matches...</p>}
@@ -150,14 +154,14 @@ export default function MatchingLeftColumn() {
         )}
       </div>
 
-      <hr className="text-[#E4E6ED] my-6" />
+      <hr className="hidden lg:block text-[#E4E6ED] my-11" />
 
       {/* Chat Rooms Section */}
       <div className="px-6 pb-6">
         <h2 className="text-2xl text-[#2A2E3F] font-bold mb-4">Chat with Merry Match</h2>
 
         {/* ใช้ ChatRoomList Component - ส่ง currentRoomId ที่หาได้ */}
-        <ChatRoomList currentUserId={userInfo.id} activeRoomId={currentRoomId} />
+        <ChatRoomList currentUserId={userInfo.id} activeRoomId={currentRoomId} onNavigate={onNavigate} />
       </div>
     </>
   );
