@@ -1,6 +1,6 @@
 import AdminSidebar from '@/components/AdminSidebar';
 import CreatePackageHeader from '@/components/admin/createPackageHeader';
-import CreatePackageForm from '@/components/admin/CreatePackageForm';
+import CreatePackageForm from '@/components/admin/createPackageForm';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
