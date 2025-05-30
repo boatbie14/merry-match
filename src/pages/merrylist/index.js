@@ -13,7 +13,7 @@
   import { encryptUserId } from "@/utils/crypto";
   import { useMerryLimit } from "@/context/MerryLimitContext";
   import { AlertPopup } from '../../components/popup/AlertPopup';
-
+  import { useNotification } from "@/context/NotificationContext";
   export default function MerrylistPage() {
     
     const {userInfo,checkingLogin,isLoggedIn}=useAuth()
@@ -23,10 +23,10 @@
      const [filterData,setfilterData]=useState([])
      const [merriedMe,setMerriedMe] = useState(0)
      const [merriedMatch,setMerriedMatch] = useState(0)  
-// TODO ทดสอบการเข้ามาของข้อมูล noti เพื่อเปิด merryme
-// TODO ใช้ useContext ทำตัวตรวจสอบ
-     const initialSelectedBox = parseInt(router.query.selectedBox) || 0;
-     const [selectedBox, setSelectedBox] = useState(initialSelectedBox);
+    const {isPackageName}=useNotification()
+     // TODO ทดสอบการเข้ามาของข้อมูล noti เพื่อเปิด merryme
+    //  const initialSelectedBox = typeof router.query.selectedBox === 'string' ? router.query.selectedBox : 0;
+     const [selectedBox, setSelectedBox] = useState(0);
      const [loadingData,setLoadingData] = useState(false)
      const [loadingMerriedMe,setLoadingMerriedMe] = useState(false)
      const [loadingMerriedMatch,setLoadingMerriedMatch] = useState(false)  
@@ -35,10 +35,14 @@
      const[DataProfilePopup,setDataProfilePopup] = useState({})
   useEffect(() => {
       if (!checkingLogin && !isLoggedIn) {
-        router.push('/login');
+        // router.push('/login');
       }
     }, [checkingLogin, isLoggedIn]);
-
+useEffect(() => {
+  if (!router.isReady) return;
+  const box = router.query.selectedBox || 0;
+  setSelectedBox(box);
+}, [router.isReady]);
     useEffect(() => {
       if (checkingLogin || !isLoggedIn) return;
       const fetchAllData = async () => {
@@ -52,7 +56,6 @@
             getMerriedMe(),
             getMerriedMatch(),
           ]);
-  
           setData(users);
           setMerriedMe(me);
           setMerriedMatch(match);
@@ -64,14 +67,14 @@
           setLoadingMerriedMatch(false);
         }
       };
-  
       fetchAllData();
     }, [checkingLogin, isLoggedIn,userInfo]);
   
       useEffect(()=>{
     let filterDataTemp = data
-      if(selectedBox==="merry to you"){
-        if("package"==="free"){
+      if(selectedBox==="merry-to-you"){
+        console.log(isPackageName)
+        if(isPackageName==="Free"){
             setIsOpenAlert(true);
             setSelectedBox(0);
         }else{filterDataTemp = merriedMe}
@@ -89,7 +92,7 @@ const handleStartConversation = (userId) => {
     const encryptedId = encryptUserId(chatToUserID);
 
     if (encryptedId) {
-      router.push(`/chat?u=${encryptedId}`);
+      // router.push(`/chat?u=${encryptedId}`);
     } else {
       console.error("Failed to encrypt user ID");
     }
@@ -133,7 +136,7 @@ const handleStartConversation = (userId) => {
                     description ="Sign up for more Merry Membership"
                     buttonLeftText = "Go apply now"
                     buttonRightText = "Not now" 
-                    buttonLeftClick = {()=>{router.push("/merry-membership");}}
+                    // buttonLeftClick = {()=>{router.push("/merry-membership");}}
                     buttonRightClick = {()=>setIsOpenAlert(false)}
                     />
 
@@ -149,10 +152,10 @@ const handleStartConversation = (userId) => {
               
               <div className="flex flex-row gap-5 mx-1  text-[#646D89] justify-center">
                 <div className={`hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
-                                selectedBox === "merry to you"
+                                selectedBox === "merry-to-you"
                                 ? "scale-110 bg-pink-100 "
                                 : "bg-white"} `}
-                     onClick={() => {handleClickTopBox("merry to you")}}>
+                     onClick={() => {handleClickTopBox("merry-to-you")}}>
                   <div className="flex flex-row gap-2 items-center">
                     {loadingMerriedMe?<CircularProgress color="secondary" size="30px" />:<h2 className="text-[#C70039] text-[24px] font-bold"> {merriedMe?.length} </h2>}
                     <GoHeartFill size={25} color="#FF1659"/>
@@ -186,7 +189,7 @@ const handleStartConversation = (userId) => {
                     {Array.from({ length: 3 }).map((_,i)=><SkeletonMerryListCard key={i}/>)}
                   </div>)
                   :
-                  filterData
+                  (filterData||[])
                       .map((obj, index) => {
                         return(
                           <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
