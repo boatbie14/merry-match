@@ -11,8 +11,6 @@ const LikeButton = ({ userId }) => {
     const router = useRouter();
   const [isOpenAlert,setIsOpenAlert]=useState(false)
   const isProcessing = inProgressIds.has(userId);
-//TODO 💽 optional lottie file
-  
 return (
   <>
     <button  

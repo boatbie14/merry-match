@@ -13,7 +13,7 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export default async function handler(req, res) {
   console.log("🔥 Stripe webhook เรียกแล้ว");
-
+console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
   if (req.method !== "POST") {
     return res.status(405).end("Method not allowed");
   }
@@ -53,6 +53,10 @@ export default async function handler(req, res) {
         );
         return res.status(500).send("Subscription missing start_date");
       }
+
+      const invoices = await stripe.invoices.list({subscription: subscription.id,limit: 1});
+      const latestInvoice = invoices.data[0];
+      const invoicePdfUrl = latestInvoice?.invoice_pdf ?? null;
 
       const status = subscription.status;
       const currentPeriodStart = new Date(
