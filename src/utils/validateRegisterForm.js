@@ -1,5 +1,5 @@
-export function validateRegisterForm(values, setError) {
-  let hasError = false;
+function validateRegisterForm(values, setError) {
+  const errorFields = [];
 
   const requiredFields = [
     "name",
@@ -19,13 +19,16 @@ export function validateRegisterForm(values, setError) {
 
   for (const field of requiredFields) {
     const value = values[field];
-
-    if (!value || (Array.isArray(value) && value.length === 0)) {
+    if (
+      !value ||
+      (typeof value === "string" && value.trim() === "") ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
       setError(field, {
         type: "manual",
         message: `${formatFieldName(field)} is required`,
       });
-      hasError = true;
+      errorFields.push(field);
     }
   }
 
@@ -37,7 +40,7 @@ export function validateRegisterForm(values, setError) {
         type: "manual",
         message: "Invalid email format",
       });
-      hasError = true;
+      errorFields.push("email");
     }
   }
 
@@ -47,7 +50,7 @@ export function validateRegisterForm(values, setError) {
       type: "manual",
       message: "Passwords do not match",
     });
-    hasError = true;
+    errorFields.push("confirmPassword");
   }
 
   // Validate date of birth age
@@ -67,7 +70,7 @@ export function validateRegisterForm(values, setError) {
           type: "manual",
           message: "You must be at least 18 years old",
         });
-        hasError = true;
+        errorFields.push("date_of_birth");
       }
     }
   }
@@ -83,12 +86,14 @@ export function validateRegisterForm(values, setError) {
       message:
         "Please upload at least 2 photos, and the first one must be your profile picture",
     });
-    hasError = true;
+    errorFields.push("images");
   }
 
-  return !hasError;
+  return errorFields;
 }
 
 function formatFieldName(field) {
   return field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
+
+export { validateRegisterForm, formatFieldName };

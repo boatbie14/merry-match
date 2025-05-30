@@ -8,17 +8,18 @@ import SelectInput from "@/components/form/SelectInput";
 import MultiSelectTagInput from "@/components/form/MultiSelectTagInput";
 import UploadPhotoInput from "@/components/form/UploadPhotoInput";
 import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
-import { validateRegisterForm } from "@/utils/validateRegisterForm";
+import { validateRegisterForm, formatFieldName } from "@/utils/validateRegisterForm";
 import { Country, State } from "country-state-city";
 import { FaArrowLeft } from "react-icons/fa6";
 import { sortImages } from "@/utils/image-handlers/sortImage";
-import { Alert, Snackbar } from '@mui/material';
 import { LoadingPop } from "@/components/popup/LoadingPop";
+import { AlertPopup } from "@/components/popup/AlertPopup";
+
+
 
 export default function RegisterPage() {
   const router = useRouter();
   const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState("error");
   const [isLoading,setIsLoading] = useState(false)
   const [step, setStep] = useState(1);
   const [generalError, setGeneralError] = useState("");
@@ -72,9 +73,14 @@ export default function RegisterPage() {
   const onSubmit = async (values) => {
     setGeneralError("");
 
-    console.log(values);
-    const isValid = validateRegisterForm(values, setError);
-    if (!isValid){onError(errors); return}
+    const errorFields = validateRegisterForm(values, setError);
+    if (errorFields.length > 0) {
+      const fieldList = errorFields.map(formatFieldName).join(", ");
+      setAlertMessage(`Oops! It looks like you missed some required fields: ${fieldList}`);
+
+      return;
+    }
+
     setIsLoading(true)
     try {
       const signUpRes = await fetch("/api/pre-signup", {
@@ -115,15 +121,10 @@ export default function RegisterPage() {
       setGeneralError("Unexpected error occurred. Please try again.");
     }
   };
-  const onError = (errors) => {
-  const firstField = Object.keys(errors)[0]; // หาชื่อ field แรกที่ error
-  if (firstField) {
-    const firstError = errors[firstField];
-    const message = firstError?.message || "Unexpected error occurred. Please try again.";
-    setAlertMessage(message);
-  }else setAlertMessage("Incorrect information. Please check the information")
-  return;
-}
+ const onError = (formErrors) => {
+    const fieldList = Object.keys(formErrors).map(formatFieldName).join(", ");
+    setAlertMessage(`กรุณากรอกข้อมูลให้ครบถ้วนในช่อง: ${fieldList}`);
+  };
 
   const stepTitles = {
     1: "Basic Information",
@@ -154,9 +155,9 @@ export default function RegisterPage() {
                   key={s}
                   type="button"
                   onClick={() => setStep(s)}
-                  className={`text-center p-2 border-1 rounded-2xl ${
+                  className={`text-center p-2 md:p-4 border-1 rounded-2xl ${
                     step === s
-                      ? "border-[#A62D82] font-bold md:w-66 md:h-20 w-auto h-14"
+                      ? "border-[#A62D82] font-bold  md:h-20 w-auto h-14"
                       : "border-gray-300 md:w-20 md:h-20 w-14 h-14"
                   }`}
                 >
@@ -583,20 +584,16 @@ export default function RegisterPage() {
       </div>
     </div>
   
-   <Snackbar className="mt-[100px]"
-        open={!!alertMessage}
-        autoHideDuration={4000}
+
+      <AlertPopup
+        isOpen={!!alertMessage}
         onClose={() => setAlertMessage("")}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setAlertMessage("")}
-          severity={alertSeverity}
-          sx={{ width: "100%" }}
-        >
-          {alertMessage}
-        </Alert>
-      </Snackbar>
+        title="Required fields missing"
+        description={alertMessage}
+        buttonRightText="OK"
+        buttonRightClick={() => setAlertMessage("")}
+      />
+
   </>
   );
 }
