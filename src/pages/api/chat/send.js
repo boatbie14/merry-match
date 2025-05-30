@@ -1,5 +1,6 @@
 // pages/api/chat/send.js
 import { createClient } from "@supabase/supabase-js";
+import { addNotifications_Log } from "@/utils/query/addNotifications_Log";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
@@ -10,16 +11,6 @@ export default async function handler(req, res) {
 
   try {
     const { sender_id, receiver_id, room_id, content, message_type = "text", image_url = null, username } = req.body;
-
-    console.log("📤 Send message request:", {
-      sender_id,
-      receiver_id,
-      room_id,
-      message_type,
-      content: content?.substring(0, 50) + "...",
-      image_url: image_url ? "✅ Image attached" : "❌ No image",
-      username,
-    });
 
     // Validation
     if (!sender_id || !receiver_id || !room_id) {
@@ -83,8 +74,6 @@ export default async function handler(req, res) {
       created_at: new Date().toISOString(),
     };
 
-    console.log("💾 Inserting message:", messageData);
-
     // บันทึกข้อความลง database
     const { data: message, error: insertError } = await supabase.from("messages").insert(messageData).select().single();
 
@@ -97,8 +86,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 🆕 Update chat_rooms.updated_at
-    console.log("🕒 Updating chat room timestamp for room:", room_id);
+    // Update chat_rooms.updated_at
     const { error: updateRoomError } = await supabase
       .from("chat_rooms")
       .update({
@@ -108,26 +96,40 @@ export default async function handler(req, res) {
 
     if (updateRoomError) {
       console.error("⚠️ Failed to update chat room timestamp:", updateRoomError);
-      // ไม่ throw error เพราะข้อความส่งสำเร็จแล้ว
-    } else {
-      console.log("✅ Chat room timestamp updated successfully");
     }
 
-    console.log("✅ Message sent successfully:", {
-      id: message.id,
-      type: message.message_type,
-      hasContent: !!message.content,
-      hasImage: !!message.image_url,
-      roomUpdated: !updateRoomError,
-    });
-
+    // ส่ง response กลับไปก่อน
     res.status(200).json({
       success: true,
       message,
       chat_room: {
         ...chatRoom,
-        updated_at: new Date().toISOString(), // ส่ง updated_at ใหม่กลับไป
+        updated_at: new Date().toISOString(),
       },
+    });
+
+    // ส่ง notification แบบ async หลัง response (ไม่รอผลลัพธ์)
+    setImmediate(async () => {
+      try {
+        const { data: messageCount, error: countError } = await supabase
+          .from("messages")
+          .select("id", { count: "exact" })
+          .eq("room_id", room_id);
+
+        if (!countError) {
+          const isFirstMessage = (messageCount?.length || 0) === 1;
+
+          await addNotifications_Log(
+            "message", // type
+            sender_id, // from_user_id
+            receiver_id, // to_user_id
+            false, // match
+            isFirstMessage // firstMessage
+          );
+        }
+      } catch (notifError) {
+        console.error("❌ Async notification error:", notifError);
+      }
     });
   } catch (error) {
     console.error("💥 Send message error:", error);

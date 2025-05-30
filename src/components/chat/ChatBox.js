@@ -1,7 +1,7 @@
 // components/ChatBox.js
 import { useState, useRef } from "react";
 import { useChatMessages } from "@/hooks/useChatMessages";
-import { HiPaperAirplane, HiPaperClip } from "react-icons/hi2";
+import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
 import { PiImageFill } from "react-icons/pi";
 
@@ -224,13 +224,13 @@ export default function Chat({ chatData, currentUser }) {
       {/* Image Modal */}
       {isModalOpen && modalImage && (
         <div className="fixed inset-0 bg-black/70 bg-opacity-75 flex items-center justify-center z-50" onClick={closeImageModal}>
-          <div className="relative max-w-4xl max-h-4xl p-4">
+          <div className="relative max-w-4xl max-h-4xl p-6 lg:p-3">
             {/* Close Button */}
             <button
               onClick={closeImageModal}
-              className="absolute top-[-4px] right-[-4px] text-white bg-[#C70039] bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all z-10"
+              className="absolute top-[4px] right-[4px] lg:top-[-4px] lg:right-[-4px] text-white bg-[#C70039] bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all z-10"
             >
-              <HiX size={24} />
+              <HiX size={20} />
             </button>
 
             {/* Modal Image */}
@@ -255,7 +255,7 @@ export default function Chat({ chatData, currentUser }) {
       )}
 
       {/* กล่องข้อความ */}
-      <div className="flex-1 p-4 overflow-y-auto px-24">
+      <div className="flex-1 p-4 overflow-y-auto px-4 lg:px-24">
         {loading ? (
           <div className="text-center text-gray-500 py-4">Loading...</div>
         ) : messages.length === 0 ? (
@@ -271,7 +271,7 @@ export default function Chat({ chatData, currentUser }) {
                       <img
                         src={message.image_url}
                         alt="Shared image"
-                        className="max-w-[300px] max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
+                        className="max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                         onClick={() => openImageModal(message.image_url)}
                       />
                       {message.content && message.content.trim() && (
@@ -290,7 +290,11 @@ export default function Chat({ chatData, currentUser }) {
                 // ข้อความของคนอื่น
                 <div className="flex items-start gap-3">
                   {message.sender?.profile_image_url && (
-                    <img src={message.sender.profile_image_url} className="rounded-full w-10 h-10 object-cover flex-shrink-0" />
+                    <img
+                      src={message.sender.profile_image_url}
+                      className="rounded-full w-10 h-10 object-cover flex-shrink-0"
+                      alt={message.sender.username}
+                    />
                   )}
                   <div className="flex flex-col items-start gap-1">
                     {message.message_type === "image" ? (
@@ -298,7 +302,7 @@ export default function Chat({ chatData, currentUser }) {
                         <img
                           src={message.image_url}
                           alt="Shared image"
-                          className="max-w-[300px] max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
+                          className="max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
                           onClick={() => openImageModal(message.image_url)}
                         />
                         {message.content && message.content.trim() && (
@@ -322,7 +326,7 @@ export default function Chat({ chatData, currentUser }) {
       </div>
 
       {/* ฟอร์มส่งข้อความ */}
-      <div className="p-4 border-t border-t-[#424C6B] px-24">
+      <div className="p-4 border-t border-t-[#424C6B] px-4 lg:px-24">
         {/* แสดง preview รูป */}
         {imagePreview && (
           <div className="mb-3 flex items-center gap-2 p-2 bg-[#200009] border-1 border-[#FF1659] rounded-lg">

@@ -15,20 +15,16 @@ export const useChatRooms = (currentUserId) => {
 
   const fetchChatRooms = async () => {
     if (!currentUserId) {
-      console.log("⏳ No user ID provided, skipping fetch");
       setLoading(false);
       return;
     }
 
     try {
-      console.log("🚀 Starting fetch for user:", currentUserId);
-
       setLoading(true);
       setError(null);
 
       // เพิ่ม absolute URL เผื่อมีปัญหา relative path
       const apiUrl = `${window.location.origin}/api/chat/rooms`;
-      console.log("📡 Fetching from:", apiUrl);
 
       const response = await fetch(apiUrl, {
         method: "POST",
@@ -41,25 +37,19 @@ export const useChatRooms = (currentUserId) => {
         }),
       });
 
-      console.log("📡 Response status:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ Error response:", errorText);
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
-      console.log("✅ Success data:", data);
 
       if (data.success) {
         setChatRooms(data.chatRooms || []);
-        console.log(`✅ Set ${data.chatRooms?.length || 0} chat rooms`);
       } else {
         throw new Error(data.message || "API returned success: false");
       }
     } catch (err) {
-      console.error("💥 Complete error object:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -81,7 +71,6 @@ export const useChatRooms = (currentUserId) => {
           table: "messages",
         },
         (payload) => {
-          console.log("📩 New message received:", payload);
           // Refresh chat rooms เมื่อมี message ใหม่
           fetchChatRooms();
         }
@@ -94,7 +83,6 @@ export const useChatRooms = (currentUserId) => {
           table: "chat_rooms",
         },
         (payload) => {
-          console.log("🏠 New chat room created:", payload);
           // Refresh chat rooms เมื่อมี room ใหม่
           fetchChatRooms();
         }
@@ -107,7 +95,6 @@ export const useChatRooms = (currentUserId) => {
           table: "chat_rooms",
         },
         (payload) => {
-          console.log("🔄 Chat room updated:", payload);
           // Refresh chat rooms เมื่อ room มีการ update
           fetchChatRooms();
         }
@@ -115,23 +102,19 @@ export const useChatRooms = (currentUserId) => {
       .subscribe();
 
     channelRef.current = channel;
-    console.log("🔌 Subscribed to chat rooms updates");
 
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
-        console.log("🔌 Unsubscribed from chat rooms updates");
       }
     };
   }, [currentUserId]);
 
   // Initial fetch
   useEffect(() => {
-    console.log("🔄 Effect triggered:", { currentUserId });
     if (currentUserId) {
       fetchChatRooms();
     } else {
-      console.log("❌ No user ID, clearing state");
       setChatRooms([]);
       setLoading(false);
       setError(null);

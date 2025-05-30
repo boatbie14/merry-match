@@ -25,7 +25,7 @@ export const MerryLikeProvider = ({ children }) => {
         const res = await getMerriedLike();
         setLikedUsers(res.data); // [{id: 1}, {id: 2}, ...]
       } catch (err) {
-        console.error("Fetch Liked Users Failed:", err);
+        // Handle error silently
       }
     };
 
@@ -62,8 +62,6 @@ export const MerryLikeProvider = ({ children }) => {
 
         setMatchedUser(result.checkMatchUser);
 
-        console.log("Match or Not : " + result?.checkMatchUser);
-
         if (result?.checkMatchUser) {
           setShouldRefreshMatches(Date.now());
         }
@@ -75,7 +73,6 @@ export const MerryLikeProvider = ({ children }) => {
         return result;
       }
     } catch (err) {
-      console.error("Toggle Like Failed:", err);
       // Rollback UI
       setLikedUsers((prev) => (alreadyLiked ? [...prev, { id: userId }] : prev.filter((user) => user.id !== userId)));
     } finally {
@@ -87,8 +84,6 @@ export const MerryLikeProvider = ({ children }) => {
       });
     }
   };
-
-  console.log("shouldRefreshMatches in MerryLikeContext:" + shouldRefreshMatches);
 
   return (
     <MerryLikeContext.Provider value={{ likedUsers, isLiked, toggleLike, inProgressIds, limitReached, matchedUser, shouldRefreshMatches }}>

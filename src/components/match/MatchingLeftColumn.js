@@ -9,7 +9,7 @@ import ChatRoomList from "@/components/chat/ChatRoomList";
 import DiscoverMatchIcon from "../icons/DiscoverMatchIcon";
 import DoubleHeartsIcon from "../icons/DoubleHeartsIcon";
 
-export default function MatchingLeftColumn() {
+export default function MatchingLeftColumn({ onNavigate }) {
   const { userInfo, loading: authLoading } = useAuth();
   const { shouldRefreshMatches } = useMerryLike();
   const { matchedUsers, loading, error } = useMatchedUsers(shouldRefreshMatches);
@@ -28,11 +28,8 @@ export default function MatchingLeftColumn() {
       }
 
       try {
-        console.log("🔍 Finding room ID for encrypted user:", u);
-
         // Decrypt target user ID
         const targetUserId = decryptUserId(u);
-        console.log("🔓 Decrypted target user ID:", targetUserId);
 
         if (!targetUserId) {
           setCurrentRoomId(null);
@@ -52,14 +49,11 @@ export default function MatchingLeftColumn() {
         const data = await response.json();
 
         if (data.success && data.chatRoom?.id) {
-          console.log("🏠 Found room ID:", data.chatRoom.id);
           setCurrentRoomId(data.chatRoom.id);
         } else {
-          console.log("❌ Room not found or error:", data.message);
           setCurrentRoomId(null);
         }
       } catch (error) {
-        console.error("💥 Error finding room ID:", error);
         setCurrentRoomId(null);
       }
     };
@@ -67,29 +61,20 @@ export default function MatchingLeftColumn() {
     findCurrentRoomId();
   }, [router.query.u, userInfo?.id]);
 
-  useEffect(() => {
-    console.log("MatchingLeftColumn: shouldRefreshMatches changed to:", shouldRefreshMatches);
-    console.log("MatchingLeftColumn: userInfo:", {
-      id: userInfo?.id,
-      name: userInfo?.name,
-      authLoading,
-    });
-    console.log("MatchingLeftColumn: currentRoomId:", currentRoomId);
-  }, [shouldRefreshMatches, userInfo, authLoading, currentRoomId]);
-
   const handleStartConversation = (userId) => {
     try {
-      console.log("Hey User Id = " + userId);
       const chatToUserID = userId;
       const encryptedId = encryptUserId(chatToUserID);
 
       if (encryptedId) {
+        // เรียก onNavigate เพื่อปิดเมนูซ้าย (สำหรับ mobile)
+        if (onNavigate) {
+          onNavigate();
+        }
         router.push(`/chat?u=${encryptedId}`);
-      } else {
-        console.error("Failed to encrypt user ID");
       }
     } catch (error) {
-      console.error("Error in handleStartConversation:", error);
+      // Handle error silently
     }
   };
 
@@ -115,17 +100,17 @@ export default function MatchingLeftColumn() {
     <>
       {/* Discover New Match Section */}
       <div className="px-6 pt-6">
-        <div className="flex flex-col items-center gap-1 p-6 bg-[#F6F7FC] border-1 border-[#A62D82] rounded-2xl">
+        <div className="flex flex-col items-center gap-1 p-4 lg:p-6 bg-[#F6F7FC] border-1 border-[#A62D82] rounded-2xl">
           <DiscoverMatchIcon size={64} primaryColor="#FF1659" secondaryColor="#95002B" />
           <h1 className="text-2xl text-[#95002B] font-bold">Discover New Match</h1>
           <p className="text-sm text-center">Start find and Merry to get know and connect with new friend!</p>
         </div>
       </div>
 
-      <hr className="text-[#E4E6ED] my-11" />
+      <hr className="hidden lg:block text-[#E4E6ED] mt-10 mb-4" />
 
       {/* Merry Match Section */}
-      <div className="px-6">
+      <div className="px-6 pt-4">
         <h2 className="text-2xl text-[#2A2E3F] font-bold pb-4">Merry Match!</h2>
 
         {loading && <p>Loading matches...</p>}
@@ -150,14 +135,14 @@ export default function MatchingLeftColumn() {
         )}
       </div>
 
-      <hr className="text-[#E4E6ED] my-6" />
+      <hr className="hidden lg:block text-[#E4E6ED] mt-4 mb-8" />
 
       {/* Chat Rooms Section */}
       <div className="px-6 pb-6">
         <h2 className="text-2xl text-[#2A2E3F] font-bold mb-4">Chat with Merry Match</h2>
 
         {/* ใช้ ChatRoomList Component - ส่ง currentRoomId ที่หาได้ */}
-        <ChatRoomList currentUserId={userInfo.id} activeRoomId={currentRoomId} />
+        <ChatRoomList currentUserId={userInfo.id} activeRoomId={currentRoomId} onNavigate={onNavigate} />
       </div>
     </>
   );

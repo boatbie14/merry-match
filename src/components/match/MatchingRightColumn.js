@@ -205,7 +205,7 @@ const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
   return (
     <>
       <form className="flex flex-col h-full justify-between" onSubmit={(e) => e.preventDefault()}>
-        <div className="px-6 pt-6">
+        <div className="px-3 lg:px-6 pt-6">
           <h2 className="md:text-2xl text-[#2A2E3F] font-bold pb-4">Gender you interest</h2>
 
           <StyledFormGroup>

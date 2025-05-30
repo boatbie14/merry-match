@@ -12,17 +12,13 @@ const SECRET_KEY = process.env.NEXT_PUBLIC_ENCRYPT_KEY || "fallback-secret-key";
 export const encryptUserId = (userId) => {
   try {
     if (!userId) {
-      console.error("encryptUserId: userId is required");
       return null;
     }
 
-    console.log("Encrypting userId:", userId);
     const encrypted = CryptoJS.AES.encrypt(userId.toString(), SECRET_KEY).toString();
     const urlSafe = encodeURIComponent(encrypted);
-    console.log("Encrypted successfully:", urlSafe);
     return urlSafe;
   } catch (error) {
-    console.error("Encryption error:", error);
     return null;
   }
 };
@@ -35,23 +31,18 @@ export const encryptUserId = (userId) => {
 export const decryptUserId = (encryptedId) => {
   try {
     if (!encryptedId) {
-      console.error("decryptUserId: encryptedId is required");
       return null;
     }
 
-    console.log("Decrypting encryptedId:", encryptedId);
     const decrypted = CryptoJS.AES.decrypt(decodeURIComponent(encryptedId), SECRET_KEY);
     const result = decrypted.toString(CryptoJS.enc.Utf8);
 
     if (!result) {
-      console.error("decryptUserId: Failed to decrypt or invalid data");
       return null;
     }
 
-    console.log("Decrypted successfully:", result);
     return result;
   } catch (error) {
-    console.error("Decryption error:", error);
     return null;
   }
 };

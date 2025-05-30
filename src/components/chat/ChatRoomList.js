@@ -4,32 +4,23 @@ import { useRouter } from "next/router";
 import { useChatRooms } from "@/hooks/useChatRooms";
 import { encryptUserId } from "@/utils/crypto";
 
-export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
-  console.log("🏠 ChatRoomList props:", { currentUserId, activeRoomId });
-
+export default function ChatRoomList({ currentUserId, activeRoomId = null, onNavigate }) {
   const { chatRooms, loading, error } = useChatRooms(currentUserId);
   const router = useRouter();
-
-  console.log("🏠 ChatRoomList state:", {
-    currentUserId,
-    loading,
-    error,
-    roomsCount: chatRooms?.length,
-    rooms: chatRooms,
-  });
 
   // ฟังก์ชันเปิดการสนทนา
   const handleOpenChat = (otherUserId) => {
     try {
-      console.log("💬 Opening chat with user:", otherUserId);
       const encryptedId = encryptUserId(otherUserId);
       if (encryptedId) {
+        // เรียก onNavigate เพื่อปิดเมนูซ้าย (สำหรับ mobile)
+        if (onNavigate) {
+          onNavigate();
+        }
         router.push(`/chat?u=${encryptedId}`);
-      } else {
-        console.error("Failed to encrypt user ID");
       }
     } catch (error) {
-      console.error("Error opening chat:", error);
+      // Handle error silently
     }
   };
 
@@ -79,19 +70,15 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
         return messageDate.toLocaleDateString([], { month: "short", day: "numeric" });
       }
     } catch (err) {
-      console.error("Error formatting time:", err);
       return "";
     }
   };
 
-  // Debug: แสดงข้อมูลที่ได้รับ
   if (!currentUserId) {
-    console.warn("⚠️ ChatRoomList: No currentUserId provided");
     return (
       <div className="chat-room-list max-h-60 overflow-y-auto">
         <div className="text-center py-4 text-red-500">
           <p>❌ No user ID</p>
-          <p className="text-xs">currentUserId: {String(currentUserId)}</p>
         </div>
       </div>
     );
@@ -102,7 +89,6 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
       <div className="chat-room-list max-h-60 overflow-y-auto">
         <div className="text-center py-4 text-gray-500">
           <p>Loading chats...</p>
-          <p className="text-xs">User: {currentUserId}</p>
         </div>
       </div>
     );
@@ -114,7 +100,6 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
         <div className="text-center py-4 text-red-500">
           <p>❌ Error loading chats</p>
           <p className="text-xs mt-1">{error}</p>
-          <p className="text-xs">User: {currentUserId}</p>
         </div>
       </div>
     );
@@ -126,7 +111,6 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
         <div className="text-center py-4 text-gray-500">
           <p>No conversations yet</p>
           <p className="text-xs mt-1">Start matching to begin chatting!</p>
-          <p className="text-xs">User: {currentUserId}</p>
         </div>
       </div>
     );
@@ -135,18 +119,12 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null }) {
   return (
     <>
       <div className="text-xs text-gray-400 mb-2 px-1">Found {chatRooms.length} chats</div>
-      <div className="chat-room-list max-h-40 overflow-y-auto pb-4">
+      <div className="chat-room-list max-h-[168px] overflow-y-auto pb-4">
         <div className="space-y-1">
           {chatRooms.map((room) => {
             const { otherUser, lastMessage } = room;
             const isActive = activeRoomId === room.id;
             const isOwnMessage = lastMessage?.sender_id === currentUserId;
-
-            console.log("🎭 Rendering room:", {
-              roomId: room.id,
-              otherUser: otherUser?.name,
-              hasMessage: !!lastMessage,
-            });
 
             return (
               <div
