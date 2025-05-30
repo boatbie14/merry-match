@@ -28,6 +28,7 @@ export function useNotifications(userId) {
             is_read,
             created_at,
             from_user:users (
+              id,
               profile_image_url
             )
           `)

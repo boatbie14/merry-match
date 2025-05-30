@@ -32,9 +32,9 @@ export const DesktopUserMenuItems = () => {
 
   return (
     <div className="flex flex-col w-[198px] h-[258px] ">
-      <button className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
+      <Link href="merry/package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
         <span className="text-xs font-bold">✨ More limit Merry!</span>
-      </button>
+      </Link>
       <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
         <div className="profile-button-mobile-menu-items ">
           <Link
@@ -55,16 +55,16 @@ export const DesktopUserMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <button className="flex flex-row space-x-5 cursor-pointer">
+          <Link href="merry/package" className="flex flex-row space-x-5 cursor-pointer">
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
-          </button>
+          </Link>
         </div>
         <div className="compliant-button-mobile-menu-items">
-          <button className="flex flex-row space-x-5 cursor-pointer">
+          <Link href="/complaint" className="flex flex-row space-x-5 cursor-pointer">
             <GoAlertFill color="pink" />
-            <span>Compliant</span>
-          </button>
+            <span>Complaint </span>
+          </Link>
         </div>
       </div>
       <button
@@ -89,9 +89,9 @@ export const MobileMenuItems = () => {
 
   return (
     <div className="flex flex-col ">
-      <div className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
+      <Link href="merry/package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
         <span className=" sm:text-3xl font-bold">✨ More limit Merry!</span>
-      </div>
+      </Link>
       <div className="profile-menu-items space-y-10 px-10  mt-5 mb-5 sm:mt-10 sm:mb-10 sm:text-3xl text-[#646D89] ">
         <div className="profile-button-mobile-menu-items ">
           <Link
@@ -126,15 +126,15 @@ export const MobileMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <button className="flex flex-row space-x-10">
+          <Link href="merry/package" className="flex flex-row space-x-10">
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
-          </button>
+          </Link>
         </div>
         <div className="compliant-button-mobile-menu-items">
           <button className="flex flex-row space-x-10">
             <GoAlertFill color="pink" />
-            <span>Compliant</span>
+            <span>Complaint </span>
           </button>
         </div>
       </div>
@@ -191,9 +191,9 @@ const NavbarUser = () => {
             >
               Start Matching!
             </Link>
-            <a href="#" className="hidden md:flex text-[#7D2262] font-bold">
+            <Link href="merry/package" className="hidden md:flex text-[#7D2262] font-bold">
               Merry Membership
-            </a>
+            </Link>
             <button className="talk-button md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center ">
               <svg
                 width="30"

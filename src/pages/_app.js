@@ -12,6 +12,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/styles/theme";
 import { LottieProvider } from "@/context/LottieContext";
 import LottieContainer from "@/components/LottieContainer";
+import { NotificationContextProvider } from "@/context/NotificationContext";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -21,16 +22,22 @@ const nunito = Nunito({
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
+  const { pathname } = router;
 
-  const pathname = router.pathname;
-
-  const noFooterRoutes = ["/login", "/register", "/matching", "/admin", "/admin/createPackage"];
+  const noFooterRoutes = [
+    "/login",
+    "/register",
+    "/matching",
+    "/admin",
+    "/admin/createPackage",
+  ];
   const noNavbarRoutes = ["/admin", "/admin/createPackage"];
 
   const hideFooter = noFooterRoutes.includes(pathname);
   const hideNavbar = noNavbarRoutes.includes(pathname);
   const isAdminPage = pathname.startsWith("/admin");
 
+  // Single Layout definition
   const Layout = (
     <div className={`${nunito.className} min-h-screen flex flex-col`}>
       {!hideNavbar && <NavbarMain />}
@@ -46,13 +53,22 @@ export default function App({ Component, pageProps }) {
   return (
     <AuthProvider>
       <NavbarProvider>
-        {isAdminPage ? (
-          Layout
-        ) : (
-          <MerryLimitProvider>
-            <MerryLikeProvider>{Layout}</MerryLikeProvider>
-          </MerryLimitProvider>
-        )}
+        <NotificationContextProvider>
+          {isAdminPage ? (
+            // Admin pages: no Merry/Lottie wrappers
+            Layout
+          ) : (
+            // Public pages: wrap with Merry contexts + Lottie
+            <MerryLimitProvider>
+              <MerryLikeProvider>
+                <LottieProvider>
+                  {Layout}
+                  <LottieContainer />
+                </LottieProvider>
+              </MerryLikeProvider>
+            </MerryLimitProvider>
+          )}
+        </NotificationContextProvider>
       </NavbarProvider>
     </AuthProvider>
   );
