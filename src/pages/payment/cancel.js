@@ -1,3 +1,4 @@
+import Link from "next/link";
 export default function CancelPage() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-[#FCFCFE] px-6 py-12">
@@ -8,12 +9,12 @@ export default function CancelPage() {
           Your transaction was canceled or an error occurred during payment.<br />
           Please try again later.
         </p>
-        <a
+        <Link
           href="/merry-membership"
           className="inline-block bg-[#A62D82] hover:bg-[#922672] text-white font-medium px-6 py-2 rounded-lg transition"
         >
           Go back to choose a plan
-        </a>
+        </Link>
       </div>
     </div>
   );
