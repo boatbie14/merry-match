@@ -290,7 +290,11 @@ export default function Chat({ chatData, currentUser }) {
                 // ข้อความของคนอื่น
                 <div className="flex items-start gap-3">
                   {message.sender?.profile_image_url && (
-                    <img src={message.sender.profile_image_url} className="rounded-full w-10 h-10 object-cover flex-shrink-0" />
+                    <img
+                      src={message.sender.profile_image_url}
+                      className="rounded-full w-10 h-10 object-cover flex-shrink-0"
+                      alt={message.sender.username}
+                    />
                   )}
                   <div className="flex flex-col items-start gap-1">
                     {message.message_type === "image" ? (

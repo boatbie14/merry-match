@@ -5,8 +5,6 @@ const FREE_PACKAGE_ID = "6c3e5251-6ba4-4c79-a305-22cfaaecb47c";
 
 export async function checkMerryLimit(user_id, todayFromUser, timezoneOffset) {
   try {
-    console.log("user_id = " + user_id);
-
     // ถ้าไม่มี user_id ให้ส่ง error กลับไป
     if (!user_id) {
       throw new Error("User ID is required");

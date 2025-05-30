@@ -15,7 +15,6 @@ export default async function handler(req, res) {
   try {
     // ใช้ user_id จาก query params
     const user_id = req.query.user_id;
-    console.log("user_id = " + user_id);
 
     // ดึงข้อมูลจาก query params
     const todayFromUser = req.query.today; // ตัวอย่าง 2025-06-02
