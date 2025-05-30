@@ -1,43 +1,70 @@
 import { GoCheckCircleFill } from "react-icons/go";
 import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 
 export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage,styleGradient=false,StartMembership,NextBilling}) => {
-    const gradientStyle = styleGradient?{ background: "linear-gradient(100deg, #820025, #93345F, #A878BF)" }:{};
+    const [isExpanded, setIsExpanded] = useState(false); // สถานะเปิด/ปิด รายการที่เหลือ
+    const contentRef = useRef(null); // ใช้จับ DOM ของ div รายการที่ซ่อนไว้
+    const [maxHeight, setMaxHeight] = useState("0px"); // ควบคุมความสูงแบบสมูท
     
+    if(detail.length<2){detail.push("")}
+    const visibleDetails = detail.slice(0, 2);
+    const hiddenDetails = detail.slice(2);
+
+    useEffect(() => {
+        if (isExpanded) {
+            setMaxHeight(`${contentRef.current.scrollHeight}px`);
+        } else {
+            setMaxHeight("0px");
+        }
+    }, [isExpanded]);
     return (
     <div 
-    style={gradientStyle}
-    className="flex flex-col p-4 bg-[#ffffff] rounded-3xl border-[1px] border-[#D6D9E4] w-243 gap-[16px] md:p-10 md:gap-[22px] md:w-[357px]">
+    className="flex flex-col  p-4 bg-[#ffffff] rounded-3xl border-[1px] border-[#D6D9E4] gap-[12px] md:p-10 md:gap-[20px] md:w-[357px] w-full  md:min-h-[441px] mb-6 md:shadow-[0_4px_8px_-2px_rgba(0,0,0,0.1)]">
         <button className={`w-[60px] h-[60px] border-none rounded-2xl inline-flex items-center justify-center bg-[#F6F7FC]`}>
             <Image src={icon} alt={packageName} width={36} height={36}/>
         </button>
         <div className="flex flex-col">
-            <h2 className={`${styleGradient?"text-[#ffffff]":"text-[#411032]"} text-[32px] font-bold md:text-[36px]`}>{packageName}</h2>
-            <h3 className={`text-[20px] ${styleGradient?"text-[#F4EBF2]":"text-[#2A2E3F]"} font-semibold `}>THB {price} <span className={`${styleGradient?"text-[#F4EBF2]":"text-[#9AA1B9]"} text-[16px] font-normal`}>/Month</span></h3>
+            <h2 className={`text-[#411032] text-[32px] font-bold md:text-[36px]`}>{packageName.charAt(0).toUpperCase() + packageName.slice(1)}</h2>
+            <h3 className={`text-[20px] text-[#2A2E3F] font-semibold `}>THB {Number(price).toFixed(2)} <span className={`text-[#9AA1B9] text-[16px] font-normal`}>/Month</span></h3>
         </div>
-        <div className={`flex flex-col ${styleGradient?"text-[#F4EBF2]":"text-[#424C6B]"} text-[16px] gap-2 md:gap-4`}>
-            {detail.map((value,index)=>(
-                <div key={index} className="flex flex-row items-center gap-4">
-                    <GoCheckCircleFill  color={styleGradient?"#DF89C6":"#CF4FA9"}/> 
+        <div className={`flex flex-col text-[#424C6B] mb-[10px] md:pb-[3px] text-[16px] `}>
+            {visibleDetails.map((value,index)=>(
+                <div key={index} className="flex flex-row items-center gap-3 md:gap-4 pb-2 md:pb-4 tracking-tight">
+                    {value===""?<div className="mt-6"></div>: <GoCheckCircleFill  color={"#CF4FA9"}/>} 
                     <h3>{value}</h3>
                 </div>
             )
-            )}
-        </div>
-        <hr className='text-[#E4E6ED] mt-[10px] md:pt-[3px]'/>
-
-        {StartMembership && NextBilling 
-            ?<div className='text-[16px] text-[#EFC4E2] flex flex-col gap-2'>
-                <div className='flex justify-between'>
-                    <h2>Start Membership</h2>
-                    <h2 className='text-[#FFFFFF]'>01/04/2022</h2>
-                </div>
-                <div className='flex justify-between'>
-                    <h2>Next billing</h2>
-                    <h2 className='text-[#FFFFFF]'>01/05/2022</h2>
+            )
+            }
+            <div
+                ref={contentRef}
+                style={{
+                maxHeight: isExpanded ? maxHeight : "0px",       
+                overflow: "hidden",                              
+                transition: "max-height 0.5s ease",              
+                }}
+            >
+                <div className={`flex flex-col text-[#424C6B] mb-[10px] md:pb-[3px] text-[16px] gap-2 md:gap-4`}>
+                    {hiddenDetails.map((value, index) => (
+                        <div key={index} className="flex flex-row items-center gap-2 md:gap-4">
+                            <GoCheckCircleFill color={styleGradient ? "#DF89C6" : "#CF4FA9"} />
+                            <h3>{value}</h3>
+                        </div>
+                    ))}
                 </div>
             </div>
-            :<button className='secondary-btn' onClick={()=>choosePackage(packageName)}>Choose Package</button>}
+        
+            <div>
+                {detail.length>2
+                    ?<h3 className="text-center text-[#CF4FA9] text-[15px] cursor-pointer hover:underline mb-[-6px]"
+                        onClick={() => setIsExpanded(!isExpanded)} > {isExpanded ? "Show Less" : "Show More"}
+                    </h3>
+                    :<div className="pt-[16px] "></div> }
+                    <hr className='text-[#E4E6ED] mb-[-4px]'/>
+            </div>
+        </div>
+        <button className='secondary-btn' onClick={()=>choosePackage(packageName)}>Choose Package</button>
     </div>
 )
 };
