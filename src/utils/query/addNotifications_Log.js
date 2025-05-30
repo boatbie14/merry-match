@@ -21,27 +21,6 @@ const { data, error } = await supabase
   return true;
 }
 
-export async function bufferNotificationMerry(from_user_id, to_user_id) {
-  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("notifications")
-    .select("created_at")
-    .eq("from_user_id", from_user_id)
-    .eq("to_user_id", to_user_id)
-    .in("noti_type", ["merry", "match"]) // ✅ เปลี่ยนตรงนี้
-    .gte("created_at", thirtyMinutesAgo)
-    .order("created_at", { ascending: false })
-    .limit(1);
-  if (error) {
-    console.error("Supabase error:", error.message);
-    return false; // ไม่ควรสร้างถ้ามีปัญหาเชื่อมต่อ
-  }
-  if (data && data.length > 0) {
-    return false;
-  }
-  return true;
-}
-
 export async function addNotifications_Log(type, from_user_id, to_user_id, match = false, firstMessage = false) {
   try {
     //Get From user data
@@ -60,7 +39,6 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
 
     switch (type) {
       case "merry": {
-        console.log("------------------------------------------------");
         const buffer = await bufferNotificationMerry(from_user_id, to_user_id);
         console.log("232341234143414");
         if (!buffer) {
