@@ -57,7 +57,7 @@ export default function SuccessPage() {
           Back to home
         </button>
         <button
-          onClick={() => (window.location.href = "/profile")}
+          onClick={() => (window.location.href = "/merry-membership")}
           className="primary-btn"
         >
           Check Membership
