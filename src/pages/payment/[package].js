@@ -1,14 +1,25 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
+import { AlertPopup } from "@/components/popup/AlertPopup";
 
 export default function PaymentPage() {
   const router = useRouter();
-  const { package: rawPlan } = router.query;
-  const plan = rawPlan?.toLowerCase()?.trim(); // ป้องกัน case mismatch
-  const { userInfo, checkingLogin } = useAuth();
+  const { package: rawPackage } = router.query;
+  const plan = rawPackage?.toLowerCase()?.trim(); // Normalize input
 
+  const { userInfo, checkingLogin } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertTitle, setAlertTitle] = useState("");
+  const [alertDescription, setAlertDescription] = useState("");
+
+  const showAlert = (title, description) => {
+    setAlertTitle(title);
+    setAlertDescription(description);
+    setAlertOpen(true);
+  };
 
   const priceMap = {
     basic: 59,
@@ -26,104 +37,169 @@ export default function PaymentPage() {
   const benefit = benefitMap[plan] ?? null;
 
   const handleCheckout = async () => {
-    console.log("🪪 userId:", userInfo?.id);
-    console.log("📦 plan:", plan);
-    console.log("💰 priceId exists?", !!priceMap[plan]);
-
     if (!userInfo?.id || !plan || !priceMap[plan]) {
-      alert("❌ ข้อมูลไม่ครบ หรือแพ็กเกจไม่ถูกต้อง");
+      showAlert(
+        "Invalid Input",
+        "Missing user information or selected package is invalid."
+      );
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/payment/can-subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userInfo.id, newPlan: plan }),
+      });
+
+      const result = await res.json();
+
+      if (!result.allowed) {
+        showAlert("Unable to change your package", result.reason);
+        return;
+      }
+    } catch (err) {
+      showAlert(
+        "Subscription Check Failed",
+        "Unable to verify subscription eligibility. Please try again later."
+      );
       return;
     }
 
     setLoading(true);
+    try {
+      const res = await fetch("/api/payment/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userInfo.id, plan }),
+      });
 
-    const res = await fetch("/api/payment/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: userInfo.id,
-        plan,
-      }),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
-    console.log("✅ ได้ response:", data);
-    console.log("➡️ Redirecting to Stripe:", data.url);
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      alert("❌ เกิดข้อผิดพลาด: " + (data.error || "ไม่สามารถไปยัง Stripe ได้"));
-      setLoading(false); // ย้อนสถานะกลับ
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showAlert(
+          "Checkout Error",
+          data.error || "Failed to redirect to Stripe."
+        );
+        setLoading(false);
+      }
+    } catch (error) {
+      showAlert(
+        "Server Error",
+        "Failed to connect to the payment server. Please try again."
+      );
+      setLoading(false);
     }
   };
 
-  // ✅ รอโหลด user ก่อน render
+  useEffect(() => {
+    if (!checkingLogin && !userInfo?.id) {
+      router.push("/login");
+    }
+  }, [checkingLogin, userInfo, router]);
+
   if (checkingLogin) {
     return (
       <div className="min-h-screen flex justify-center items-center text-gray-500">
-        ⏳ กำลังโหลดข้อมูลผู้ใช้...
+        ⏳ Loading user information...
       </div>
     );
   }
 
-  // ✅ ต้อง login ถึงเข้าได้
   if (!userInfo?.id) {
-    return (
-      <div className="min-h-screen flex justify-center items-center text-red-600">
-        ❌ กรุณาเข้าสู่ระบบก่อนทำรายการ
-      </div>
-    );
+    return null;
   }
 
-  // ✅ ถ้า plan ผิด
   if (!plan || !price || !benefit) {
     return (
       <div className="min-h-screen flex justify-center items-center text-red-600">
-        ❌ แพ็กเกจไม่ถูกต้อง หรือไม่มีข้อมูล
+        ❌ Invalid package selection or missing information.
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col md:flex-row justify-center items-center p-10 gap-10 md:mt-30 mt-10 row">
-      <div className="bg-[#F6F7FC] p-6 md:rounded-xl md:shadow-md w-screen md:w-full md:max-w-sm border-b-1 border-[#D6D9E4]">
-        <p className="font-bold text-lg mb-1 text-[#646D89]">Merry Membership</p>
-        <div>
-          <p className="text-gray-500 capitalize text-xs mb-2">Package</p>
-          <p className="text-gray-600 capitalize mb-2">{plan}</p>
+    <>
+      <div className="flex flex-col md:flex-row justify-center items-center md:items-baseline p-10 gap-10 md:mt-30 mt-2">
+        {/* Membership Details */}
+        <div className="bg-[#F6F7FC] p-6 md:rounded-xl w-screen md:w-full md:max-w-sm md:border border-b border-[#D6D9E4]">
+          <div className="flex gap-3">
+            <div className="relative w-6 h-6">
+              <Image
+                src="/icons/boxIcon.png"
+                alt="Box Icon"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <p className="font-semibold text-xl mb-6 text-[#646D89]">
+              Merry Membership
+            </p>
+          </div>
+          <div className="flex justify-between mt-3">
+            <p className="text-[#646D89] font-normal capitalize mb-2">
+              Package
+            </p>
+            <p className="text-[#2A2E3F] font-semibold text-xl capitalize mb-2">
+              {plan}
+            </p>
+          </div>
+
+          <ul className="text font-normal text-[#424C6B] list-disc list-inside pl-4 py-2.5 mt-2 mb-2 bg-white rounded-lg space-y-2">
+            <li>{`'Merry' more than a daily limit`}</li>
+            <li>{benefit}</li>
+          </ul>
+
+          <div className="flex justify-between items-center py-6">
+            <p className="text-[#646D89] text font-normal">Price (Monthly)</p>
+            <p className="font-semibold text-lg">THB {price}.00</p>
+          </div>
         </div>
 
-        <ul className="text-sm text-gray-500 list-disc pl-5 mb-2 bg-white rounded-xl">
-          <li>&#39;Merry&#39; more than a daily limited</li>
-          <li>{benefit}</li>
-        </ul>
-        <div className="flex justify-between items-center">
-          <p className="text-gray-600 text-xs">Price (Monthly)</p>
-          <p className="font-semibold text-lg">
-            THB {price}.00 / month
-          </p>
+        {/* Checkout Section */}
+        <div className="md:rounded-xl md:border md:w-full md:max-w-sm border-[#D6D9E4]">
+          <div className="bg-[#F6F7FC] p-6 w-screen md:w-full md:rounded-t-xl md:max-w-sm border-b border-[#D6D9E4] flex justify-between items-center">
+            <p className="capitalize font-bold text-lg text-[#646D89] mb-2 text-center">
+              Pay with card
+            </p>
+            <div className="relative w-20 h-10">
+              <Image
+                src="/icons/visaIcon.png"
+                alt="Visa Icon"
+                fill
+                className="object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-between w-full items-center mt-6 px-6 md:pb-6 md:px-4">
+            <button
+              onClick={() => router.push("/merry-package")}
+              className="ghost-btn"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCheckout}
+              disabled={loading || checkingLogin || !userInfo?.id}
+              className="primary-btn"
+            >
+              {loading ? "Redirecting to Stripe..." : "Confirm Payment"}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="bg-white md:border p-6 w-screen md:rounded-xl md:shadow-md md:w-full md:max-w-sm">
-        <p className="font-bold text-lg text-[#646D89] mb-2 text-center">ชำระผ่าน Stripe</p>
-        <div className="flex justify-between items-center border-[#D6D9E4]">
-          <button
-            onClick={() => router.push("/merry-membership")}
-            className="mt-4 text-sm ghost-btn"
-          >
-            Cancel
-          </button>
-
-          <button
-            onClick={handleCheckout}
-            disabled={loading || checkingLogin || !userInfo?.id}
-            className="primary-btn"
-          >
-            {loading ? "กำลังพาไปหน้า Stripe..." : "Payment Confirm"}
-          </button>
-        </div>
-      </div>
-    </div>
+      <AlertPopup
+        isOpen={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        title={alertTitle}
+        description={alertDescription}
+        buttonRightText="OK"
+        buttonRightClick={() => setAlertOpen(false)}
+      />
+    </>
   );
 }

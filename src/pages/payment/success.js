@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import dayjs from "dayjs";
+import Image from "next/image";
 
 export default function SuccessPage() {
   const { userInfo } = useAuth();
@@ -28,60 +29,96 @@ export default function SuccessPage() {
     return <p className="text-center mt-10 text-gray-600">Loading...</p>;
 
   return (
-    <div className="row mt-30 mb-50 flex flex-col items-center justify-center bg-[#FCFCFE] px-4 py-10 md:flex-row md:gap-20 text-[#4A154B]">
-      <div className="text-center md:text-left mb-10 md:mb-0">
-        <div className="flex justify-center md:justify-start mb-4">
-          <div className="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
-            <span className="text-2xl text-pink-600">✔</span>
-          </div>
-        </div>
-        <h2 className="subhead mb-1">PAYMENT SUCCESS</h2>
-        <h1 className="main-header mb-6">
-          Welcome Merry Membership!
-          <br /> Thank you for joining us
-        </h1>
-        <div className="flex justify-center md:justify-start gap-4">
-          <button
-            onClick={() => (window.location.href = "/")}
-            className="secondary-btn"
-          >
-            Back to home
-          </button>
-          <button
-            onClick={() => (window.location.href = "/profile")}
-            className="primary-btn"
-          >
-            Check Membership
-          </button>
-        </div>
+    <div className="mt-10 mb-10 px-4 py-10 bg-[#FCFCFE] text-[#4A154B] flex flex-col items-center justify-center md:flex-row md:items-start md:justify-center md:mt-32 md:mb-52">
+  <div className="w-full max-w-6xl flex flex-col md:flex-row md:gap-20 md:justify-between">
+    {/* LEFT */}
+    <div className="w-full md:w-2/2 text-left mb-10 md:mb-0">
+      <div className="flex justify-start mb-4">
+         <div className="relative w-16 h-16">
+                    {" "}
+                    <Image
+                      src="/icons/successIcon.png"
+                      alt="Success Icon"
+                      fill
+                      className="object-contain" 
+                    />
+                  </div>
       </div>
+      <h2 className="subhead mb-1">PAYMENT SUCCESS</h2>
+      <h1 className="main-header mb-1 md:mb-6 max-w-2xs md:max-w-3xl">
+        Welcome Merry Membership!
+        <br /> Thank you for joining us
+      </h1>
+      <div className="hidden md:flex md:w-full md:justify-start md:gap-6">
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="secondary-btn"
+        >
+          Back to home
+        </button>
+        <button
+          onClick={() => (window.location.href = "/profile")}
+          className="primary-btn"
+        >
+          Check Membership
+        </button>
+      </div>
+    </div>
 
-      <div className="bg-gradient-to-br from-[#742138] to-[#A878BF] text-white p-6 rounded-2xl max-w-sm shadow-md w-full">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center">
-            <span className="text-xl">✨</span>
+    {/* RIGHT */}
+    <div className="w-full md:w-1/2 flex flex-col-reverse items-center md:items-end gap-10">
+      <div className="flex w-full justify-between md:hidden">
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="secondary-btn"
+        >
+          Back to home
+        </button>
+        <button
+          onClick={() => (window.location.href = "/profile")}
+          className="primary-btn"
+        >
+          Check Membership
+        </button>
+      </div>
+      <div className="bg-gradient-to-br from-[#742138] to-[#A878BF] text-white p-6 rounded-2xl shadow-md w-full max-w-sm">
+        <div className="flex flex-col items-start gap-4 mb-3">
+          <div>
+            <div className="w-14 h-14 bg-[#F6F7FC] rounded-2xl flex items-center justify-center">
+              <span className="text-2xl transform -scale-x-100">✨</span>
+            </div>
+            <div className="flex flex-col items-start gap-2 mt-4">
+              <h2 className="text-3xl font-bold capitalize">
+                {data.packages.package_name}
+              </h2>
+              <p className="text-xl font-semibold">
+                THB {data.packages.price}.00{" "}
+                <span className="font-normal">/Month</span>
+              </p>
+            </div>
           </div>
-          <h2 className="text-xl font-bold">{data.packages.package_name}</h2>
         </div>
-        <p className="text-sm mb-4">
-          THB {data.packages.price}.00 <span className="text-xs">/Month</span>
-        </p>
-        <ul className="text-sm space-y-1 mb-4">
-          <li>✔ &quot;Merry&quot; more than a daily limited</li>
-          <li>✔ Up to {data.packages.merry_per_day} Merry per day</li>
-        </ul>
-        <hr className="border-white border-opacity-30 my-2" />
-        <div className="text-sm">
+        <div className="text-start">
+          <ul className="space-y-4 pb-9 font-normal">
+            <li>✔ &quot;Merry&quot; more than a daily limited</li>
+            <li>✔ Up to {data.packages.merry_per_day} Merry per day</li>
+          </ul>
+        </div>
+        <hr className="border-white border-opacity-30 my-4" />
+        <div className="font-normal space-y-1">
           <p className="flex justify-between">
-            <span>Start Membership</span>{" "}
+            <span>Start Membership</span>
             <span>{dayjs(data.start_date).format("DD/MM/YYYY")}</span>
           </p>
           <p className="flex justify-between mt-1">
-            <span>Next billing</span>{" "}
+            <span>Next billing</span>
             <span>{dayjs(data.end_date).format("DD/MM/YYYY")}</span>
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
+
   );
 }
