@@ -49,7 +49,7 @@ export function DesktopAlertMenuItems() {
     <>
       {isPackageName === "Free" && (
         <Link
-          href="merry/package"
+          href="merry-package"
           className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer"
         >
           <span className="text-xs text-center font-bold">
@@ -59,7 +59,7 @@ export function DesktopAlertMenuItems() {
       )}
 
       <Link
-        href={isPackageName === "Free" ? "merry/package" : "#"}
+        href={isPackageName === "Free" ? "merry-package" : "#"}
         className={`desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3 ${
           isPackageName === "Free" ? "blur-sm" : ""
         } `}
@@ -74,7 +74,16 @@ export function DesktopAlertMenuItems() {
               onClick={() => {
                 if (isPackageName !== "Free") {
                   markAsRead(n.id);
+                  if(n.noti_type==="merry"){
+                    if (!(window.location.pathname === '/merrylist' && new URLSearchParams(window.location.search).get('selectedBox') === 'merry-to-you')) {
+                      const url = new URL(window.location.href);
+                      url.pathname = '/merrylist';
+                      url.searchParams.set('selectedBox', 'merry-to-you');
+                      window.location.href = url.toString();
+                    }
+                  }else{
                   handleStartConversation(n);
+                  }
                 }
               }}
               className={
@@ -144,7 +153,7 @@ export function MobileAlertMenuItems() {
 
       <div className="flex flex-col">
         <Link
-          href={isPackageName === "Free" ? "merry/package" : "#"}
+          href={isPackageName === "Free" ? "merry-package" : "#"}
           className={`profile-menu-items space-y-5 px-0 mt-5 mb-5 text-3xl text-[#646D89] ${
             isPackageName === "Free" ? "blur-sm" : ""
           } `}

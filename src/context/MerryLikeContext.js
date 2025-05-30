@@ -52,7 +52,7 @@ export const MerryLikeProvider = ({ children }) => {
       if (alreadyLiked) {
         await deleteMerriedLike(userId);
       } else {
-        setMerryLimit((prev) => ({ ...prev, count: prev.count + 1 }));
+        setMerryLimit((prev) => ({ ...prev, count: prev.count - 1 }));
         const result = await postMerriedLike(userId);
         refreshMerryLimit();
         if (result && result.isLimitReached) {

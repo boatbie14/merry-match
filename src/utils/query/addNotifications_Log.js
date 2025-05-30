@@ -2,17 +2,17 @@ import { supabase } from "@/lib/supabaseClient";
 
 export async function bufferNotificationMerry(from_user_id, to_user_id) {
   const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("notifications")
-    .select("created_at")
-    .eq("from_user_id", from_user_id)
-    .eq("to_user_id", to_user_id)
-    .in("noti_type", ["merry", "match"]) // ✅ เปลี่ยนตรงนี้
-    .gte("created_at", thirtyMinutesAgo)
-    .order("created_at", { ascending: false })
-    .limit(1);
+const { data, error } = await supabase
+  .from('notifications')
+  .select('created_at')
+  .eq('from_user_id', from_user_id)
+  .eq('to_user_id', to_user_id)
+  .in('noti_type', ['merry', 'match'])
+  .gte('created_at', thirtyMinutesAgo)
+  .order('created_at', { ascending: false })
+  .limit(1);
   if (error) {
-    console.error("Supabase error:", error.message);
+    console.error('Supabase error:', error.message);
     return false; // ไม่ควรสร้างถ้ามีปัญหาเชื่อมต่อ
   }
   if (data && data.length > 0) {
@@ -39,7 +39,6 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
 
     switch (type) {
       case "merry": {
-        console.log("------------------------------------------------");
         const buffer = await bufferNotificationMerry(from_user_id, to_user_id);
         console.log("232341234143414");
         if (!buffer) {
@@ -78,7 +77,7 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
         break;
       }
 
-      case "message": {
+    case "message": {
         let insertType = "";
         let notiMessage = "";
 
@@ -121,9 +120,6 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
         }
         break;
       }
-
-      default:
-        throw new Error(`Invalid type: ${type}`);
     }
   } catch (err) {
     console.error("recordAction error:", err);

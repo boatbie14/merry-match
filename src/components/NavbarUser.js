@@ -32,7 +32,7 @@ export const DesktopUserMenuItems = () => {
 
   return (
     <div className="flex flex-col w-[198px] h-[258px] ">
-      <Link href="merry/package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
+      <Link href="merry-package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
         <span className="text-xs font-bold">✨ More limit Merry!</span>
       </Link>
       <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
@@ -55,7 +55,7 @@ export const DesktopUserMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <Link href="merry/package" className="flex flex-row space-x-5 cursor-pointer">
+          <Link href="merry-membership" className="flex flex-row space-x-5 cursor-pointer">
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
           </Link>
@@ -89,7 +89,7 @@ export const MobileMenuItems = () => {
 
   return (
     <div className="flex flex-col ">
-      <Link href="merry/package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
+      <Link href="merry-package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
         <span className=" sm:text-3xl font-bold">✨ More limit Merry!</span>
       </Link>
       <div className="profile-menu-items space-y-10 px-10  mt-5 mb-5 sm:mt-10 sm:mb-10 sm:text-3xl text-[#646D89] ">
@@ -126,7 +126,7 @@ export const MobileMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <Link href="merry/package" className="flex flex-row space-x-10">
+          <Link href="merry-membership" className="flex flex-row space-x-10">
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
           </Link>
@@ -191,7 +191,7 @@ const NavbarUser = () => {
             >
               Start Matching!
             </Link>
-            <Link href="merry/package" className="hidden md:flex text-[#7D2262] font-bold">
+            <Link href="merry-membership" className="hidden md:flex text-[#7D2262] font-bold">
               Merry Membership
             </Link>
             <button className="talk-button md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center ">
