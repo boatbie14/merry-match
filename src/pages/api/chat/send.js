@@ -86,11 +86,12 @@ export default async function handler(req, res) {
       });
     }
 
-    // Update chat_rooms.updated_at
+    // Update chat_rooms.updated_at และ is_message
     const { error: updateRoomError } = await supabase
       .from("chat_rooms")
       .update({
         updated_at: new Date().toISOString(),
+        is_message: true, // เพิ่มบรรทัดนี้เพื่อบอกว่ามีการส่งข้อความแล้ว
       })
       .eq("id", room_id);
 
@@ -105,6 +106,7 @@ export default async function handler(req, res) {
       chat_room: {
         ...chatRoom,
         updated_at: new Date().toISOString(),
+        is_message: true, // เพิ่มใน response ด้วย
       },
     });
 

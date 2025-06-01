@@ -1,21 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import MatchingLeftColumn from "@/components/match/MatchingLeftColumn";
 import Chat from "@/components/chat/ChatBox";
 import { useChatUser } from "@/hooks/useChatUser";
 import { useChatUserDetail } from "@/hooks/useChatUserDetail";
+import { useChatRoomState } from "@/hooks/useChatRoomState"; // 🔥 NEW HOOK
 import DoubleHeartsIcon from "@/components/icons";
 import { GoChevronLeft } from "react-icons/go";
 
 export default function MatchPage() {
-  const { chatData, loading: chatLoading, error: chatError, currentUser } = useChatUser();
+  const { chatData: originalChatData, loading: chatLoading, error: chatError, currentUser } = useChatUser();
   const { chatUserDetail, loading: userDetailLoading, error: userDetailError, getChatUserName } = useChatUserDetail();
 
+  // 🚀 NEW: ใช้ hook ใหม่สำหรับจัดการ chat room state
+  const { chatData, updateChatRoom } = useChatRoomState(originalChatData);
+
+  const searchParams = useSearchParams();
+
+  // ตรวจสอบว่ามี parameter u หรือไม่
+  const hasUserParam = searchParams.get("u");
+
   // State สำหรับควบคุมการแสดง/ซ่อน left panel บน mobile
-  const [showLeftPanel, setShowLeftPanel] = useState(false);
+  // ถ้าไม่มี u parameter ให้เปิด panel ทันที, ถ้ามี u ให้ซ่อน panel
+  const [showLeftPanel, setShowLeftPanel] = useState(false); // เริ่มต้นด้วย false
+
+  // ✅ ตั้งค่า panel state หลัง component mount
+  useEffect(() => {
+    if (!hasUserParam) {
+      setShowLeftPanel(true); // ไม่มี u → แสดง panel
+    } else {
+      setShowLeftPanel(false); // มี u → ซ่อน panel
+    }
+  }, [hasUserParam]);
 
   // รวม loading states
   const isLoading = chatLoading || userDetailLoading;
   const hasError = chatError || userDetailError;
+
+  // 🔥 NEW: Callback function เพื่อ update is_message เมื่อส่งข้อความสำเร็จ
+  const handleMessageSent = () => {
+    updateChatRoom({ is_message: true }); // ✅ ใช้ function จาก hook ใหม่
+  };
 
   return (
     <div className="row pt-[52px] md:pt-[88px]">
@@ -64,7 +89,8 @@ export default function MatchPage() {
             </div>
           )}
 
-          {chatData && currentUser && !isLoading && (
+          {/* แสดง chat content เฉพาะเมื่อมี user parameter */}
+          {chatData && currentUser && !isLoading && hasUserParam && (
             <div className="h-full flex flex-col bg-[#160404]">
               {/* Header Section */}
               <div className="bg-white p-4 lg:hidden">
@@ -72,19 +98,34 @@ export default function MatchPage() {
                   <GoChevronLeft color="#727B9B" size={20} /> {getChatUserName()}
                 </button>
               </div>
-              <div className="flex-shrink-0 pt-6 lg:pt-8 pb-4">
-                <div className="max-w-[740px] flex flex-row justify-center items-center gap-8 border-1 border-[#DF89C6] bg-[#F4EBF2] rounded-2xl lg:rounded-3xl p-3 lg:p-6 mx-4 lg:mx-auto">
-                  <DoubleHeartsIcon size={48} color="#FF1659" />
-                  <p className="text-[#64001D] text-xs lg:text-sm ">
-                    Now you and <span className="font-semibold">{getChatUserName()}</span> are Merry Match! You can messege something nice
-                    and make a good conversation. Happy Merry!
-                  </p>
+
+              {/* Welcome Message - แสดงเฉพาะเมื่อ is_message = true */}
+              {!chatData.chatRoom?.is_message && (
+                <div className="flex-shrink-0 pt-6 lg:pt-8 pb-4">
+                  <div className="max-w-[740px] flex flex-row justify-center items-center gap-8 border-1 border-[#DF89C6] bg-[#F4EBF2] rounded-2xl lg:rounded-3xl p-3 lg:p-6 mx-4 lg:mx-auto">
+                    <DoubleHeartsIcon size={48} color="#FF1659" />
+                    <p className="text-[#64001D] text-xs lg:text-sm ">
+                      Now you and <span className="font-semibold">{getChatUserName()}</span> are Merry Match! You can messege something nice
+                      and make a good conversation. Happy Merry!
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Chat Component - ใช้ flex-1 เพื่อให้ใช้พื้นที่ที่เหลือ */}
               <div className="flex-1 min-h-0">
-                <Chat chatData={chatData} currentUser={currentUser} />
+                {/* 🚀 UPDATED: เพิ่ม onMessageSent callback */}
+                <Chat chatData={chatData} currentUser={currentUser} onMessageSent={handleMessageSent} />
+              </div>
+            </div>
+          )}
+
+          {/* แสดงข้อความเรียกใช้เลือก user เมื่อไม่มี parameter */}
+          {!hasUserParam && !isLoading && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-white">
+                <p className="text-lg mb-2">Select a conversation to start chatting</p>
+                <p className="text-sm text-gray-400">Choose someone from your matches</p>
               </div>
             </div>
           )}

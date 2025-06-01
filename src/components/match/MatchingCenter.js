@@ -242,13 +242,6 @@ const MatchingCenter = ({ onToggleFilter }) => {
                       <button className="secondary-btn mt-6" onClick={() => handleStartConversation(user)}>
                         Start Conversation
                       </button>
-
-                      {/* =================> ADD: แสดงข้อความว่าสามารถ swipe ได้ */}
-                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">
-                        Swipe left or right to continue
-                        <br />
-                        {user.originalProfile.id}
-                      </p>
                     </div>
                   ) : (
                     //=================> ไม่แก้ไข: Normal card แสดงตามเดิม

@@ -5,7 +5,8 @@ import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
 import { PiImageFill } from "react-icons/pi";
 
-export default function Chat({ chatData, currentUser }) {
+// 🚀 UPDATED: เพิ่ม onMessageSent prop
+export default function Chat({ chatData, currentUser, onMessageSent }) {
   const [newMessage, setNewMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -24,7 +25,7 @@ export default function Chat({ chatData, currentUser }) {
   const username = currentUser?.name || "Unknown";
   const roomId = chatData?.chatRoom?.id;
 
-  // ใช้ custom hook สำหรับจัดการ chat
+  // ใช้ custom hook สำหรับจัดการ chat (กลับไปใช้ไฟล์เก่า)
   const { messages, loading, error, sending, sendMessage, isOwnMessage, messagesEndRef, clearError } = useChatMessages(
     senderId,
     receiverId,
@@ -167,6 +168,11 @@ export default function Chat({ chatData, currentUser }) {
       if (success) {
         setNewMessage("");
         handleRemoveImage();
+
+        // 🎉 NEW: เรียก callback เมื่อส่งสำเร็จ
+        if (onMessageSent && typeof onMessageSent === "function") {
+          onMessageSent();
+        }
       }
     } catch (error) {
       console.error("Error sending message:", error);
