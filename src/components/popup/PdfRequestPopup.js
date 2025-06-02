@@ -62,7 +62,7 @@ export function PdfRequestPopup({ isOpen,onClose,billingData,requsest}) {
                       onChange={(e) =>handleCheckboxChange(item.invoice_pdf, e.target.checked)}
                     />
                     <span className="text-[13px] md:text-[16px] md:flex-[0] md:ml-4 pr-2 md:pr-9">{item.created_at}</span>
-                    <span className="text-[12px] md:text-[16px] flex-[1] text-left">{item.plan}</span>
+                    <span className="text-[12px] md:text-[16px] flex-[1] text-left">{item.plan?.charAt(0).toUpperCase() + item.plan?.slice(1)}</span>
                     <span className="text-[12px] md:text-[16px] text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
                 </div>
                 ))}

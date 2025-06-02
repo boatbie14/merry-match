@@ -1,89 +1,91 @@
-import { ProfilePopup } from "@/components/popup/ProfilePopup";
-import MarryListCard from "@/components/MerryList/MarryListCard";
-import { useState } from "react";
-import { GoHeartFill } from "react-icons/go";
-import DoubleHeartsIcon from "@/components/icons";
-import { useEffect } from "react";
-import { getMarriedUsers, getMerriedMe, getMerriedMatch } from "@/services/merryServices";
-import useCountdown from "@/hooks/useCountdown";
-import { CircularProgress } from "@mui/material";
-import SkeletonMerryListCard from "@/components/MerryList/SkeletonMerryListCard";
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/router";
-import { encryptUserId } from "@/utils/crypto";
-import { useMerryLimit } from "@/context/MerryLimitContext";
-import { AlertPopup } from "../../components/popup/AlertPopup";
-import { useNotification } from "@/context/NotificationContext";
-export default function MerrylistPage() {
-  const { userInfo, checkingLogin, isLoggedIn } = useAuth();
-  const { merryLimit } = useMerryLimit();
-  const router = useRouter();
-  const [data, setData] = useState([]);
-  const [filterData, setfilterData] = useState([]);
-  const [merriedMe, setMerriedMe] = useState(0);
-  const [merriedMatch, setMerriedMatch] = useState(0);
-  const { isPackageName } = useNotification();
-  // TODO ทดสอบการเข้ามาของข้อมูล noti เพื่อเปิด merryme
-  //  const initialSelectedBox = typeof router.query.selectedBox === 'string' ? router.query.selectedBox : 0;
-  const [selectedBox, setSelectedBox] = useState(0);
-  const [loadingData, setLoadingData] = useState(false);
-  const [loadingMerriedMe, setLoadingMerriedMe] = useState(false);
-  const [loadingMerriedMatch, setLoadingMerriedMatch] = useState(false);
-  const [isOpenAlert, setIsOpenAlert] = useState(false);
-  const [isProfilePopup, setIsProfilePopup] = useState(false);
-  const [DataProfilePopup, setDataProfilePopup] = useState({});
+  import { ProfilePopup } from "@/components/popup/ProfilePopup";
+  import MarryListCard from "@/components/MerryList/MarryListCard";
+  import { useState } from "react"; 
+  import { GoHeartFill } from "react-icons/go";
+  import DoubleHeartsIcon from "@/components/icons";
+  import { useEffect } from "react";
+  import { getMarriedUsers,getMerriedMe,getMerriedMatch} from "@/services/merryServices";
+  import useCountdown from "@/hooks/useCountdown";
+  import { CircularProgress } from "@mui/material";
+  import SkeletonMerryListCard from "@/components/MerryList/SkeletonMerryListCard";
+  import { useAuth } from "@/context/AuthContext";
+  import { useRouter } from "next/router";
+  import { encryptUserId } from "@/utils/crypto";
+  import { useMerryLimit } from "@/context/MerryLimitContext";
+  import { AlertPopup } from '../../components/popup/AlertPopup';
+  import { useNotification } from "@/context/NotificationContext";
+  import { useNotifications } from "@/hooks/useNotifications";
+  
+  export default function MerrylistPage() {
+    
+    const {userInfo,checkingLogin,isLoggedIn}=useAuth()
+    const {merryLimit} = useMerryLimit()
+    const router =useRouter()
+     const [data,setData] = useState ([])
+     const [filterData,setfilterData]=useState([])
+     const [merriedMe,setMerriedMe] = useState(0)
+     const [merriedMatch,setMerriedMatch] = useState(0)  
+    const {isPackageName,}=useNotification()
+    const {notifications, markAsRead}=useNotifications(userInfo?.id)
+     const [selectedBox, setSelectedBox] = useState(0);
+     const [loadingData,setLoadingData] = useState(false)
+     const [loadingMerriedMe,setLoadingMerriedMe] = useState(false)
+     const [loadingMerriedMatch,setLoadingMerriedMatch] = useState(false)  
+    const[isOpenAlert,setIsOpenAlert] = useState(false)
+     const[isProfilePopup,setIsProfilePopup] = useState(false)
+     const[DataProfilePopup,setDataProfilePopup] = useState({})
   useEffect(() => {
-    if (!checkingLogin && !isLoggedIn) {
-      // router.push('/login');
-    }
-  }, [checkingLogin, isLoggedIn]);
-  useEffect(() => {
-    if (!router.isReady) return;
-    const box = router.query.selectedBox || 0;
-    setSelectedBox(box);
-  }, [router.isReady]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (checkingLogin || !isLoggedIn) return;
-    const fetchAllData = async () => {
-      try {
-        setLoadingData(true);
-        setLoadingMerriedMe(true);
-        setLoadingMerriedMatch(true);
-
-        const [users, me, match] = await Promise.all([getMarriedUsers(), getMerriedMe(), getMerriedMatch()]);
-        setData(users);
-        setMerriedMe(me);
-        setMerriedMatch(match);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoadingData(false);
-        setLoadingMerriedMe(false);
-        setLoadingMerriedMatch(false);
+      if (!checkingLogin && !isLoggedIn) {
+        router.push('/login');
       }
-    };
-    fetchAllData();
-  }, [checkingLogin, isLoggedIn, userInfo]);
-
-  useEffect(() => {
-    let filterDataTemp = data;
-    if (selectedBox === "merry-to-you") {
-      console.log(isPackageName);
-      if (isPackageName === "Free") {
-        setIsOpenAlert(true);
-        setSelectedBox(0);
-      } else {
-        filterDataTemp = merriedMe;
-      }
-    } else if (selectedBox === "merry me") {
-      filterDataTemp = data
-        .filter((obj) => {
-          return merriedMatch?.allMatches.includes(obj?.id);
-        })
-        .sort((a, b) => merriedMatch.allMatches.indexOf(a.id) - merriedMatch.allMatches.indexOf(b.id));
-    }
-    setfilterData(filterDataTemp);
-  }, [selectedBox, data]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [checkingLogin, isLoggedIn]);
+useEffect(() => {
+  if (!router.isReady) return;
+  const box = router.query.selectedBox || 0;
+  setSelectedBox(box);
+}, [router.isReady]);
+    useEffect(() => {
+      if (checkingLogin || !isLoggedIn) return;
+      const fetchAllData = async () => {
+        try {
+          setLoadingData(true);
+          setLoadingMerriedMe(true);
+          setLoadingMerriedMatch(true);
+  
+          const [users, me, match] = await Promise.all([
+            getMarriedUsers(),
+            getMerriedMe(),
+            getMerriedMatch(),
+          ]);
+          setData(users);
+          setMerriedMe(me);
+          setMerriedMatch(match);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoadingData(false);
+          setLoadingMerriedMe(false);
+          setLoadingMerriedMatch(false);
+        }
+      };
+      fetchAllData();
+    }, [checkingLogin, isLoggedIn,userInfo]);
+  
+      useEffect(()=>{
+    let filterDataTemp = data
+      if(selectedBox==="merry-to-you"){
+        console.log(isPackageName)
+        if(isPackageName==="Free"){
+            setIsOpenAlert(true);
+            setSelectedBox(0);
+        }else{filterDataTemp = merriedMe}
+      }else if(selectedBox ==="merry me"){
+        filterDataTemp = data.filter((obj) => {return merriedMatch?.allMatches.includes(obj?.id)})
+                             .sort((a, b) =>merriedMatch.allMatches.indexOf(a.id)-merriedMatch.allMatches.indexOf(b.id)
+                            );}
+                            
+     setfilterData(filterDataTemp)
+  },[selectedBox,data])
 
   const handleStartConversation = (userId) => {
     try {
@@ -91,15 +93,15 @@ export default function MerrylistPage() {
       const chatToUserID = userId;
       const encryptedId = encryptUserId(chatToUserID);
 
-      if (encryptedId) {
-        // router.push(`/chat?u=${encryptedId}`);
-      } else {
-        console.error("Failed to encrypt user ID");
-      }
-    } catch (error) {
-      console.error("Error in handleStartConversation:", error);
+    if (encryptedId) {
+      router.push(`/chat?u=${encryptedId}`);
+    } else {
+      console.error("Failed to encrypt user ID");
     }
-  };
+  } catch (error) {
+    console.error("Error in handleStartConversation:", error);
+  }
+};
 
   const CountdownDisplay = () => {
     const now = new Date();
@@ -121,16 +123,15 @@ export default function MerrylistPage() {
     <>
       <ProfilePopup isOpen={isProfilePopup} onClose={() => setIsProfilePopup(false)} items={DataProfilePopup} />
 
-      <AlertPopup
-        isOpen={isOpenAlert}
-        onClose={() => setIsOpenAlert(false)}
-        title="Who pressed merry on me?"
-        description="Sign up for more Merry Membership"
-        buttonLeftText="Go apply now"
-        buttonRightText="Not now"
-        // buttonLeftClick = {()=>{router.push("/merry-membership");}}
-        buttonRightClick={() => setIsOpenAlert(false)}
-      />
+      <AlertPopup isOpen = {isOpenAlert}
+                    onClose = {()=>setIsOpenAlert(false)}
+                    title = "Who pressed merry on me?"
+                    description ="Sign up for more Merry Membership"
+                    buttonLeftText = "Go apply now"
+                    buttonRightText = "Not now" 
+                    buttonLeftClick = {()=>{router.push("/merry-package");}}
+                    buttonRightClick = {()=>setIsOpenAlert(false)}
+                    />
 
       <div className="row bg-[#FCFCFE] pt-[88px] ">
         <div className="container flex flex-col items-center mt-[80px] ">
@@ -192,27 +193,24 @@ export default function MerrylistPage() {
             </div>
           </div>
 
-          {loadingData ? (
-            <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <SkeletonMerryListCard key={i} />
-              ))}
-            </div>
-          ) : (
-            (filterData || []).map((obj, index) => {
-              return (
-                <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
-                  <MarryListCard
-                    items={obj}
-                    clickChat={() => handleStartConversation(obj.id)}
-                    clickEye={(isMerry, setIsMerry) => handleClickEye(index, isMerry, setIsMerry)}
-                    isMatched={merriedMatch?.allMatches?.includes(obj.id)}
-                    matchToday={merriedMatch?.todayMatches?.includes(obj.id)}
-                  />
-                </div>
-              );
-            })
-          )}
+              {loadingData? 
+                  (<div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0">
+                    {Array.from({ length: 3 }).map((_,i)=><SkeletonMerryListCard key={i}/>)}
+                  </div>)
+                  :
+                  (filterData||[])
+                      .map((obj, index) => {
+                        return(
+                          <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
+                            <MarryListCard items={obj}
+                                       isChatNotifications= {!!(notifications.filter((value)=>value?.from_user === obj.id && value?.is_read===false))}
+                                       clickChat={()=>handleStartConversation(obj.id)}
+                                       clickEye={(isMerry,setIsMerry)=>handleClickEye(index,isMerry,setIsMerry)}
+                                       isMatched={merriedMatch?.allMatches?.includes(obj.id)}
+                                       matchToday={merriedMatch?.todayMatches?.includes(obj.id)}
+                            />
+                          </div>)})
+                      }
         </div>
       </div>
     </>

@@ -58,14 +58,12 @@ export default function MembershipPage() {
           )}
         </div> */}
 
-<div className="relative w-full max-w-screen md:overflow-hidden xl:px-5 md:px-12 pb-[160px] mx-4 lg:max-w-[1191px]">
+<div className="relative w-full max-w-screen xl:px-0 md:px-12 pb-[160px] mx-4 flex justify-center lg:max-w-[1191px]">
   {/* Scrollable content */}
-  <div className="hidden md:block absolute top-0 bottom-0 left-[-8px] w-14 bg-gradient-to-r from-[#FCFCFE] to-transparent pointer-events-none z-10" />
-   <div className="hidden md:block absolute top-0 bottom-0 right-[-8px] w-14 bg-gradient-to-l from-[#FCFCFE] to-transparent pointer-events-none z-10" />
 
-  <div className="w-full flex flex-col md:flex-row md:overflow-x-auto scroll-smooth snap-x snap-mandatory  md:gap-10 relative px-4 z-0">
+  <div className="w-full flex flex-col md:grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-1 gap-4 md:px-0 px-4 justify-items-center">
     {dataPackage.map((item) => (
-      <div key={item.package_name} className="inline-block snap-start">
+      <div key={item.package_name} className="inline-block">
         <PackageCard
           icon={item.icon_url}
           packageName={item.package_name}

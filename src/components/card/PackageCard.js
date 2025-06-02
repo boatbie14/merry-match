@@ -3,9 +3,9 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 
 export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage,styleGradient=false,StartMembership,NextBilling}) => {
-    const [isExpanded, setIsExpanded] = useState(false); // สถานะเปิด/ปิด รายการที่เหลือ
-    const contentRef = useRef(null); // ใช้จับ DOM ของ div รายการที่ซ่อนไว้
-    const [maxHeight, setMaxHeight] = useState("0px"); // ควบคุมความสูงแบบสมูท
+    const [isExpanded, setIsExpanded] = useState(false); 
+    const contentRef = useRef(null); 
+    const [maxHeight, setMaxHeight] = useState("0px");
     
     if(detail.length<2){detail.push("")}
     const visibleDetails = detail.slice(0, 2);
@@ -71,8 +71,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
 
 
 
-export const PackageLongCard = ({icon,packageName,price,detail=[],status, period_end, period_start,  canceled=false,cancelPackage }) => {
-    console.log(period_end)
+export const PackageLongCard = ({icon,packageName,price,detail=[],status, period_end, period_start,canceled=false,cancelPackage }) => {
     return (
     <div className=" mx-auto max-w-[1200px]"> 
         <div style={{background: "linear-gradient(100deg, #820025, #93345F, #A878BF)"}}
@@ -83,7 +82,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
                         <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />
                     </div>
                     <div className="flex flex-col pt-2 md:pt-0">
-                        <h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName}</h2>
+                        <h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName?.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>
                         <h3 className='text-[20px] text-[#F4EBF2] font-semibold md:font-normal '>THB {price} <span className='text-[#F4EBF2] text-[16px] font-normal'>/Month</span></h3>
                     </div>
                 </div>
@@ -96,28 +95,33 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
                         )
                     )}
                 </div>
-                <div className='hidden md:flex absolute top-0 right-2 group'>
-                    <button
-                        className={`${status === "active" ? "text-[#B8653E] bg-[#F3E4DD]" : "text-[#5b5b5b] bg-[#aeaeae]"} font-extrabold rounded-full py-1 px-4`}
-                    >
-                    {status === "active" ? "Active" : "Inactive"}
-                    </button>
-                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black text-white text-sm rounded-lg px-3 py-1 whitespace-nowrap shadow-lg z-20">
-    Your package will run out in {period_end}
-  </div>
-</div>
+                    {packageName!=="Free" && 
+                        <div className='hidden md:flex absolute top-0 right-2 group'>
+                            <button
+                                className={`${status === "active" ? "text-[#B8653E] bg-[#F3E4DD]" : "text-[#5b5b5b] bg-[#aeaeae]"} font-extrabold rounded-full py-1 px-4`}
+                            >
+                                {status === "active" ? "Active" : ""}
+                            </button>
+                            {status === "active" &&
+                            <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black text-white text-sm rounded-lg px-3 py-1 whitespace-nowrap shadow-lg z-20">
+                                {canceled?"Subscription ends on":"Next billing"} {period_end}
+                            </div>}
+                        </div>
+                    }
             </div>
             <hr className='text-[#E4E6ED] md:text-[#DF89C6] mt-[20px] md:mt-[28px]'/>
-            <div className='md:hidden text-[16px] text-[#EFC4E2] flex flex-col gap-2'>
-                <div className='flex justify-between'>
-                    <h2>Start Membership</h2>
-                    <h2 className='text-[#FFFFFF]'>{period_start}</h2>
+            {packageName !== "Free" &&
+                <div className='md:hidden text-[16px] text-[#EFC4E2] flex flex-col gap-2'>            
+                    <div className='flex justify-between'>
+                        <h2>Start Membership</h2>
+                        <h2 className='text-[#FFFFFF]'>{period_start}</h2>
+                    </div>
+                    <div className='flex justify-between'>
+                        <h2>{canceled?"Subscription ends on":"Next billing"}</h2>
+                        <h2 className='text-[#FFFFFF]'>{period_end}</h2>
+                    </div>
                 </div>
-                <div className='flex justify-between'>
-                    <h2>Next billing</h2>
-                    <h2 className='text-[#FFFFFF]'>{period_end}</h2>
-                </div>
-            </div>
+            }
             <div className='flex justify-end text-[#FFFFFF] font-bold w-full pr-2'>
                 <button className={`${status==="active" && !canceled && packageName !=="Free" ?"cursor-pointer hover:underline": "hidden"}`} onClick={()=>{cancelPackage()}}>Cancel Package</button>
                 {canceled && <button>Package has been cancelled.</button>}

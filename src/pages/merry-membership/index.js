@@ -166,30 +166,27 @@ export default function HistoryPage() {
           </div> */}
         </div>
 
-        <div className="w-full mt-20  flex flex-col items-start md:items-center ">
-          <div className="w-full md:max-w-[1246px] md:px-7 md:pb-[112px]">
-            <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-2 px-4 md:mb-6" style={{ letterSpacing: "-0.02em" }}>
-              Billing History
-            </h2>
-            <div className="md:border border-[#D6D9E4] md:rounded-4xl bg-[#FFFFFF] md:p-8 md:pb-3  max-w-full mx-auto text-sm text-[#3C3C4399] md:mx-4">
-              <div className="font-semibold text-[#646D89] text-[20px] mb-2 md:mb-1 md:pt-1 px-4 md:px-0">
-                {/* TODO รอแก้ NextBilling เป็นวันหมดอายุของ sub */}
-                Next billing : <span className="text-[#646D89]">{formatDateToUserTimezone(packagInSubscriptions?.current_period_end)}</span>
-              </div>
-              <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
-                {isLoadingTable
-                  ? Array(4)
-                      .fill(null)
-                      .map((_, index) => <Skeleton key={index} variant="rectangular" className="w-full mt-8" height={50} />)
-                  : dataHistoryPayment.map((item, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center py-3 md:py-4 rounded-md px-4 ${index % 2 !== 0 ? "bg-[#F5F5FA]" : ""}`}
+        {dataHistoryPayment.length>0 &&
+          <div className="w-full mt-20  flex flex-col items-start md:items-center ">
+            <div className="w-full md:max-w-[1246px] md:px-7 md:pb-[112px]">
+              <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-2 px-4 md:mb-6" style={{ letterSpacing: "-0.02em" }}>Billing History</h2>
+              <div className="md:border border-[#D6D9E4] md:rounded-4xl bg-[#FFFFFF] md:p-8 md:pb-3  max-w-full mx-auto text-sm text-[#3C3C4399] md:mx-4" >
+                <div className="font-semibold text-[#646D89] text-[20px] mb-2 md:mb-1 md:pt-1 px-4 md:px-0">
+                  {packagInSubscriptions?.canceled_at ? "Subscription ends on" :"Next billing"} : <span className="text-[#646D89]">{formatDateToUserTimezone(packagInSubscriptions?.current_period_end)}</span>
+                </div>
+                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
+                  {isLoadingTable
+                      ? Array(4).fill(null).map((_,index)=> <Skeleton key={index} variant="rectangular" className="w-full mt-8" height={50} />)
+                      :dataHistoryPayment.map((item, index) => (
+                        <div  key={index}
+                            className={`flex items-center py-3 md:py-4 rounded-md px-4 ${
+                            index % 2 !== 0 ? "bg-[#F5F5FA]" : ""
+                            }`}
                       >
-                        <span className="md:flex-[0] pr-9  ">{item.created_at}</span>
-                        <span className="flex-[1] text-left">{item.plan}</span>
-                        <span className="text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
-                      </div>
+                      <span className="md:flex-[0] pr-9  ">{item.created_at}</span>
+                      <span className="flex-[1] text-left">{item.plan?.charAt(0).toUpperCase() + item.plan?.slice(1)}</span>
+                      <span className="text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
+                    </div>
                     ))}
               </div>
 
@@ -205,8 +202,8 @@ export default function HistoryPage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div>}
+    </div>
 
       <Snackbar
         className="mt-[100px]"

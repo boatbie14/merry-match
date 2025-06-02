@@ -363,13 +363,15 @@ const TwoButton =()=>{
                   render={({ field }) => (
                     <SelectInput
                       label="Racial Preference"
-                    options={[
-                      { value: "asian", label: "Asian" },
-                      { value: "caucasian", label: "Caucasian" },
-                      { value: "african", label: "African" },
-                      { value: "mixed", label: "Mixed" },
-                      { value: "other", label: "Other" },
-                      { value: "no_preference", label: "No preference" },]}
+                          options={[
+                            { value: "asian", label: "Asian" },
+                            { value: "caucasian", label: "Caucasian" },
+                            { value: "african", label: "African" },
+                            { value: "mixed", label: "Mixed" },
+                            { value: "hispanic", label: "Hispanic" },
+                            { value: "no_preference", label: "No preference" },
+                            { value: "other", label: "Other" },
+                          ]}
                     {...field}
                     />
                   )}
