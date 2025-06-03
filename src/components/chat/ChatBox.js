@@ -281,20 +281,20 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
                         onClick={() => openImageModal(message.image_url)}
                       />
                       {message.content && message.content.trim() && (
-                        <span className="inline-block px-6 py-4 bg-[#7D2262] text-white rounded-tl-[24px] rounded-tr-[24px] rounded-bl-[24px] rounded-br-none">
+                        <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
                           {message.content}
                         </span>
                       )}
                     </div>
                   ) : (
-                    <span className="inline-block px-6 py-4 rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
+                    <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
                       {renderMessage(message)}
                     </span>
                   )}
                 </div>
               ) : (
                 // ข้อความของคนอื่น
-                <div className="flex items-start gap-3">
+                <div className="flex items-end gap-3">
                   {message.sender?.profile_image_url && (
                     <img
                       src={message.sender.profile_image_url}
@@ -312,13 +312,13 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
                           onClick={() => openImageModal(message.image_url)}
                         />
                         {message.content && message.content.trim() && (
-                          <span className="inline-block px-6 py-4 bg-[#EFC4E2] text-black rounded-tl-[24px] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none">
+                          <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
                             {message.content}
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="inline-block px-6 py-4 rounded-tl-[24px] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-black">
+                      <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
                         {message.content}
                       </span>
                     )}

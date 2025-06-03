@@ -94,6 +94,29 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
     }
   };
 
+  // ฟังก์ชันดึง user data จาก public.users
+  const fetchUserData = async (userId) => {
+    try {
+      const response = await fetch(`/api/users/user?userId=${userId}`, {
+        method: "GET",
+      });
+
+      const data = await response.json();
+      if (data.success && data.user) {
+        return {
+          id: data.user.id,
+          username: data.user.name || data.user.email?.split("@")[0],
+          name: data.user.name,
+          profile_image_url: data.user.profile_image_url,
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      return null;
+    }
+  };
+
   // เลื่อนไปที่ข้อความล่าสุด
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -120,11 +143,14 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
           table: "messages",
           filter: `room_id=eq.${roomId}`, // เฉพาะ room นี้
         },
-        (payload) => {
+        async (payload) => {
           const message = payload.new;
 
           // ไม่แสดงข้อความของตัวเอง (เพราะเรา optimistic update ไปแล้ว)
           if (message.sender_id !== senderId) {
+            // ดึง sender data
+            const senderData = await fetchUserData(message.sender_id);
+
             setMessages((prev) => {
               const exists = prev.some((msg) => msg.id === message.id);
               if (exists) return prev;
@@ -133,7 +159,7 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
                 ...prev,
                 {
                   ...message,
-                  sender: null,
+                  sender: senderData,
                   receiver: null,
                 },
               ];

@@ -86,17 +86,48 @@ export default async function handler(req, res) {
       });
     }
 
-    // Update chat_rooms.updated_at และ is_message
+    // Update chat_rooms พร้อม last_message info
     const { error: updateRoomError } = await supabase
       .from("chat_rooms")
       .update({
         updated_at: new Date().toISOString(),
-        is_message: true, // เพิ่มบรรทัดนี้เพื่อบอกว่ามีการส่งข้อความแล้ว
+        is_message: true,
+        // เพิ่มข้อมูล last message (แค่ 3 fields)
+        last_message_sender_id: message.sender_id,
+        last_message_content: message.content,
+        last_message_type: message.message_type,
       })
       .eq("id", room_id);
 
     if (updateRoomError) {
       console.error("⚠️ Failed to update chat room timestamp:", updateRoomError);
+    }
+
+    // 🔥 เพิ่ม Manual Trigger - ส่ง broadcast ให้ทุก client
+    try {
+      console.log("📣 Sending manual broadcast trigger for room:", room_id);
+
+      const broadcastChannel = supabase.channel(`manual-trigger-${Date.now()}`);
+
+      await broadcastChannel.send({
+        type: "broadcast",
+        event: "chat_room_updated",
+        payload: {
+          room_id,
+          sender_id,
+          receiver_id,
+          message_id: message.id,
+          timestamp: new Date().toISOString(),
+        },
+      });
+
+      console.log("✅ Manual broadcast sent successfully");
+
+      // ปิด channel หลังใช้งาน
+      supabase.removeChannel(broadcastChannel);
+    } catch (broadcastError) {
+      console.error("❌ Manual broadcast failed:", broadcastError);
+      // ไม่ return error เพราะข้อความส่งสำเร็จแล้ว
     }
 
     // ส่ง response กลับไปก่อน
@@ -106,7 +137,11 @@ export default async function handler(req, res) {
       chat_room: {
         ...chatRoom,
         updated_at: new Date().toISOString(),
-        is_message: true, // เพิ่มใน response ด้วย
+        is_message: true,
+        // เพิ่ม last_message ใน response ด้วย
+        last_message_sender_id: message.sender_id,
+        last_message_content: message.content,
+        last_message_type: message.message_type,
       },
     });
 

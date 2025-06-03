@@ -20,26 +20,33 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null, onNav
         router.push(`/chat?u=${encryptedId}`);
       }
     } catch (error) {
-      // Handle error silently
+      console.error("Error opening chat:", error);
     }
   };
 
-  // ฟังก์ชันจัดรูปแบบข้อความล่าสุด
-  const formatLastMessage = (message, isOwnMessage) => {
-    if (!message) return "No messages yet";
-
-    let content = "";
-
-    // กำหนด content ตามประเภทข้อความ
-    if (message.message_type === "image") {
-      content = "📷 Image";
-    } else {
-      content = message.content || "";
+  // ฟังก์ชันจัดรูปแบบข้อความล่าสุด - ตรวจสอบ message_type ก่อน content
+  const formatLastMessage = (lastMessage, currentUserId) => {
+    // ตรวจสอบว่ามี lastMessage หรือไม่
+    if (!lastMessage) {
+      return "No messages yet";
     }
 
-    // จำกัดความยาวไม่เกิน 80 ตัวอักษร
-    if (content.length > 80) {
-      content = content.substring(0, 77) + "...";
+    let content = "";
+    const isOwnMessage = lastMessage.sender_id === currentUserId;
+
+    // กำหนด content ตามประเภทข้อความ (ตรวจสอบ type ก่อน)
+    if (lastMessage.message_type === "image") {
+      content = "📷 Image";
+    } else if (lastMessage.content) {
+      content = lastMessage.content;
+    } else {
+      // ถ้าไม่มี content และไม่ใช่ image ก็แสดง No messages yet
+      return "No messages yet";
+    }
+
+    // จำกัดความยาวไม่เกิน 40 ตัวอักษร (เฉพาะ text message)
+    if (lastMessage.message_type !== "image" && content.length > 40) {
+      content = content.substring(0, 37) + "...";
     }
 
     // เพิ่ม "You: " ถ้าเป็นข้อความของเรา
@@ -50,7 +57,7 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null, onNav
     return content;
   };
 
-  // ฟังก์ชันจัดรูปแบบเวลา
+  // ฟังก์ชันจัดรูปแบบเวลา - ใช้ updated_at แทน created_at
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
 
@@ -124,7 +131,6 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null, onNav
           {chatRooms.map((room) => {
             const { otherUser, lastMessage } = room;
             const isActive = activeRoomId === room.id;
-            const isOwnMessage = lastMessage?.sender_id === currentUserId;
 
             return (
               <div
@@ -150,10 +156,12 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null, onNav
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
                     <p className="text-[#2A2E3F] font-medium truncate">{otherUser?.name || "Unknown User"}</p>
-                    {lastMessage && <span className="text-xs text-gray-400 ml-2 flex-shrink-0">{formatTime(lastMessage.created_at)}</span>}
+                    {/* ใช้ updated_at แทน created_at */}
+                    {room.updated_at && <span className="text-xs text-gray-400 ml-2 flex-shrink-0">{formatTime(room.updated_at)}</span>}
                   </div>
 
-                  <p className="text-[#646D89] text-sm truncate mt-1">{formatLastMessage(lastMessage, isOwnMessage)}</p>
+                  {/* แสดง last_message พร้อมจัดการ null values */}
+                  <p className="text-[#646D89] text-sm truncate mt-1">{formatLastMessage(lastMessage, currentUserId)}</p>
                 </div>
               </div>
             );

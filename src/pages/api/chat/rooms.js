@@ -19,14 +19,21 @@ export default async function handler(req, res) {
       });
     }
 
-    // ดึงข้อมูล chat rooms (ตอนนี้มี updated_at แล้ว)
+    // ดึงข้อมูล chat rooms - เฉพาะ is_match = true
     const { data: rooms, error: roomsError } = await supabase
       .from("chat_rooms")
-      .select("id, user1_id, user2_id, created_at, updated_at")
+      .select(
+        `
+        id, user1_id, user2_id, created_at, updated_at, is_message, is_match,
+        last_message_sender_id, last_message_content, last_message_type
+      `
+      )
       .or(`user1_id.eq.${user_id},user2_id.eq.${user_id}`)
-      .order("updated_at", { ascending: false });
+      .eq("is_match", true) // เฉพาะ room ที่ match แล้ว
+      .order("updated_at", { ascending: false }); // เรียงตาม updated_at ล่าสุดก่อน
 
     if (roomsError) {
+      console.error("❌ Error fetching chat rooms:", roomsError);
       return res.status(500).json({
         success: false,
         message: "Failed to fetch chat rooms",
@@ -47,25 +54,6 @@ export default async function handler(req, res) {
 
     for (const room of rooms) {
       try {
-        // ดึงข้อความล่าสุดก่อน
-        const { data: lastMessages, error: messageError } = await supabase
-          .from("messages")
-          .select("id, content, message_type, sender_id, created_at")
-          .eq("room_id", room.id)
-          .order("created_at", { ascending: false })
-          .limit(1);
-
-        if (messageError) {
-          continue; // ข้าม room นี้ถ้า error
-        }
-
-        // ถ้าไม่มี message ให้ข้าม room นี้
-        if (!lastMessages || lastMessages.length === 0) {
-          continue;
-        }
-
-        const lastMessage = lastMessages[0];
-
         // หา user อีกคน
         const otherUserId = room.user1_id === user_id ? room.user2_id : room.user1_id;
 
@@ -77,12 +65,31 @@ export default async function handler(req, res) {
           .single();
 
         if (userError) {
-          // ใส่ข้อมูล fallback แต่ยังคงแสดง room (เพราะมี message)
+          console.warn("⚠️ Error fetching user:", otherUserId, userError);
         }
 
-        // เพิ่มข้อมูลลงใน array (เฉพาะ room ที่มี message)
+        // สร้าง lastMessage object จากข้อมูลใน chat_rooms
+        let lastMessage = null;
+
+        // ตรวจสอบว่ามี last_message_type หรือ last_message_content
+        if (room.last_message_type || room.last_message_content || room.last_message_sender_id) {
+          lastMessage = {
+            content: room.last_message_content, // อนุญาตให้เป็น null ได้
+            message_type: room.last_message_type || "text",
+            sender_id: room.last_message_sender_id,
+            created_at: room.updated_at, // ใช้ updated_at เป็นเวลาของข้อความ
+          };
+        }
+
+        // เพิ่มข้อมูลลงใน array
         chatRoomsWithDetails.push({
-          ...room,
+          id: room.id,
+          user1_id: room.user1_id,
+          user2_id: room.user2_id,
+          created_at: room.created_at,
+          updated_at: room.updated_at,
+          is_message: room.is_message,
+          is_match: room.is_match,
           otherUser: otherUser || {
             id: otherUserId,
             name: "Unknown User",
@@ -91,7 +98,7 @@ export default async function handler(req, res) {
           lastMessage: lastMessage,
         });
       } catch (roomError) {
-        // ไม่เพิ่ม room ที่ error เข้าไป
+        console.error("❌ Error processing room:", room.id, roomError);
         continue;
       }
     }
@@ -102,6 +109,7 @@ export default async function handler(req, res) {
       count: chatRoomsWithDetails.length,
     });
   } catch (error) {
+    console.error("❌ Chat rooms API error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
