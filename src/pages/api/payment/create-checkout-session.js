@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/payment/cancel`,
+      cancel_url: `${req.headers.origin}/payment/cancel?package=${plan}`,
       metadata: {
         user_id: userId,
         plan,

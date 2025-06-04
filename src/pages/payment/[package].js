@@ -122,7 +122,7 @@ export default function PaymentPage() {
 
   return (
     <>
-      <div className="flex flex-col md:flex-row justify-center items-center md:items-baseline p-10 gap-10 md:mt-30 mt-2">
+      <div className="flex flex-col md:flex-row justify-center items-center md:items-baseline p-10 gap-5 md:mt-30 mt-3">
         {/* Membership Details */}
         <div className="bg-[#F6F7FC] p-6 md:rounded-xl w-screen md:w-full md:max-w-sm md:border border-b border-[#D6D9E4]">
           <div className="flex gap-3">
