@@ -1,6 +1,9 @@
 import { GoCheckCircleFill } from "react-icons/go";
 import Image from "next/image";
+import { HiCreditCard } from "react-icons/hi2";
 import { useState, useRef, useEffect } from "react";
+import { Skeleton } from "@mui/material";
+
 
 export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage,styleGradient=false,StartMembership,NextBilling}) => {
     const [isExpanded, setIsExpanded] = useState(false); 
@@ -79,11 +82,11 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
             <div className='md:flex md:relative '>
                 <div className='md:flex gap-4 pr-8 md:pr-3 lg:w-[319px]'>
                     <div className={`w-[60px] h-[60px] md:w-[78px] md:h-[78px] border-none rounded-2xl flex items-center justify-center bg-[#F6F7FC] `}>
-                        <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />
-                    </div>
+                        {icon? <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />:<Skeleton variant="circular" height={58} width={58}/>}
+                    </div>:
                     <div className="flex flex-col pt-2 md:pt-0">
-                        <h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName?.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>
-                        <h3 className='text-[20px] text-[#F4EBF2] font-semibold md:font-normal '>THB {price} <span className='text-[#F4EBF2] text-[16px] font-normal'>/Month</span></h3>
+                        {packageName?<h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>:<Skeleton width={170} height={50}/>}
+                        {price?<h3 className='text-[20px] text-[#F4EBF2] font-semibold md:font-normal '>THB {price} <span className='text-[#F4EBF2] text-[16px] font-normal'>/Month</span></h3>:<Skeleton width={100} height={30}/>}
                     </div>
                 </div>
                 <div className='flex flex-col text-[#F4EBF2] text-[16px] gap-4 md:gap-3 mt-4 md:mt-3 md:pr-24'>
@@ -123,42 +126,33 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
                 </div>
             }
             <div className='flex justify-end text-[#FFFFFF] font-bold w-full pr-2'>
+                {packageName?
                 <button className={`${status==="active" && !canceled && packageName !=="Free" ?"cursor-pointer hover:underline": "hidden"}`} onClick={()=>{cancelPackage()}}>Cancel Package</button>
+                :""}
                 {canceled && <button>Package has been cancelled.</button>}
-            </div>
+                
+                </div>
         </div>
     </div>
   );
 };
 
-export const CreditInfomationCard = ({icon,cardType="visa",expire="04/2025",editPaymentMethod}) => {
+export const CreditInfomationCard = ({cardType,expire,last4,editPaymentMethod}) => {
     return (
-    <div className=" mx-auto max-w-[1200px] "> 
-        <div className="flex flex-col p-4 rounded-3xl md:rounded-4xl border-[2px] border-[#D6D9E4] gap-[16px] md:p-8 md:gap-[22px] bg-white">
-            <div className='md:flex md:relative '>
-                <div className='md:flex gap-4 pr-8 md:pr-3 lg:w-[319px]'>
-                    <button className={`w-[60px] h-[60px] md:w-[78px] md:h-[78px] border-none rounded-2xl items-center justify-center bg-[#F6F7FC] `}>
-                        {icon}
-                    </button>
-                    <div className="flex flex-col pt-2 md:pt-0">
-                        <h2 className='text-[#7D2262] text-[24px] font-bold '>{cardType}</h2>
-                        <h3 className='text-[16px] text-[#646D89] font-semibold md:font-normal pt-2'>Expire {expire}</h3>
+    <div className=" mx-auto max-w-[1200px]"> 
+        <div className="flex flex-col p-4 rounded-3xl md:rounded-4xl border-[1px] border-[#D6D9E4] gap-[16px] md:p-8 md:pb-6 bg-white ">
+            <div className='flex md:flex gap-4 md:pr-3 '>
+                    <div className={`w-[64px] h-[64px] md:w-[68px] md:h-[68px] border-none flex rounded-2xl items-center justify-center bg-[#F6F7FC]`}>
+                        <HiCreditCard size={32} color="#FFB1C8"/>
                     </div>
-                </div>
+                    <div className="flex flex-col md:pt-0">
+                        {last4?<h2 style={{ letterSpacing: "-0.02em" }} className='text-[#7D2262] text-[24px] font-bold'>{cardType} ending *{last4}</h2>:<Skeleton width={300} height={40}/>}
+                        {last4?<h3 className='text-[16px] text-[#646D89] font-semibold md:font-normal pt-1'>Expire {expire}</h3>:<Skeleton width={200} height={20}/>}
+                    </div>
             </div>
-            <hr className='text-[#E4E6ED] md:text-[#D6D9E4] mt-[20px] md:mt-[28px]'/>
-            <div className='md:hidden text-[16px] text-[#EFC4E2] flex flex-col gap-2'>
-                <div className='flex justify-between'>
-                    <h2>Start Membership</h2>
-                    <h2 className='text-[#FFFFFF]'>01/04/2022</h2>
-                </div>
-                <div className='flex justify-between'>
-                    <h2>Next billing</h2>
-                    <h2 className='text-[#FFFFFF]'>01/05/2022</h2>
-                </div>
-            </div>
-            <div className='hidden md:flex justify-end text-[#C70039] font-bold w-full pr-2'>
-                <button className='cursor-pointer hover:underline' onClick={()=>{editPaymentMethod()}}>Edit Payment Method</button>
+            <hr className='text-[#D6D9E4] mt-2 md:mt-[6px]'/>
+            <div className=' md:flex justify-end text-[#C70039] font-bold w-full pr-2 md:mt-1 text-end'>
+                {last4 ? <button className='cursor-pointer hover:underline md:mt-1' onClick={()=>{editPaymentMethod()}}>Edit Payment Method</button>:<div className="h-7"></div>}
             </div>
         </div>
     </div>

@@ -184,7 +184,6 @@ import { Country, State } from "country-state-city";
     setIsAlertPopup(false)
     setLoading(true)
     const response = await deleteUsers()
-        console.log("delete")
     if (response.status === 204){
             setIsAlertPopup(false)
             router.push('/logout'); 

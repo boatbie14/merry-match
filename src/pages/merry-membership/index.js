@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
-import { PackageLongCard } from "@/components/card/PackageCard";
+import { PackageLongCard,CreditInfomationCard } from "@/components/card/PackageCard";
 import { AlertPopup } from "@/components/popup/AlertPopup";
 import { useState } from "react";
-import { billingPDF, cancelSubscription } from "@/services/paymentServices";
+import { billingPDF,cancelSubscription,getInfomationCreditCard,redirectToStripePortal } from "@/services/paymentServices";
 import { PdfRequestPopup } from "@/components/popup/PdfRequestPopup";
 import { LoadingPop } from "@/components/popup/LoadingPop";
 import { Snackbar, Alert } from "@mui/material";
@@ -33,14 +33,15 @@ function formatPaymentHistory(payments) {
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { isLoggedIn, checkingLogin } = useAuth();
-  const [dataHistoryPayment, setDataHistoryPayment] = useState([]);
-  const [packageNow, setPackageNow] = useState();
-  const [packagInSubscriptions, setPackagInSubscriptions] = useState();
-  const [isAlertPopup, setIsAlertPopup] = useState(false);
-  const [isPdfRequestPopup, setIsPdfRequestPopup] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTable, setIsLoadingTable] = useState(true);
+  const {isLoggedIn,checkingLogin} = useAuth()  
+  const [dataHistoryPayment,setDataHistoryPayment] = useState([])
+  const [packageNow,setPackageNow]=useState()
+  const [packagInSubscriptions,setPackagInSubscriptions] = useState()
+  const [infomationPackageCard,setInfomationPackageCard] = useState()
+  const [isAlertPopup,setIsAlertPopup] = useState(false)
+  const [isPdfRequestPopup,setIsPdfRequestPopup] = useState(false)
+  const [isLoading,setIsLoading] = useState(false)
+  const [isLoadingTable,setIsLoadingTable] = useState(true)
   const [alertMessage, setAlertMessage] = useState("");
   const [reset, setReset] = useState(false);
 
@@ -50,59 +51,64 @@ export default function HistoryPage() {
     }
   }, [checkingLogin, isLoggedIn, router]);
 
-  useEffect(() => {
-    const fetchPackageNow = async () => {
-      try {
-        let packageNowTemp = await getPackageNow();
-        setPackageNow(packageNowTemp[0].user_packages[0]);
-        setPackagInSubscriptions(packageNowTemp[0].stripe_subscriptions[0]);
-        console.log(packageNowTemp[0]);
-      } catch (e) {
-        console.log(e);
-      } finally {
-      }
-    };
-    const fetchHistoryPayment = async () => {
-      try {
-        setIsLoadingTable(true);
-        let historyTemp = await getHistoryPayment();
-        historyTemp = formatPaymentHistory(historyTemp);
-        setDataHistoryPayment(historyTemp);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setIsLoadingTable(false);
-      }
-    };
-    if (isLoggedIn) {
-      fetchPackageNow();
-      fetchHistoryPayment();
+  useEffect(()=>{
+    const fetchPackageNow = async()=>{
+      try{
+        let packageNowTemp = await getPackageNow()
+        setPackageNow(packageNowTemp[0].user_packages[0])
+        setPackagInSubscriptions(packageNowTemp[0].stripe_subscriptions[0])
+        const tempInfomationCreditCard = await getInfomationCreditCard(packageNowTemp[0].stripe_subscriptions[0].stripe_subscription_id)
+        setInfomationPackageCard(tempInfomationCreditCard);
+        
+      }catch(e){
+        console.log(e)
+      }finally{}
+    } 
+    const fetchHistoryPayment = async()=>{
+      try{
+        setIsLoadingTable(true)
+        let historyTemp = await getHistoryPayment()
+        historyTemp = formatPaymentHistory(historyTemp)
+        setDataHistoryPayment(historyTemp)
+      }catch(e){
+        console.log(e)
+      }finally{setIsLoadingTable(false)}
+    } 
+    if(isLoggedIn){
+      fetchPackageNow()
+      fetchHistoryPayment()
     }
-  }, [isLoggedIn, reset]);
+    },[isLoggedIn,reset])
 
-  async function showPDF(selectedInvoices) {
-    setIsLoading(true);
-    const error = await billingPDF(selectedInvoices);
-    if (error) {
-      console.error("เกิดข้อผิดพลาดในการสร้าง PDF:", error);
-      setAlertMessage("An error occurred while generating the PDF.");
+async function showPDF (selectedInvoices){
+  setIsLoading(true);
+  const error = await billingPDF(selectedInvoices);
+    if(error){
+    console.error("An error occurred while generating PDF:", error);
+    setAlertMessage("An error occurred while generating the PDF.")
     }
     setIsLoading(false);
     setIsPdfRequestPopup(false);
   }
 
-  async function cancelPackage() {
-    try {
-      setIsLoading(true);
-      await cancelSubscription(packagInSubscriptions.stripe_subscription_id);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsAlertPopup(false);
-      setIsLoading(false);
-      setReset(!reset);
-    }
+async function cancelPackage () {
+  try{
+  setIsLoading(true)
+  await cancelSubscription(packagInSubscriptions.stripe_subscription_id)
+  }catch(e){console.log(e)
+  }finally{
+  setIsAlertPopup(false)
+  setIsLoading(false)
+  setReset(!reset)
   }
+}
+
+const editCreditCard = async (subscription_id) => {
+  setIsLoading(true);
+    await redirectToStripePortal(subscription_id)
+    setIsLoading(false);
+  };
+
   return (
     <>
       <AlertPopup
@@ -155,15 +161,16 @@ export default function HistoryPage() {
               }}
             />
           </div>
-          {/* <div className="w-full md:px-5 mt-21">
+          {packagInSubscriptions?.stripe_subscription_id &&
+          <div className="w-full md:px-5 mt-21">
             <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-6" style={{ letterSpacing: "-0.02em" }} >Payment Method</h2>
             <CreditInfomationCard
-              icon="--"
-              cardType="Visa"
-              expire="04/2025"
-              editPaymentMethod={()=>{router.push("/membership/payment")}}  
+              cardType={infomationPackageCard?.brand.charAt(0).toUpperCase() + infomationPackageCard?.brand.slice(1)}
+              expire={`${infomationPackageCard?.exp_month < 10 ? '0' : ''}${infomationPackageCard?.exp_month}/${infomationPackageCard?.exp_year}`}
+              last4 = {infomationPackageCard?.last4}
+              editPaymentMethod={()=>{editCreditCard(packagInSubscriptions?.stripe_subscription_id)}}
             />
-          </div> */}
+          </div>}
         </div>
 
         {dataHistoryPayment.length>0 &&

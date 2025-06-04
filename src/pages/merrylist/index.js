@@ -74,7 +74,6 @@ useEffect(() => {
       useEffect(()=>{
     let filterDataTemp = data
       if(selectedBox==="merry-to-you"){
-        console.log(isPackageName)
         if(isPackageName==="Free"){
             setIsOpenAlert(true);
             setSelectedBox(0);
@@ -87,11 +86,10 @@ useEffect(() => {
      setfilterData(filterDataTemp)
   },[selectedBox,data])
 
-  const handleStartConversation = (userId) => {
-    try {
-      console.log("Hey User Id = " + userId);
-      const chatToUserID = userId;
-      const encryptedId = encryptUserId(chatToUserID);
+const handleStartConversation = (userId) => {
+  try {
+    const chatToUserID = userId;
+    const encryptedId = encryptUserId(chatToUserID);
 
     if (encryptedId) {
       router.push(`/chat?u=${encryptedId}`);

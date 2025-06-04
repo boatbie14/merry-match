@@ -44,23 +44,8 @@ export default function MembershipPage() {
             </div>
           </div>
         </div>
-{/* 
-        <div className="min-h-scree flex justify-start items-center flex-wrap mb-[160px] md:gap-6 gap-6 xl:gap-10 px-5 pt-4 lg:max-w-[1191px] ">
-          {dataPackage.map((item)=>(
-            <PackageCard 
-            key={item.package_name}
-            icon={item.icon_url}
-            packageName={item.package_name}
-            price={item.price}
-            detail={item.details}
-            choosePackage={(package_Name)=>{choosePackage(package_Name)}}
-          />)
-          )}
-        </div> */}
 
 <div className="relative w-full max-w-screen xl:px-0 md:px-12 pb-[160px] mx-4 flex justify-center lg:max-w-[1191px]">
-  {/* Scrollable content */}
-
   <div className="w-full flex flex-col md:grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-1 gap-4 md:px-0 px-4 justify-items-center">
     {dataPackage.map((item) => (
       <div key={item.package_name} className="inline-block">

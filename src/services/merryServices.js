@@ -63,7 +63,6 @@ export const postMerriedLike = async (toUserId) => {
 export const deleteMerriedLike = async (toUserId) => {
   const unlikeUserId = toUserId;
   try {
-    console.log("loop");
     const response = await apiClient.delete(`/merry/${unlikeUserId}`);
     return response;
   } catch (error) {

@@ -55,3 +55,38 @@ export const cancelSubscription = async (subscription_id)=>{
     console.error('Error fetching merried users:', error);
     throw error;} 
 }
+
+export const getInfomationCreditCard = async (subscription_id) => {
+  try {
+    const res = await fetch("/api/payment/infomationCreditcard", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ subscription_id }),
+    });
+    return res.json();
+  } catch (e) {
+    console.error('Error fetching credit card information:', e);
+    throw e;
+  }
+}
+
+export async function redirectToStripePortal(subscription_id) {
+      try {
+      const res = await fetch('/api/payment/create-portal-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription_id }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Unable to create Stripe link');
+      }
+      } catch (err) {
+      console.error(err);
+      alert('An error occurred.');
+      }
+    }

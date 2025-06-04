@@ -17,7 +17,6 @@ export function PdfRequestPopup({ isOpen,onClose,billingData,requsest}) {
   
   function requsestPdf(){
     setSelectedInvoices([])
-    console.log(selectedInvoices)
     requsest(selectedInvoices)
   }
 
