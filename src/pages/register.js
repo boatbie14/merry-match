@@ -8,19 +8,24 @@ import SelectInput from "@/components/form/SelectInput";
 import MultiSelectTagInput from "@/components/form/MultiSelectTagInput";
 import UploadPhotoInput from "@/components/form/UploadPhotoInput";
 import { uploadImagesToSupabase } from "@/lib/uploadImagesToSupabase";
-import { validateRegisterForm, formatFieldName } from "@/utils/validateRegisterForm";
+import {
+  validateRegisterForm,
+  validateRegisterFormStep,
+  formatFieldName,
+} from "@/utils/validateRegisterForm";
 import { Country, State } from "country-state-city";
 import { FaArrowLeft } from "react-icons/fa6";
 import { sortImages } from "@/utils/image-handlers/sortImage";
 import { LoadingPop } from "@/components/popup/LoadingPop";
 import { AlertPopup } from "@/components/popup/AlertPopup";
-
-
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { userInfo, checkingLogin } = useAuth();
   const [alertMessage, setAlertMessage] = useState("");
-  const [isLoading,setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [generalError, setGeneralError] = useState("");
   const {
@@ -28,6 +33,7 @@ export default function RegisterPage() {
     control,
     watch,
     setError,
+    getValues,
     formState: { errors },
   } = useForm({
     shouldUnregister: false,
@@ -76,12 +82,14 @@ export default function RegisterPage() {
     const errorFields = validateRegisterForm(values, setError);
     if (errorFields.length > 0) {
       const fieldList = errorFields.map(formatFieldName).join(", ");
-      setAlertMessage(`Oops! It looks like you missed some required fields: ${fieldList}`);
+      setAlertMessage(
+        `Oops! It looks like you missed some required fields: ${fieldList}`
+      );
 
       return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const signUpRes = await fetch("/api/pre-signup", {
         method: "POST",
@@ -95,12 +103,11 @@ export default function RegisterPage() {
 
       if (!signUpRes.ok) {
         return setGeneralError(signUpData.error || "Sign up failed");
-
       }
 
       const userId = signUpData.userId;
 
-      const imagesSort =sortImages(images)
+      const imagesSort = sortImages(images);
       const imageUrls = await uploadImagesToSupabase(imagesSort, userId);
 
       const response = await fetch("/api/signup", {
@@ -121,9 +128,23 @@ export default function RegisterPage() {
       setGeneralError("Unexpected error occurred. Please try again.");
     }
   };
- const onError = (formErrors) => {
+  const onError = (formErrors) => {
     const fieldList = Object.keys(formErrors).map(formatFieldName).join(", ");
     setAlertMessage(`กรุณากรอกข้อมูลให้ครบถ้วนในช่อง: ${fieldList}`);
+  };
+  const handleNextStep = async (stepNumber) => {
+    const currentValues = getValues(); // from useForm
+    const errors = validateRegisterFormStep(
+      stepNumber,
+      currentValues,
+      setError
+    );
+    if (errors.length === 0) {
+      setStep(stepNumber + 1);
+    } else {
+      const fieldList = errors.map(formatFieldName).join(", ");
+      setAlertMessage(`Please complete: ${fieldList}`);
+    }
   };
 
   const stepTitles = {
@@ -132,458 +153,466 @@ export default function RegisterPage() {
     3: "Upload Photos",
   };
 
+  useEffect(() => {
+    if (!checkingLogin && userInfo?.id) {
+      router.replace("/");
+    }
+  }, [userInfo, checkingLogin, router]);
+
   return (
     <>
-    <LoadingPop isLoading={isLoading}/>
-    <div className="row bg-[#FCFCFE] min-h-screen pb-32 bg-deco-circle mt-14 md:mt-20">
-      <div className="container mx-auto px-4 md:px-8 lg:px-20">
-        <form
-          id="register-form"
-          onSubmit={handleSubmit(onSubmit,onError)}
-          className="w-full max-w-full  pt-16 md:pt-[85px] md:max-w-4xl lg:max-w-6xl mx-auto"
-        >
-          <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-0">
-            <div>
-              <h1 className="subhead">Register</h1>
-              <h2 className="main-header md:w-[453px]">
-                Join us and start matching
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 md:gap-4 mb-10">
-              {[1, 2, 3].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setStep(s)}
-                  className={`text-center p-2 md:p-4 border-1 rounded-2xl ${
-                    step === s
-                      ? "border-[#A62D82] font-bold  md:h-20 w-auto h-14"
-                      : "border-gray-300 md:w-20 md:h-20 w-14 h-14"
-                  }`}
-                >
-                  <div className="flex justify-center items-center gap-2 md:gap-4">
-                    <div
-                      className={`rounded-xl flex items-center justify-center ${
-                        step === s
-                          ? "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#A62D82] md:text-2xl font-bold"
-                          : "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#9AA1B9] md:text-2xl font-bold"
-                      }`}
-                    >
-                      {s}
-                    </div>
-                    {step === s && (
-                      <div className=" text-start">
-                        <div className="text-xs font-medium text-gray-400">
-                          Step {s}/3
-                        </div>
-                        <div className="text-[#A62D82] font-extrabold whitespace-nowrap">
-                          {stepTitles[s]}
-                        </div>
+      <LoadingPop isLoading={isLoading} />
+      <div className="row bg-[#FCFCFE] min-h-screen pb-32 bg-deco-circle mt-14 md:mt-20">
+        <div className="container mx-auto px-4 md:px-8 lg:px-20">
+          <form
+            id="register-form"
+            onSubmit={handleSubmit(onSubmit, onError)}
+            className="w-full max-w-full  pt-16 md:pt-[85px] md:max-w-4xl lg:max-w-6xl mx-auto"
+          >
+            <div className="flex flex-col md:flex-row justify-between gap-4 md:gap-0">
+              <div>
+                <h1 className="subhead">Register</h1>
+                <h2 className="main-header md:w-[453px]">
+                  Join us and start matching
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 md:gap-4 mb-10">
+                {[1, 2, 3].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setStep(s)}
+                    className={`text-center p-2 md:p-4 border-1 rounded-2xl ${
+                      step === s
+                        ? "border-[#A62D82] font-bold  md:h-20 w-auto h-14"
+                        : "border-gray-300 md:w-20 md:h-20 w-14 h-14"
+                    }`}
+                  >
+                    <div className="flex justify-center items-center gap-2 md:gap-4">
+                      <div
+                        className={`rounded-xl flex items-center justify-center ${
+                          step === s
+                            ? "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#A62D82] md:text-2xl font-bold"
+                            : "bg-gray-100 p-5 md:p-6 w-6 h-6 text-[#9AA1B9] md:text-2xl font-bold"
+                        }`}
+                      >
+                        {s}
                       </div>
+                      {step === s && (
+                        <div className=" text-start">
+                          <div className="text-xs font-medium text-gray-400">
+                            Step {s}/3
+                          </div>
+                          <div className="text-[#A62D82] font-extrabold whitespace-nowrap">
+                            {stepTitles[s]}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {step === 1 && (
+              <div>
+                <p className="section-title py-4 mt-10">Basic Information</p>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Controller
+                      name="name"
+                      control={control}
+                      render={({ field }) => (
+                        <TextInput label="Name" {...field} />
+                      )}
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.name.message}
+                      </p>
                     )}
                   </div>
-                </button>
-              ))}
-            </div>
-          </div>
 
-          {step === 1 && (
-            <div>
-              <p className="section-title py-4 mt-10">Basic Information</p>
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
                   <Controller
-                    name="name"
+                    name="date_of_birth"
                     control={control}
                     render={({ field }) => (
-                      <TextInput label="Name" {...field} />
-                    )}
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <Controller
-                  name="date_of_birth"
-                  control={control}
-                  render={({ field }) => (
-                    <div>
-                      <DatePickerInput
-                        label="Date of Birth"
-                        value={field.value || null}
-                        onChange={(date) => field.onChange(date)}
-                        name={field.name}
-                        placeholder="dd/MM/yyyy"
-                      />
-                      {errors.date_of_birth && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.date_of_birth.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-
-                <Controller
-                  name="location"
-                  control={control}
-                  render={({ field }) => (
-                    <div>
-                      <SelectInput
-                        label="Location"
-                        options={countryOptions}
-                        {...field}
-                      />
-                      {errors.location && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.location.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-
-                <Controller
-                  key={selectedCountry}
-                  name="city"
-                  control={control}
-                  render={({ field }) => (
-                    <div>
-                      {cityOptions.length > 0 ? (
-                        <SelectInput
-                          label="City"
-                          options={cityOptions}
-                          {...field}
+                      <div>
+                        <DatePickerInput
+                          label="Date of Birth"
+                          value={field.value || null}
+                          onChange={(date) => field.onChange(date)}
+                          name={field.name}
+                          placeholder="dd/MM/yyyy"
                         />
-                      ) : (
-                        <TextInput
-                          label="City"
-                          placeholder="Enter your city"
-                          {...field}
-                        />
-                      )}
-                      {errors.city && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.city.message}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-
-                <div>
-                  <Controller
-                    name="username"
-                    control={control}
-                    render={({ field }) => (
-                      <TextInput label="Username" {...field} />
-                    )}
-                  />
-                  {errors.username && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.username.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Controller
-                    name="email"
-                    control={control}
-                    render={({ field }) => (
-                      <TextInput label="Email" {...field} />
-                    )}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Controller
-                    name="password"
-                    control={control}
-                    render={({ field }) => (
-                      <PasswordInput label="Password" {...field} />
-                    )}
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.password.message}
-                    </p>
-                  )}
-                  {password && password.length < 8 && (
-                    <p className="text-yellow-500 text-sm mt-2">
-                      Password should be at least 8 characters
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <Controller
-                    name="confirmPassword"
-                    control={control}
-                    render={({ field }) => (
-                      <PasswordInput label="Confirm Password" {...field} />
-                    )}
-                  />
-                  {errors.confirmPassword && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.confirmPassword.message}
-                    </p>
-                  )}
-                  {confirmPassword && confirmPassword !== password && (
-                    <p className="text-red-500 text-sm mt-2">
-                      Passwords do not match
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
-                <div className=" text-gray-400">
-                  <p>
-                    <span className="text-gray-500 font-medium">1</span>/3
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="ghost-btn flex items-center gap-2"
-                    disabled
-                  >
-                    <FaArrowLeft />
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStep(2)}
-                    className="primary-btn"
-                  >
-                    Next Step
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div>
-              <p className="section-title py-4 mt-10">
-                Identities and Interests
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Controller
-                    name="sexual_identity"
-                    control={control}
-                    render={({ field }) => (
-                      <>
-                        <SelectInput
-                          label="Sexual Identities"
-                          options={[
-                            { value: "male", label: "Male" },
-                            { value: "female", label: "Female" },
-                            { value: "non-binary", label: "Non-binary" },
-                          ]}
-                          {...field}
-                        />
-                        {errors.sexual_identity && (
+                        {errors.date_of_birth && (
                           <p className="text-red-500 text-sm mt-2">
-                            {errors.sexual_identity.message}
+                            {errors.date_of_birth.message}
                           </p>
                         )}
-                      </>
+                      </div>
                     )}
                   />
-                </div>
 
-                <div>
                   <Controller
-                    name="sexual_preference"
+                    name="location"
                     control={control}
                     render={({ field }) => (
-                      <>
+                      <div>
                         <SelectInput
-                          label="Sexual Preferences"
-                          options={[
-                            { value: "men", label: "Men" },
-                            { value: "women", label: "Women" },
-                            { value: "non-binary", label: "Non-binary" },
-                          ]}
+                          label="Location"
+                          options={countryOptions}
                           {...field}
                         />
-                        {errors.sexual_preference && (
+                        {errors.location && (
                           <p className="text-red-500 text-sm mt-2">
-                            {errors.sexual_preference.message}
+                            {errors.location.message}
                           </p>
                         )}
-                      </>
+                      </div>
                     )}
                   />
-                </div>
 
-                <div>
                   <Controller
-                    name="racial_preference"
+                    key={selectedCountry}
+                    name="city"
                     control={control}
                     render={({ field }) => (
-                      <>
-                        <SelectInput
-                          label="Racial Preferences"
-                          options={[
-                            { value: "asian", label: "Asian" },
-                            { value: "caucasian", label: "Caucasian" },
-                            { value: "african", label: "African" },
-                            { value: "mixed", label: "Mixed" },
-                            { value: "hispanic", label: "Hispanic" },
-                            { value: "no_preference", label: "No preference" },
-                            { value: "other", label: "Other" },
-                          ]}
-                          {...field}
-                        />
-                        {errors.racial_preference && (
+                      <div>
+                        {cityOptions.length > 0 ? (
+                          <SelectInput
+                            label="City"
+                            options={cityOptions}
+                            {...field}
+                          />
+                        ) : (
+                          <TextInput
+                            label="City"
+                            placeholder="Enter your city"
+                            {...field}
+                          />
+                        )}
+                        {errors.city && (
                           <p className="text-red-500 text-sm mt-2">
-                            {errors.racial_preference.message}
+                            {errors.city.message}
                           </p>
                         )}
-                      </>
+                      </div>
                     )}
                   />
-                </div>
 
-                <div>
-                  <Controller
-                    name="meeting_interest"
-                    control={control}
-                    render={({ field }) => (
-                      <>
-                        <SelectInput
-                          label="Meeting Interests"
-                          options={[
-                            { value: "friendship", label: "Friendship" },
-                            { value: "relationship", label: "Relationship" },
-                            { value: "casual", label: "Casual" },
-                            { value: "networking", label: "Networking" },
-                          ]}
-                          {...field}
-                        />
-                        {errors.meeting_interest && (
-                          <p className="text-red-500 text-sm mt-2">
-                            {errors.meeting_interest.message}
-                          </p>
-                        )}
-                      </>
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mt-6">
-                <Controller
-                  name="hobbies"
-                  control={control}
-                  render={({ field }) => (
-                    <>
-                      <MultiSelectTagInput
-                        label="Hobbies / Interest (Maximum 10)"
-                        {...field}
-                      />
-                      {errors.hobbies && (
-                        <p className="text-red-500 text-sm mt-2">
-                          {errors.hobbies.message}
-                        </p>
+                  <div>
+                    <Controller
+                      name="username"
+                      control={control}
+                      render={({ field }) => (
+                        <TextInput label="Username" {...field} />
                       )}
-                    </>
-                  )}
-                />
-              </div>
-              <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
-                <div className=" text-gray-400">
-                  <p>
-                    <span className="text-gray-500 font-medium">2</span>/3
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="ghost-btn flex items-center gap-2"
-                  >
-                    <FaArrowLeft />
-                    Back
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    className="primary-btn"
-                  >
-                    Next Step
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div>
-              <p className="section-title py-4 mt-10">Profile pictures</p>
-
-              <div>
-                <div>
-                  <Controller
-                    name="images"
-                    control={control}
-                    render={({ field }) => (
-                      <UploadPhotoInput
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
+                    />
+                    {errors.username && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.username.message}
+                      </p>
                     )}
-                  />
+                  </div>
 
-                  {errors.images && (
-                    <p className="text-red-500 text-sm mt-2">
-                      {errors.images.message}
-                    </p>
-                  )}
+                  <div>
+                    <Controller
+                      name="email"
+                      control={control}
+                      render={({ field }) => (
+                        <TextInput label="Email" {...field} />
+                      )}
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="password"
+                      control={control}
+                      render={({ field }) => (
+                        <PasswordInput label="Password" {...field} />
+                      )}
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.password.message}
+                      </p>
+                    )}
+                    {password && password.length < 8 && (
+                      <p className="text-yellow-500 text-sm mt-2">
+                        Password should be at least 8 characters
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="confirmPassword"
+                      control={control}
+                      render={({ field }) => (
+                        <PasswordInput label="Confirm Password" {...field} />
+                      )}
+                    />
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
+                    {confirmPassword && confirmPassword !== password && (
+                      <p className="text-red-500 text-sm mt-2">
+                        Passwords do not match
+                      </p>
+                    )}
+                  </div>
                 </div>
-
-                <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                <div className="flex justify-between fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
                   <div className=" text-gray-400">
                     <p>
-                      <span className="text-gray-500 font-medium">3</span>/3
+                      <span className="text-gray-500 font-medium">1</span>/3
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => setStep(1)}
+                      className="ghost-btn flex items-center gap-2"
+                      disabled
+                    >
+                      <FaArrowLeft />
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleNextStep(1)}
+                      className="primary-btn"
+                    >
+                      Next Step
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div>
+                <p className="section-title py-4 mt-10">
+                  Identities and Interests
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Controller
+                      name="sexual_identity"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <SelectInput
+                            label="Sexual Identities"
+                            options={[
+                              { value: "male", label: "Male" },
+                              { value: "female", label: "Female" },
+                              { value: "non-binary", label: "Non-binary" },
+                            ]}
+                            {...field}
+                          />
+                          {errors.sexual_identity && (
+                            <p className="text-red-500 text-sm mt-2">
+                              {errors.sexual_identity.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="sexual_preference"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <SelectInput
+                            label="Sexual Preferences"
+                            options={[
+                              { value: "men", label: "Men" },
+                              { value: "women", label: "Women" },
+                              { value: "non-binary", label: "Non-binary" },
+                            ]}
+                            {...field}
+                          />
+                          {errors.sexual_preference && (
+                            <p className="text-red-500 text-sm mt-2">
+                              {errors.sexual_preference.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="racial_preference"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <SelectInput
+                            label="Racial Preferences"
+                            options={[
+                              { value: "asian", label: "Asian" },
+                              { value: "caucasian", label: "Caucasian" },
+                              { value: "african", label: "African" },
+                              { value: "mixed", label: "Mixed" },
+                              { value: "hispanic", label: "Hispanic" },
+                              {
+                                value: "no_preference",
+                                label: "No preference",
+                              },
+                              { value: "other", label: "Other" },
+                            ]}
+                            {...field}
+                          />
+                          {errors.racial_preference && (
+                            <p className="text-red-500 text-sm mt-2">
+                              {errors.racial_preference.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    />
+                  </div>
+
+                  <div>
+                    <Controller
+                      name="meeting_interest"
+                      control={control}
+                      render={({ field }) => (
+                        <>
+                          <SelectInput
+                            label="Meeting Interests"
+                            options={[
+                              { value: "friendship", label: "Friendship" },
+                              { value: "relationship", label: "Relationship" },
+                              { value: "casual", label: "Casual" },
+                              { value: "networking", label: "Networking" },
+                            ]}
+                            {...field}
+                          />
+                          {errors.meeting_interest && (
+                            <p className="text-red-500 text-sm mt-2">
+                              {errors.meeting_interest.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="mt-6">
+                  <Controller
+                    name="hobbies"
+                    control={control}
+                    render={({ field }) => (
+                      <>
+                        <MultiSelectTagInput
+                          label="Hobbies / Interest (Maximum 10)"
+                          {...field}
+                        />
+                        {errors.hobbies && (
+                          <p className="text-red-500 text-sm mt-2">
+                            {errors.hobbies.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+                <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                  <div className=" text-gray-400">
+                    <p>
+                      <span className="text-gray-500 font-medium">2</span>/3
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
                       className="ghost-btn flex items-center gap-2"
                     >
                       <FaArrowLeft />
                       Back
                     </button>
-                    <button type="submit" className="primary-btn">
-                      Confirm
+                    <button
+                      type="button"
+                      onClick={() => handleNextStep(2)}
+                      className="primary-btn"
+                    >
+                      Next Step
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {generalError && (
-            <p className="text-red-500 text-sm mt-4">{generalError}</p>
-          )}
-        </form>
+            {step === 3 && (
+              <div>
+                <p className="section-title py-4 mt-10">Profile pictures</p>
+
+                <div>
+                  <div>
+                    <Controller
+                      name="images"
+                      control={control}
+                      render={({ field }) => (
+                        <UploadPhotoInput
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+
+                    {errors.images && (
+                      <p className="text-red-500 text-sm mt-2">
+                        {errors.images.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between mt-6 fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 py-4 px-5 md:px-40 z-50 items-center">
+                    <div className=" text-gray-400">
+                      <p>
+                        <span className="text-gray-500 font-medium">3</span>/3
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setStep(2)}
+                        className="ghost-btn flex items-center gap-2"
+                      >
+                        <FaArrowLeft />
+                        Back
+                      </button>
+                      <button type="submit" className="primary-btn">
+                        Confirm
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {generalError && (
+              <p className="text-red-500 text-sm mt-4">{generalError}</p>
+            )}
+          </form>
+        </div>
       </div>
-    </div>
-  
 
       <AlertPopup
         isOpen={!!alertMessage}
@@ -593,7 +622,6 @@ export default function RegisterPage() {
         buttonRightText="OK"
         buttonRightClick={() => setAlertMessage("")}
       />
-
-  </>
+    </>
   );
 }
