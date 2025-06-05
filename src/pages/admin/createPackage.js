@@ -2,42 +2,27 @@ import AdminSidebar from '@/components/AdminSidebar';
 import CreatePackageHeader from '@/components/admin/createPackageHeader';
 import CreatePackageForm from '@/components/admin/createPackageForm';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function CreatePackagePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitFormRef = useRef(); // ฟังก์ชันที่จะใช้ trigger submit
 
-  const handleCreate = async ({ packageName, merryLimit, iconFile, details }) => {
-    if (!packageName || !iconFile || !merryLimit) {
+  const handleCreate = async ({ package_name, merry_per_day, price, details }) => {
+    if (!package_name || merry_per_day === undefined) {
       alert('กรอกข้อมูลให้ครบ');
       return;
     }
 
     setIsSubmitting(true);
 
-    const fileExt = iconFile.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('package-icons')
-      .upload(fileName, iconFile);
-
-    if (uploadError) {
-      alert('อัปโหลดรูปไม่สำเร็จ');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('package-icons').getPublicUrl(fileName);
-
-    const { error: insertError } = await supabase.from('merry_packages').insert([
+    const { error: insertError } = await supabase.from('packages').insert([
       {
-        package_name: packageName,
-        merry_per_day: merryLimit === 'ไม่จำกัด' ? null : parseInt(merryLimit),
-        icon_url: publicUrl,
+        package_name,
+        merry_per_day,
+        price,
         details,
       },
     ]);
@@ -56,8 +41,17 @@ export default function CreatePackagePage() {
     <div className="flex min-h-screen bg-gray-50">
       <AdminSidebar />
       <main className="flex-1">
-        <CreatePackageHeader onCreate={() => document.querySelector('form').requestSubmit()} isSubmitting={isSubmitting} />
-        <CreatePackageForm onSubmit={handleCreate} isSubmitting={isSubmitting} />
+        <CreatePackageHeader
+          onCreate={() => submitFormRef.current?.()}
+          isSubmitting={isSubmitting}
+        />
+        <CreatePackageForm
+          onSubmit={handleCreate}
+          isSubmitting={isSubmitting}
+          setExternalSubmit={(submitFn) => {
+            submitFormRef.current = submitFn;
+          }}
+        />
       </main>
     </div>
   );

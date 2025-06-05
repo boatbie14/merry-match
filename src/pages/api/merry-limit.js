@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 // ตั้งค่า Supabase client
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+console.log("🔍 SERVICE_ROLE_KEY:", process.env.SUPABASE_SERVICE_ROLE_KEY);
+
 // ID ของ Free Package
 const FREE_PACKAGE_ID = "6c3e5251-6ba4-4c79-a305-22cfaaecb47c";
 
