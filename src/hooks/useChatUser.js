@@ -22,12 +22,12 @@ export const useChatUser = () => {
       if (checkingLogin) return;
 
       if (!isLoggedIn || !userInfo?.id) {
-        setError("กรุณาเข้าสู่ระบบก่อน");
+        setError("Please Login");
         return;
       }
 
       if (!encryptedId) {
-        setError("ไม่พบข้อมูล User ID");
+        setError("Not found this User ID");
         return;
       }
 

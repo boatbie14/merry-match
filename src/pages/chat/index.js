@@ -83,8 +83,8 @@ export default function MatchPage() {
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <p className="text-red-500">Error loading chat:</p>
-                {chatError && <p className="text-sm text-red-400 mt-1">Chat: {chatError}</p>}
-                {userDetailError && <p className="text-sm text-red-400 mt-1">User: {userDetailError}</p>}
+                {chatError && <p className="text-sm text-[#FF1559] mt-1">Chat: {chatError}</p>}
+                {userDetailError && <p className="text-sm text-[#FF1559] mt-1">User: {userDetailError}</p>}
               </div>
             </div>
           )}
