@@ -22,13 +22,14 @@ const nunito = Nunito({
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
-  const { pathname } = router;
+  const pathname = router.pathname;
 
-  const noFooterRoutes = ["/login", "/register", "/matching", "/chat", "/admin", "/admin/createPackage"];
-  const noNavbarRoutes = ["/admin", "/admin/createPackage"];
+  const noFooterRoutes = ["/login", "/register", "/matching", "/admin", "/admin/createPackage", "/admin/edit-package"];
+  const noNavbarRoutes = ["/admin", "/admin/createPackage","/admin/edit-package"];
+  
 
-  const hideFooter = noFooterRoutes.includes(pathname);
-  const hideNavbar = noNavbarRoutes.includes(pathname);
+  const hideFooter = noFooterRoutes.some((route) => pathname.startsWith(route));
+  const hideNavbar = noNavbarRoutes.some((route) => pathname.startsWith(route));
   const isAdminPage = pathname.startsWith("/admin");
 
   // Single Layout definition
