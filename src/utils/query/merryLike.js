@@ -19,8 +19,9 @@ export async function deleteMerryLike(from_user_id, to_user_id) {
 
 export async function insertMerryLike(from_user_id, to_user_id) {
   // 1. Insert ก่อน
-  const { data, error } = await supabase.from("merry_list").insert([{ from_user_id, to_user_id }]);
-  console.log(error);
+  const { data, error } = await supabase
+    .from('merry_list')
+    .insert([{ from_user_id, to_user_id }]);
   if (error) {
     return { data, error, checkMatchUser: false };
   }

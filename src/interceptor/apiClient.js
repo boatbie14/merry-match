@@ -1,4 +1,3 @@
-// ## TODO 😗🕐 delete CONSOLE.LOG data
 import axios from 'axios';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -30,7 +29,6 @@ apiClient.interceptors.request.use(
 // Response Interceptor
 apiClient.interceptors.response.use(
   (response) => {
-    // console.log('Response Interceptor:', response);
     return response;
   },
   (error) => {

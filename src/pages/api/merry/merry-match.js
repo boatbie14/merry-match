@@ -41,9 +41,6 @@ export default async function handler(req, res) {
 
     // เอาทุก match user id ออกมาทั้งหมด
     const allMatches = data.map(entry => entry.match_user_id);
-    console.log('All matches:', allMatches);
-    console.log('Today matches (UTC):', todayMatches);
-
     return res.status(200).json({ allMatches, todayMatches });
 
   } catch (err) {

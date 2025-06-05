@@ -60,7 +60,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
         
             <div>
                 {detail.length>2
-                    ?<h3 className="text-center text-[#CF4FA9] text-[15px] cursor-pointer hover:underline mb-[-6px]"
+                    ?<h3 className="text-center text-[#CF4FA9] text-[15px] cursor-pointer hover:underline mb-[-5.5px]"
                         onClick={() => setIsExpanded(!isExpanded)} > {isExpanded ? "Show Less" : "Show More"}
                     </h3>
                     :<div className="pt-[16px] "></div> }
@@ -82,7 +82,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
             <div className='md:flex md:relative '>
                 <div className='md:flex gap-4 pr-8 md:pr-3 lg:w-[319px]'>
                     <div className={`w-[60px] h-[60px] md:w-[78px] md:h-[78px] border-none rounded-2xl flex items-center justify-center bg-[#F6F7FC] `}>
-                        {icon? <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />:<Skeleton variant="circular" height={58} width={58}/>}
+                        {icon? <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />:<Skeleton variant="circular" height={48} width={48}/>}
                     </div>:
                     <div className="flex flex-col pt-2 md:pt-0">
                         {packageName?<h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>:<Skeleton width={170} height={50}/>}

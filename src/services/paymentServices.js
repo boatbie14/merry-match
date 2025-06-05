@@ -14,7 +14,6 @@ const token = data.session?.access_token;
     body: JSON.stringify({ invoiceIds }),
   });
   if(res.status!==200) {
-    console.log(res.status)
     return res;}
   const blob = await res.blob();
   const url = URL.createObjectURL(blob);

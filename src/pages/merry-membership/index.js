@@ -181,12 +181,12 @@ const editCreditCard = async (subscription_id) => {
                 <div className="font-semibold text-[#646D89] text-[20px] mb-2 md:mb-1 md:pt-1 px-4 md:px-0">
                   {packagInSubscriptions?.canceled_at ? "Subscription ends on" :"Next billing"} : <span className="text-[#646D89]">{formatDateToUserTimezone(packagInSubscriptions?.current_period_end)}</span>
                 </div>
-                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
+                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] text-[#646D89] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
                   {isLoadingTable
                       ? Array(4).fill(null).map((_,index)=> <Skeleton key={index} variant="rectangular" className="w-full mt-8" height={50} />)
                       :dataHistoryPayment.map((item, index) => (
                         <div  key={index}
-                            className={`flex items-center py-3 md:py-4 rounded-md px-4 ${
+                            className={`flex items-center py-4 rounded-md px-4 ${
                             index % 2 !== 0 ? "bg-[#F5F5FA]" : ""
                             }`}
                       >
