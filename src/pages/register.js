@@ -20,8 +20,14 @@ import { LoadingPop } from "@/components/popup/LoadingPop";
 import { AlertPopup } from "@/components/popup/AlertPopup";
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useWatch } from "react-hook-form"; // ✅ import เพิ่ม
+import useMediaQuery from "@mui/material/useMediaQuery";
+
+
 
 export default function RegisterPage() {
+  const isMobile = useMediaQuery("(max-width:768px)");
+
   const router = useRouter();
   const { userInfo, checkingLogin } = useAuth();
   const [alertMessage, setAlertMessage] = useState("");
@@ -34,6 +40,7 @@ export default function RegisterPage() {
     watch,
     setError,
     getValues,
+    clearErrors, 
     formState: { errors },
   } = useForm({
     shouldUnregister: false,
@@ -75,6 +82,16 @@ export default function RegisterPage() {
     label: s.name,
     value: s.name,
   }));
+const watchedValues = useWatch({ control });
+
+useEffect(() => {
+  Object.entries(watchedValues).forEach(([key, value]) => {
+    const isFilled = Array.isArray(value) ? value.length > 0 : !!value;
+    if (errors[key] && isFilled) {
+      clearErrors(key);
+    }
+  });
+}, [watchedValues, errors]);
 
   const onSubmit = async (values) => {
     setGeneralError("");
@@ -181,7 +198,6 @@ export default function RegisterPage() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setStep(s)}
                     className={`text-center p-2 md:p-4 border-1 rounded-2xl ${
                       step === s
                         ? "border-[#A62D82] font-bold  md:h-20 w-auto h-14"
@@ -614,14 +630,17 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <AlertPopup
-        isOpen={!!alertMessage}
-        onClose={() => setAlertMessage("")}
-        title="Required fields missing"
-        description={alertMessage}
-        buttonRightText="OK"
-        buttonRightClick={() => setAlertMessage("")}
-      />
+      {isMobile && (
+  <AlertPopup
+    isOpen={!!alertMessage}
+    onClose={() => setAlertMessage("")}
+    title="Required fields missing"
+    description={alertMessage}
+    buttonRightText="OK"
+    buttonRightClick={() => setAlertMessage("")}
+  />
+)}
+
     </>
   );
 }
