@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import isEqual from 'lodash.isequal';
 import AdminSidebar from '@/components/AdminSidebar';
 import CreatePackageHeader from '@/components/admin/createPackageHeader';
-import CreatePackageForm from '@/components/admin/CreatePackageForm';
-import { getPackageById } from '@/utils/supabase/component';
-import { supabase } from '@/utils/supabase/client';
+import CreatePackageForm from '@/components/admin/createPackageForm';
+import { getPackageById } from '@/lib/supabase/packages';
+import { supabase } from "@/lib/supabaseClient";
 
 export default function EditPackagePage() {
   const router = useRouter();
