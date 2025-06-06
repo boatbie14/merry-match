@@ -20,13 +20,27 @@ import { LoadingPop } from "@/components/popup/LoadingPop";
 import { AlertPopup } from "@/components/popup/AlertPopup";
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useWatch } from "react-hook-form"; // ✅ import เพิ่ม
+import { useWatch } from "react-hook-form";
 import useMediaQuery from "@mui/material/useMediaQuery";
-
-
 
 export default function RegisterPage() {
   const isMobile = useMediaQuery("(max-width:768px)");
+  const fieldOrder = [
+    "name",
+    "date_of_birth",
+    "location",
+    "city",
+    "username",
+    "email",
+    "password",
+    "confirmPassword",
+    "sexual_identity",
+    "sexual_preference",
+    "racial_preference",
+    "meeting_interest",
+    "hobbies",
+    "images",
+  ];
 
   const router = useRouter();
   const { userInfo, checkingLogin } = useAuth();
@@ -40,7 +54,7 @@ export default function RegisterPage() {
     watch,
     setError,
     getValues,
-    clearErrors, 
+    clearErrors,
     formState: { errors },
   } = useForm({
     shouldUnregister: false,
@@ -82,27 +96,29 @@ export default function RegisterPage() {
     label: s.name,
     value: s.name,
   }));
-const watchedValues = useWatch({ control });
+  const watchedValues = useWatch({ control });
 
-useEffect(() => {
-  Object.entries(watchedValues).forEach(([key, value]) => {
-    const isFilled = Array.isArray(value) ? value.length > 0 : !!value;
-    if (errors[key] && isFilled) {
-      clearErrors(key);
-    }
-  });
-}, [watchedValues, errors]);
+  useEffect(() => {
+    Object.entries(watchedValues).forEach(([key, value]) => {
+      const isFilled = Array.isArray(value) ? value.length > 0 : !!value;
+      if (errors[key] && isFilled) {
+        clearErrors(key);
+      }
+    });
+  }, [watchedValues, errors]);
 
   const onSubmit = async (values) => {
     setGeneralError("");
 
     const errorFields = validateRegisterForm(values, setError);
     if (errorFields.length > 0) {
-      const fieldList = errorFields.map(formatFieldName).join(", ");
+      const sortedErrors = [...errorFields].sort(
+        (a, b) => fieldOrder.indexOf(a) - fieldOrder.indexOf(b)
+      );
+      const fieldList = sortedErrors.map(formatFieldName).join(", ");
       setAlertMessage(
         `Oops! It looks like you missed some required fields: ${fieldList}`
       );
-
       return;
     }
 
@@ -147,7 +163,7 @@ useEffect(() => {
   };
   const onError = (formErrors) => {
     const fieldList = Object.keys(formErrors).map(formatFieldName).join(", ");
-    setAlertMessage(`กรุณากรอกข้อมูลให้ครบถ้วนในช่อง: ${fieldList}`);
+    setAlertMessage(`Please complete: ${fieldList}`);
   };
   const handleNextStep = async (stepNumber) => {
     const currentValues = getValues(); // from useForm
@@ -159,7 +175,10 @@ useEffect(() => {
     if (errors.length === 0) {
       setStep(stepNumber + 1);
     } else {
-      const fieldList = errors.map(formatFieldName).join(", ");
+      const sortedStepErrors = [...errors].sort(
+        (a, b) => fieldOrder.indexOf(a) - fieldOrder.indexOf(b)
+      );
+      const fieldList = sortedStepErrors.map(formatFieldName).join(", ");
       setAlertMessage(`Please complete: ${fieldList}`);
     }
   };
@@ -631,16 +650,15 @@ useEffect(() => {
       </div>
 
       {isMobile && (
-  <AlertPopup
-    isOpen={!!alertMessage}
-    onClose={() => setAlertMessage("")}
-    title="Required fields missing"
-    description={alertMessage}
-    buttonRightText="OK"
-    buttonRightClick={() => setAlertMessage("")}
-  />
-)}
-
+        <AlertPopup
+          isOpen={!!alertMessage}
+          onClose={() => setAlertMessage("")}
+          title="Required fields missing"
+          description={alertMessage}
+          buttonRightText="OK"
+          buttonRightClick={() => setAlertMessage("")}
+        />
+      )}
     </>
   );
 }
