@@ -190,7 +190,6 @@
   font-size: 24px;
 }
 
-
 .gray-icon-btn .tooltip {
   position: absolute;
   top: 100%;
@@ -338,12 +337,14 @@
   }
 }
 
+/*****************/
+/*   Navigation  */
+/*****************/
+
 nav {
   box-shadow: 2px 2px 12px 0 #4032851f !important;
 }
 
-
-/*****************/
-/*   Chat Page   */
-/*****************/
-
+aside nav {
+  box-shadow: none !important;
+}

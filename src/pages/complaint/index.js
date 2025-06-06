@@ -151,18 +151,16 @@ export default function ComplaintPage() {
               </form>
             ) : (
               <div className="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Please log in to submit a complaint</h3>
+                <p className="text-gray-600 mb-6">
+                  You need to be logged in to your account to submit a complaint. This helps us track and respond to your issues
+                  effectively.
+                </p>
 
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Please log in to submit a complaint</h3>
-                  <p className="text-gray-600 mb-6">
-                    You need to be logged in to your account to submit a complaint. This helps us track and respond to your issues
-                    effectively.
-                  </p>
-
-                  <button onClick={() => router.push("/login")} className="primary-btn px-6 py-3">
-                    Log In
-                  </button>
-                </div>
-
+                <button onClick={() => router.push("/login")} className="primary-btn px-6 py-3">
+                  Log In
+                </button>
+              </div>
             )}
           </div>
 

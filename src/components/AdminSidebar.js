@@ -1,61 +1,49 @@
-import Link from 'next/link'
-import { useRouter } from 'next/router'
-import { FiPackage, FiAlertTriangle, FiLogOut } from 'react-icons/fi'
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { HiMiniCube } from "react-icons/hi2";
+import { TbAlertTriangleFilled, TbLogout } from "react-icons/tb";
 
 export default function AdminSidebar() {
   const router = useRouter();
   const currentPath = router.pathname;
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r-gray-400 flex flex-col">
-      {/* Logo และ Header */}
-      <div className="px-6 pt-6 pb-4">
-        <div className="text-2xl font-bold text-[#C70039]">
-          Merry<span className="text-black">Match</span>
+    <aside className="w-64 min-h-screen bg-white flex flex-col justify-between border-r-[#D6D9E4] border-r-1">
+      <div>
+        {/* Logo และ Header */}
+        <div className="px-6 py-6">
+          <div className="text-3xl font-bold text-black text-center">
+            Merry<span className="text-[#C70039] font-extrabold">Match</span>
+          </div>
+          <div className="text-sm text-[#646D89] mt-1 text-center">Admin Panel Control</div>
         </div>
-        <div className="text-sm text-gray-500 mt-1">Admin Panel Control</div>
+
+        {/* Navigation Menu */}
+        <nav className="pt-6">
+          <ul>
+            <li className={`p-6 ${currentPath === "/admin" ? "bg-[#F1F2F6]" : ""}`}>
+              <Link href="/admin" className="flex gap-2 text-[#424C6B] font-extrabold">
+                <HiMiniCube color="#FFB1C8" size={24} />
+                Merry Package
+              </Link>
+            </li>
+            <li className={`p-6 ${currentPath === "/admin/complaint" ? "bg-[#F1F2F6]" : ""}`}>
+              <Link href="/admin/complaint" className="flex gap-2 text-[#424C6B] font-extrabold">
+                <TbAlertTriangleFilled color="#FFB1C8" size={24} />
+                Complaint
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 px-2 mt-4">
-        <ul className="space-y-1">
-          <li>
-            <Link
-              href="/admin"
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${
-                currentPath === '/admin'
-                  ? 'bg-gray-100 text-[#212132] font-semibold'
-                  : 'text-[#212132] hover:bg-gray-100'
-              }`}
-            >
-              <FiPackage className="text-pink-400" />
-              Merry Package
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/complaint"
-              className={`flex items-center gap-2 px-4 py-2 rounded-md transition ${
-                currentPath === '/admin/complaint'
-                  ? 'bg-gray-100 text-[#212132] font-semibold'
-                  : 'text-[#212132] hover:bg-gray-100'
-              }`}
-            >
-              <FiAlertTriangle className="text-pink-400" />
-              Complaint
-            </Link>
-          </li>
-        </ul>
-      </nav>
-
-      {/* เส้นคั่นก่อน Logout */}
-      <div />
-
       {/* Logout */}
-      <button className="flex items-center gap-2 text-[#212132] hover:bg-gray-100 px-4 py-3 w-full transition">
-        <FiLogOut className="text-pink-400" />
-        Log out
-      </button>
+      <div className="p-6 border-t border-[#E4E6ED] mb-40">
+        <button className="flex gap-2 text-[#424C6B] font-extrabold">
+          <TbLogout color="#FFB1C8" size={24} />
+          Log out
+        </button>
+      </div>
     </aside>
   );
 }
