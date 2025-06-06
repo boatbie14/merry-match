@@ -1,6 +1,7 @@
 // components/MatchingLeftColumn.js
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { useMerryLike } from "@/context/MerryLikeContext";
 import { useMatchedUsers } from "@/hooks/useMatchedUsers";
 import { useAuth } from "@/context/AuthContext";
@@ -59,7 +60,7 @@ export default function MatchingLeftColumn({ onNavigate }) {
     };
 
     findCurrentRoomId();
-  }, [router.query.u, userInfo?.id]);
+  }, [router.query.u, userInfo?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleStartConversation = (userId) => {
     try {
@@ -122,10 +123,12 @@ export default function MatchingLeftColumn({ onNavigate }) {
           <div className="match-users-container w-full h-32 flex flex-row gap-3 overflow-x-auto whitespace-nowrap">
             {matchedUsers.map((user) => (
               <div key={user.id} className="match-user w-[100px] h-[100px] relative overflow-visible flex-shrink-0">
-                <img
+                <Image
                   onClick={() => handleStartConversation(user.id)}
                   src={user.profile_image_url || "/default-avatar.png"}
                   alt={user.name}
+                  width={100}
+                  height={100}
                   className="rounded-3xl w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                 />
                 <DoubleHeartsIcon size={24} color="#FF1659" className="absolute bottom-0 right-2 translate-x-1/4 translate-y-1/4" />

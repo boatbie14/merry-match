@@ -1,11 +1,13 @@
 // components/ChatBox.js
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { useChatMessages } from "@/hooks/useChatMessages";
 import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
 import { PiImageFill } from "react-icons/pi";
 
-export default function Chat({ chatData, currentUser }) {
+// 🚀 UPDATED: เพิ่ม onMessageSent prop
+export default function Chat({ chatData, currentUser, onMessageSent }) {
   const [newMessage, setNewMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -24,7 +26,7 @@ export default function Chat({ chatData, currentUser }) {
   const username = currentUser?.name || "Unknown";
   const roomId = chatData?.chatRoom?.id;
 
-  // ใช้ custom hook สำหรับจัดการ chat
+  // ใช้ custom hook สำหรับจัดการ chat (กลับไปใช้ไฟล์เก่า)
   const { messages, loading, error, sending, sendMessage, isOwnMessage, messagesEndRef, clearError } = useChatMessages(
     senderId,
     receiverId,
@@ -53,12 +55,12 @@ export default function Chat({ chatData, currentUser }) {
     setIsModalOpen(false);
   };
 
-  // Resize และ compress รูปภาพ
+  // Resize และ compress รูปภาพ - ใช้ HTMLImageElement แทน Image constructor
   const resizeAndCompressImage = (file, maxWidth = 800, quality = 0.7) => {
     return new Promise((resolve) => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      const img = new Image();
+      const img = document.createElement("img"); // เปลี่ยนจาก new Image()
 
       img.onload = () => {
         // คำนวณขนาดใหม่
@@ -167,6 +169,11 @@ export default function Chat({ chatData, currentUser }) {
       if (success) {
         setNewMessage("");
         handleRemoveImage();
+
+        // 🎉 NEW: เรียก callback เมื่อส่งสำเร็จ
+        if (onMessageSent && typeof onMessageSent === "function") {
+          onMessageSent();
+        }
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -195,12 +202,17 @@ export default function Chat({ chatData, currentUser }) {
       return (
         <div className="flex flex-col gap-2">
           {/* รูปภาพ - แยกออกจาก bubble */}
-          <img
-            src={message.image_url}
-            alt="Shared image"
-            className="max-w-[250px] max-h-[200px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
-            onClick={() => openImageModal(message.image_url)}
-          />
+          <div className="relative max-w-[250px] max-h-[200px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
+            <Image
+              src={message.image_url}
+              alt="Shared image"
+              width={250}
+              height={200}
+              className="object-cover w-full h-full"
+              onClick={() => openImageModal(message.image_url)}
+              unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
+            />
+          </div>
           {/* Caption ถ้ามี - อยู่ใน bubble แยก */}
           {message.content && message.content.trim() && (
             <span
@@ -234,12 +246,17 @@ export default function Chat({ chatData, currentUser }) {
             </button>
 
             {/* Modal Image */}
-            <img
-              src={modalImage}
-              alt="Full size view"
-              className="max-w-full max-h-full object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
+            <div className="relative max-w-full max-h-full">
+              <Image
+                src={modalImage}
+                alt="Full size view"
+                width={800}
+                height={600}
+                className="max-w-full max-h-full object-contain rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+                unoptimized={modalImage?.startsWith("blob:") || modalImage?.startsWith("data:")}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -268,51 +285,68 @@ export default function Chat({ chatData, currentUser }) {
                 <div className="flex flex-col items-end gap-1">
                   {message.message_type === "image" ? (
                     <div className="flex flex-col items-end gap-2">
-                      <img
-                        src={message.image_url}
-                        alt="Shared image"
-                        className="max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
-                        onClick={() => openImageModal(message.image_url)}
-                      />
+                      <div className="relative max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
+                        <Image
+                          src={message.image_url}
+                          alt="Shared image"
+                          width={300}
+                          height={300}
+                          className="object-cover w-full h-full"
+                          onClick={() => openImageModal(message.image_url)}
+                          unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
+                        />
+                      </div>
                       {message.content && message.content.trim() && (
-                        <span className="inline-block px-6 py-4 bg-[#7D2262] text-white rounded-tl-[24px] rounded-tr-[24px] rounded-bl-[24px] rounded-br-none">
+                        <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
                           {message.content}
                         </span>
                       )}
                     </div>
                   ) : (
-                    <span className="inline-block px-6 py-4 rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
+                    <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
                       {renderMessage(message)}
                     </span>
                   )}
                 </div>
               ) : (
                 // ข้อความของคนอื่น
-                <div className="flex items-start gap-3">
+                <div className="flex items-end gap-3">
                   {message.sender?.profile_image_url && (
-                    <img
-                      src={message.sender.profile_image_url}
-                      className="rounded-full w-10 h-10 object-cover flex-shrink-0"
-                      alt={message.sender.username}
-                    />
+                    <div className="relative w-10 h-10 flex-shrink-0">
+                      <Image
+                        src={message.sender.profile_image_url}
+                        alt={message.sender.username}
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover w-full h-full"
+                        unoptimized={
+                          message.sender.profile_image_url?.startsWith("blob:") || message.sender.profile_image_url?.startsWith("data:")
+                        }
+                      />
+                    </div>
                   )}
                   <div className="flex flex-col items-start gap-1">
                     {message.message_type === "image" ? (
                       <div className="flex flex-col items-start gap-2">
-                        <img
-                          src={message.image_url}
-                          alt="Shared image"
-                          className="max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] object-cover rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow"
-                          onClick={() => openImageModal(message.image_url)}
-                        />
+                        <div className="relative max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
+                          <Image
+                            src={message.image_url}
+                            alt="Shared image"
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                            onClick={() => openImageModal(message.image_url)}
+                            unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
+                          />
+                        </div>
                         {message.content && message.content.trim() && (
-                          <span className="inline-block px-6 py-4 bg-[#EFC4E2] text-black rounded-tl-[24px] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none">
+                          <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
                             {message.content}
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="inline-block px-6 py-4 rounded-tl-[24px] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-black">
+                      <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
                         {message.content}
                       </span>
                     )}
@@ -330,7 +364,16 @@ export default function Chat({ chatData, currentUser }) {
         {/* แสดง preview รูป */}
         {imagePreview && (
           <div className="mb-3 flex items-center gap-2 p-2 bg-[#200009] border-1 border-[#FF1659] rounded-lg">
-            <img src={imagePreview} alt="Preview" className="w-12 h-12 object-cover rounded" />
+            <div className="relative w-12 h-12 overflow-hidden rounded">
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                width={48}
+                height={48}
+                className="object-cover w-full h-full"
+                unoptimized={imagePreview?.startsWith("blob:") || imagePreview?.startsWith("data:")}
+              />
+            </div>
             <span className="text-sm text-gray-600 flex-1">Select Image</span>
             <button type="button" onClick={handleRemoveImage} className="text-red-500 hover:text-red-700">
               <HiX size={20} />

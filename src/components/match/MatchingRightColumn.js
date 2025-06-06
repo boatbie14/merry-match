@@ -29,7 +29,7 @@ const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
   useEffect(() => {
     // เมื่อโหลดครั้งแรกหรือเมื่อ currentUser เปลี่ยน ให้ทำการ initialize state
     initializeComponentState();
-  }, [filters, currentUser]);
+  }, [filters, currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initialize the component's state based on filters or currentUser
   const initializeComponentState = () => {
@@ -84,7 +84,7 @@ const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
   // Effect สำหรับจัดการกับการเลือก gender interests
   useEffect(() => {
     updatePreferenceFromGenderInterests();
-  }, [genderInterests]);
+  }, [genderInterests]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // คำนวณค่า preference จากการเลือก checkbox
   const updatePreferenceFromGenderInterests = () => {
@@ -181,7 +181,7 @@ const MatchingRightColumn = forwardRef(({ clearCallback, onSearch }, ref) => {
       console.log("Registering handleClear function to parent");
       clearCallback(handleClear);
     }
-  }, [clearCallback]);
+  }, [clearCallback]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = () => {
     // สร้าง age_range แบบ string (เช่น "18-80")

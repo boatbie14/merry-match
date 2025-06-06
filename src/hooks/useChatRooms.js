@@ -1,5 +1,5 @@
 // hooks/useChatRooms.js
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // สร้าง Supabase client
@@ -13,8 +13,10 @@ export const useChatRooms = (currentUserId) => {
   const [error, setError] = useState(null);
   const channelRef = useRef(null);
 
-  const fetchChatRooms = async () => {
+  // ใช้ useCallback เพื่อป้องกัน infinite re-render
+  const fetchChatRooms = useCallback(async () => {
     if (!currentUserId) {
+      setChatRooms([]);
       setLoading(false);
       return;
     }
@@ -23,7 +25,6 @@ export const useChatRooms = (currentUserId) => {
       setLoading(true);
       setError(null);
 
-      // เพิ่ม absolute URL เผื่อมีปัญหา relative path
       const apiUrl = `${window.location.origin}/api/chat/rooms`;
 
       const response = await fetch(apiUrl, {
@@ -45,48 +46,40 @@ export const useChatRooms = (currentUserId) => {
       const data = await response.json();
 
       if (data.success) {
-        setChatRooms(data.chatRooms || []);
+        // Force state update ด้วย function update pattern
+        setChatRooms((prevRooms) => {
+          const newRooms = data.chatRooms || [];
+          return newRooms;
+        });
       } else {
         throw new Error(data.message || "API returned success: false");
       }
     } catch (err) {
+      console.error("❌ fetchChatRooms error:", err);
       setError(err.message);
+      setChatRooms([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentUserId]);
 
-  // Real-time subscription สำหรับ messages
+  // Real-time subscription - เฉพาะการเปลี่ยนแปลงที่สำคัญ
   useEffect(() => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      return;
+    }
 
-    // ตั้งค่า realtime subscription สำหรับ messages
+    // Cleanup subscription เก่า
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    // สร้าง subscription ใหม่
+    const channelName = `chat-updates-${currentUserId}-${Date.now()}`;
+
     const channel = supabase
-      .channel("chat-rooms-updates")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-        },
-        (payload) => {
-          // Refresh chat rooms เมื่อมี message ใหม่
-          fetchChatRooms();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_rooms",
-        },
-        (payload) => {
-          // Refresh chat rooms เมื่อมี room ใหม่
-          fetchChatRooms();
-        }
-      )
+      .channel(channelName)
+      // Subscribe chat_rooms UPDATE - เมื่อมีการอัปเดต last_message
       .on(
         "postgres_changes",
         {
@@ -95,31 +88,63 @@ export const useChatRooms = (currentUserId) => {
           table: "chat_rooms",
         },
         (payload) => {
-          // Refresh chat rooms เมื่อ room มีการ update
-          fetchChatRooms();
+          const { user1_id, user2_id, is_match } = payload.new || {};
+
+          // เฉพาะ room ที่เป็นของ user นี้ และ is_match = true
+          if ((user1_id === currentUserId || user2_id === currentUserId) && is_match) {
+            // ใช้ setTimeout เพื่อให้ database commit เสร็จก่อน
+            setTimeout(() => {
+              fetchChatRooms();
+            }, 100);
+          }
         }
       )
-      .subscribe();
+      // Subscribe messages INSERT - เมื่อมีข้อความใหม่
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+        },
+        (payload) => {
+          const { sender_id, receiver_id } = payload.new || {};
+
+          // เฉพาะข้อความที่เกี่ยวข้องกับ user นี้
+          if (sender_id === currentUserId || receiver_id === currentUserId) {
+            // ใช้ setTimeout เพื่อให้ trigger อัปเดต chat_rooms เสร็จก่อน
+            setTimeout(() => {
+              fetchChatRooms();
+            }, 200);
+          }
+        }
+      )
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR") {
+          console.error("❌ Subscription error");
+        } else if (status === "TIMED_OUT") {
+          console.error("⏰ Subscription timed out");
+          // ลองต่อใหม่
+          setTimeout(() => {
+            fetchChatRooms();
+          }, 1000);
+        }
+      });
 
     channelRef.current = channel;
 
     return () => {
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
-  }, [currentUserId]);
+  }, [currentUserId, fetchChatRooms]);
 
   // Initial fetch
   useEffect(() => {
-    if (currentUserId) {
-      fetchChatRooms();
-    } else {
-      setChatRooms([]);
-      setLoading(false);
-      setError(null);
-    }
-  }, [currentUserId]);
+    fetchChatRooms();
+  }, [fetchChatRooms]);
 
   return {
     chatRooms,

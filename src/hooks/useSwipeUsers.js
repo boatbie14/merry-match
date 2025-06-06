@@ -45,20 +45,6 @@ export function useSwipeUsers() {
   //Current user state
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Start load component on mount - only if userInfo exists
-  useEffect(() => {
-    if (userInfo) {
-      fetchUsers(1);
-    }
-  }, [userInfo]);
-
-  //useEffect check filter change - only if userInfo exists
-  useEffect(() => {
-    if (userInfo) {
-      fetchUsers(1);
-    }
-  }, [filters, userInfo]);
-
   // Fetch Users
   const fetchUsers = async (page = 1) => {
     if (!userInfo) {
@@ -142,6 +128,20 @@ export function useSwipeUsers() {
       setLoading(false);
     }
   };
+
+  // Start load component on mount - only if userInfo exists
+  useEffect(() => {
+    if (userInfo) {
+      fetchUsers(1);
+    }
+  }, [userInfo]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  //useEffect check filter change - only if userInfo exists
+  useEffect(() => {
+    if (userInfo) {
+      fetchUsers(1);
+    }
+  }, [filters, userInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return null;

@@ -32,7 +32,6 @@ export default async function handler(req, res) {
     const userId = Array.isArray(fields.userId) ? fields.userId[0] : fields.userId;
     const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
 
-    console.log("📤 Upload image request:", { userId, fileName: imageFile?.originalFilename });
 
     // Validation
     if (!userId) {
@@ -95,8 +94,7 @@ export default async function handler(req, res) {
 
     const imageUrl = urlData.publicUrl;
 
-    console.log("✅ Image uploaded successfully:", imageUrl);
-
+    
     // ลบไฟล์ temporary
     try {
       fs.unlinkSync(imageFile.filepath);

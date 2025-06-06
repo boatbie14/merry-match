@@ -24,9 +24,8 @@ export default function App({ Component, pageProps }) {
   const router = useRouter();
   const pathname = router.pathname;
 
-  const noFooterRoutes = ["/login", "/register", "/matching", "/admin", "/admin/createPackage", "/admin/edit-package"];
-  const noNavbarRoutes = ["/admin", "/admin/createPackage","/admin/edit-package"];
-  
+  const noFooterRoutes = ["/login", "/register", "/matching", "/admin", "/admin/createPackage", "/admin/edit-package", "/chat"];
+  const noNavbarRoutes = ["/admin", "/admin/createPackage", "/admin/edit-package"];
 
   const hideFooter = noFooterRoutes.some((route) => pathname.startsWith(route));
   const hideNavbar = noNavbarRoutes.some((route) => pathname.startsWith(route));

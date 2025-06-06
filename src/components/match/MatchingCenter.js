@@ -1,6 +1,7 @@
 // components/match/MatchingCenter.js
 import React, { useState, useContext } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { encryptUserId } from "@/utils/crypto";
 
@@ -208,12 +209,21 @@ const MatchingCenter = ({ onToggleFilter }) => {
                 {/* Container for image and gradient */}
                 <div className="relative w-full rounded-b-4xl md:rounded-4xl" style={{ height: "640px", overflow: "hidden" }}>
                   {/* รูปภาพ */}
-                  <img
-                    src={getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)}
-                    className="w-full h-full object-cover pointer-events-none"
-                    alt={`Photo of ${user.name}`}
-                    style={{ pointerEvents: "none" }}
-                  />
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)}
+                      alt={`Photo of ${user.name}`}
+                      fill
+                      className="object-cover pointer-events-none"
+                      style={{ pointerEvents: "none" }}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority
+                      unoptimized={
+                        getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)?.startsWith("blob:") ||
+                        getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)?.startsWith("data:")
+                      }
+                    />
+                  </div>
                   {/* Linear Gradient Layer ทับรูป */}
                   <div
                     className="absolute inset-0 pointer-events-none"
@@ -226,29 +236,27 @@ const MatchingCenter = ({ onToggleFilter }) => {
                   {/* =================> EDIT: แก้ไขเงื่อนไขการแสดงผล match card */}
                   {user.isMatch ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center mt-24">
-                      <img
-                        src="./images/merry-match.png"
-                        className="w-60 h-auto no-drag"
-                        alt="Matching"
-                        style={{
-                          pointerEvents: "none",
-                          WebkitUserDrag: "none",
-                          KhtmlUserDrag: "none",
-                          MozUserDrag: "none",
-                          OUserDrag: "none",
-                          userDrag: "none",
-                        }}
-                      />
+                      <div className="relative w-60 h-auto">
+                        <Image
+                          src="/images/merry-match.png"
+                          alt="Matching"
+                          width={240}
+                          height={120}
+                          className="no-drag"
+                          style={{
+                            pointerEvents: "none",
+                            WebkitUserDrag: "none",
+                            KhtmlUserDrag: "none",
+                            MozUserDrag: "none",
+                            OUserDrag: "none",
+                            userDrag: "none",
+                          }}
+                          priority
+                        />
+                      </div>
                       <button className="secondary-btn mt-6" onClick={() => handleStartConversation(user)}>
                         Start Conversation
                       </button>
-
-                      {/* =================> ADD: แสดงข้อความว่าสามารถ swipe ได้ */}
-                      <p className="text-white text-center mt-4 px-4 text-sm opacity-80">
-                        Swipe left or right to continue
-                        <br />
-                        {user.originalProfile.id}
-                      </p>
                     </div>
                   ) : (
                     //=================> ไม่แก้ไข: Normal card แสดงตามเดิม
