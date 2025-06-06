@@ -1,4 +1,4 @@
-import { supabase } from "@/utils/supabase/component";
+import { supabase } from "@/lib/supabaseClient";
 
 export async function getPackageById(id) {
   const { data, error } = await supabase.from("packages").select("*").eq("id", id).single();

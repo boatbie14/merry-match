@@ -3,6 +3,8 @@ import UploadPhotoInput from '@/components/form/UploadPhotoPackage';
 import { uploadImagesToSupabase } from '@/lib/uploadImagesToSupabase';
 import { useEffect } from 'react';
 
+// ... import ทั้งหมด เหมือนเดิม
+
 export default function CreatePackageForm({
   initialData = null,
   isEditMode = false,
@@ -166,7 +168,6 @@ export default function CreatePackageForm({
               {...register(`details.${index}.value`, {
                 required: true,
               })}
-
             />
             <button
               type="button"
@@ -188,16 +189,6 @@ export default function CreatePackageForm({
           className="bg-pink-100 hover:bg-pink-200 text-[#c4003b] font-medium px-4 py-2 rounded-full cursor-pointer transition duration-200"
         >
           + Add detail
-        </button>
-      </div>
-
-      <div className="pt-6">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-[#c4003b] text-white font-medium px-6 py-2 rounded hover:bg-[#a80032] disabled:opacity-50"
-        >
-          {isEditMode ? 'Update' : 'Create'}
         </button>
       </div>
     </form>

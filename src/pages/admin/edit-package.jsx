@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import AdminSidebar from '@/components/AdminSidebar';
 import CreatePackageHeader from '@/components/admin/createPackageHeader';
-import CreatePackageForm from '@/components/admin/CreatePackageForm';
+import CreatePackageForm from '@/components/admin/createPackageForm';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function EditPackagePage() {
