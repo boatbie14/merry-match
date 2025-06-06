@@ -15,6 +15,7 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
 
   const messagesEndRef = useRef(null);
   const channelRef = useRef(null);
+  const currentRoomIdRef = useRef(roomId); // 🔧 FIX: เก็บ current roomId
 
   // โหลดข้อความ
   const loadMessages = async () => {
@@ -125,6 +126,29 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
   // ตรวจสอบว่าข้อความเป็นของเราหรือไม่
   const isOwnMessage = (message) => message.sender_id === senderId;
 
+  // 🔧 FIX: useEffect แยกสำหรับ room change detection
+  useEffect(() => {
+    // ถ้า roomId เปลี่ยน ให้ clear messages และ error
+    if (currentRoomIdRef.current !== roomId) {
+      console.log(`📨 Messages: Room changed from ${currentRoomIdRef.current} to ${roomId}`);
+
+      // Clear previous data
+      setMessages([]);
+      setError(null);
+      setLoading(true);
+
+      // Cleanup previous subscription
+      if (channelRef.current) {
+        console.log("🧹 Cleaning up previous messages subscription");
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+
+      // Update current room reference
+      currentRoomIdRef.current = roomId;
+    }
+  }, [roomId]);
+
   // Setup realtime subscription
   useEffect(() => {
     if (!senderId || !receiverId || !roomId) return;
@@ -134,7 +158,7 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
 
     // ตั้งค่า realtime subscription ที่มี filter
     const channel = supabase
-      .channel(`chat-room-${roomId}`)
+      .channel(`chat-room-messages-${roomId}`)
       .on(
         "postgres_changes",
         {
@@ -146,12 +170,24 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
         async (payload) => {
           const message = payload.new;
 
+          // 🔧 FIX: ตรวจสอบว่าข้อความนี้เป็นของ room ปัจจุบันหรือไม่
+          if (message.room_id !== currentRoomIdRef.current) {
+            console.log(`🚫 Ignoring message from different room: ${message.room_id} vs ${currentRoomIdRef.current}`);
+            return;
+          }
+
           // ไม่แสดงข้อความของตัวเอง (เพราะเรา optimistic update ไปแล้ว)
           if (message.sender_id !== senderId) {
             // ดึง sender data
             const senderData = await fetchUserData(message.sender_id);
 
             setMessages((prev) => {
+              // 🔧 FIX: Double check room อีกครั้ง
+              if (message.room_id !== currentRoomIdRef.current) {
+                console.log("🚫 Message ignored in setState - room mismatch");
+                return prev;
+              }
+
               const exists = prev.some((msg) => msg.id === message.id);
               if (exists) return prev;
 
@@ -174,10 +210,12 @@ export const useChatMessages = (senderId, receiverId, username, roomId) => {
     // Cleanup function
     return () => {
       if (channelRef.current) {
+        console.log("🧹 Cleaning up messages subscription");
         supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
       }
     };
-  }, [senderId, receiverId, roomId]);
+  }, [senderId, receiverId, roomId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto scroll เมื่อมีข้อความใหม่
   useEffect(() => {

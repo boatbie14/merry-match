@@ -1,11 +1,7 @@
 // hooks/useChatUser.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/AuthContext";
-import { createClient } from "@supabase/supabase-js";
-
-// 🔥 NEW: เพิ่ม Supabase client สำหรับ realtime
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export const useChatUser = () => {
   const [chatData, setChatData] = useState(null);
@@ -13,6 +9,9 @@ export const useChatUser = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const { userInfo, isLoggedIn, checkingLogin } = useAuth();
+
+  // 🔧 FIX: เก็บ previous query เพื่อ detect การเปลี่ยนแปลง
+  const previousQueryRef = useRef(null);
 
   useEffect(() => {
     const setupChatRoom = async () => {
@@ -29,6 +28,17 @@ export const useChatUser = () => {
       if (!encryptedId) {
         setError("Not found this User ID");
         return;
+      }
+
+      // 🔧 FIX: ตรวจสอบว่า query เปลี่ยนหรือไม่
+      if (previousQueryRef.current !== encryptedId) {
+        console.log(`🔄 ChatUser: Query changed from ${previousQueryRef.current} to ${encryptedId}`);
+
+        // Clear previous data เมื่อเปลี่ยนห้อง
+        setChatData(null);
+        setError(null);
+
+        previousQueryRef.current = encryptedId;
       }
 
       setLoading(true);
@@ -69,50 +79,6 @@ export const useChatUser = () => {
       setupChatRoom();
     }
   }, [router.isReady, router.query.u, isLoggedIn, userInfo?.id, checkingLogin]);
-
-  // 🔥 NEW: Realtime subscription for chat_rooms
-  useEffect(() => {
-    if (!chatData?.chatRoom?.id) return;
-
-    console.log("🔥 Setting up realtime subscription for room:", chatData.chatRoom.id);
-
-    const channel = supabase
-      .channel(`chat-room-${chatData.chatRoom.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "chat_rooms",
-          filter: `id=eq.${chatData.chatRoom.id}`, // ฟังเฉพาะ room นี้
-        },
-        (payload) => {
-          console.log("✅ Realtime update received:", payload.new);
-
-          // 🎯 Update chatData with new room data
-          setChatData((prev) => ({
-            ...prev,
-            chatRoom: {
-              ...prev.chatRoom,
-              ...payload.new, // merge ข้อมูลใหม่
-            },
-          }));
-        }
-      )
-      .on("subscribe", (status, err) => {
-        console.log("📡 Subscription status:", status, err);
-      })
-      .on("error", (error) => {
-        console.error("❌ Realtime error:", error);
-      })
-      .subscribe();
-
-    // Cleanup function
-    return () => {
-      console.log("🧹 Cleaning up realtime subscription");
-      supabase.removeChannel(channel);
-    };
-  }, [chatData?.chatRoom?.id]);
 
   return {
     chatData,

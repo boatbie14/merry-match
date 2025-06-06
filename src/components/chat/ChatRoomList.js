@@ -1,5 +1,6 @@
 // components/chat/ChatRoomList.js
 import React from "react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useChatRooms } from "@/hooks/useChatRooms";
 import { encryptUserId } from "@/utils/crypto";
@@ -141,14 +142,17 @@ export default function ChatRoomList({ currentUserId, activeRoomId = null, onNav
                 }`}
               >
                 {/* Profile Image */}
-                <div className="relative flex-shrink-0">
-                  <img
+                <div className="relative flex-shrink-0 w-12 h-12">
+                  <Image
                     src={otherUser?.profile_image_url || "https://via.placeholder.com/48x48?text=U"}
                     alt={otherUser?.name || "User"}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-full object-cover"
                     onError={(e) => {
                       e.target.src = "https://via.placeholder.com/48x48?text=U";
                     }}
+                    unoptimized={otherUser?.profile_image_url?.startsWith("blob:") || otherUser?.profile_image_url?.startsWith("data:")}
                   />
                 </div>
 

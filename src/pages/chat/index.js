@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import MatchingLeftColumn from "@/components/match/MatchingLeftColumn";
 import Chat from "@/components/chat/ChatBox";
 import { useChatUser } from "@/hooks/useChatUser";
 import { useChatUserDetail } from "@/hooks/useChatUserDetail";
-import { useChatRoomState } from "@/hooks/useChatRoomState"; // 🔥 NEW HOOK
+import { useChatRoomState } from "@/hooks/useChatRoomState"; // 🔥 ใช้ hook ที่แก้ไขแล้ว
 import DoubleHeartsIcon from "@/components/icons";
 import { GoChevronLeft } from "react-icons/go";
 
@@ -12,7 +12,7 @@ export default function MatchPage() {
   const { chatData: originalChatData, loading: chatLoading, error: chatError, currentUser } = useChatUser();
   const { chatUserDetail, loading: userDetailLoading, error: userDetailError, getChatUserName } = useChatUserDetail();
 
-  // 🚀 NEW: ใช้ hook ใหม่สำหรับจัดการ chat room state
+  // 🚀 ใช้ hook ที่แก้ไขแล้วสำหรับจัดการ chat room state
   const { chatData, updateChatRoom } = useChatRoomState(originalChatData);
 
   const searchParams = useSearchParams();
@@ -20,9 +20,23 @@ export default function MatchPage() {
   // ตรวจสอบว่ามี parameter u หรือไม่
   const hasUserParam = searchParams.get("u");
 
+  // 🔧 FIX: เก็บ current user parameter เพื่อ detect การเปลี่ยนแปลง
+  const currentUserParamRef = useRef(hasUserParam);
+  const [roomResetTrigger, setRoomResetTrigger] = useState(0);
+
   // State สำหรับควบคุมการแสดง/ซ่อน left panel บน mobile
-  // ถ้าไม่มี u parameter ให้เปิด panel ทันที, ถ้ามี u ให้ซ่อน panel
-  const [showLeftPanel, setShowLeftPanel] = useState(false); // เริ่มต้นด้วย false
+  const [showLeftPanel, setShowLeftPanel] = useState(false);
+
+  // 🔧 FIX: Reset room state เมื่อเปลี่ยน user
+  useEffect(() => {
+    if (currentUserParamRef.current !== hasUserParam) {
+      console.log(`User parameter changed from ${currentUserParamRef.current} to ${hasUserParam}`);
+
+      // Force reset room state by triggering re-render
+      setRoomResetTrigger((prev) => prev + 1);
+      currentUserParamRef.current = hasUserParam;
+    }
+  }, [hasUserParam]);
 
   // ✅ ตั้งค่า panel state หลัง component mount
   useEffect(() => {
@@ -37,10 +51,13 @@ export default function MatchPage() {
   const isLoading = chatLoading || userDetailLoading;
   const hasError = chatError || userDetailError;
 
-  // 🔥 NEW: Callback function เพื่อ update is_message เมื่อส่งข้อความสำเร็จ
+  // 🔥 Callback function เพื่อ update is_message เมื่อส่งข้อความสำเร็จ
   const handleMessageSent = () => {
-    updateChatRoom({ is_message: true }); // ✅ ใช้ function จาก hook ใหม่
+    updateChatRoom({ is_message: true }); // ✅ ใช้ function จาก hook ที่แก้ไขแล้ว
   };
+
+  // 🔧 FIX: ใช้ current chatData เพื่อตรวจสอบ is_message ของห้องปัจจุบัน
+  const shouldShowWelcomeMessage = chatData && !chatData.chatRoom?.is_message;
 
   return (
     <div className="row pt-[52px] md:pt-[88px]">
@@ -91,7 +108,7 @@ export default function MatchPage() {
 
           {/* แสดง chat content เฉพาะเมื่อมี user parameter */}
           {chatData && currentUser && !isLoading && hasUserParam && (
-            <div className="h-full flex flex-col bg-[#160404]">
+            <div className="h-full flex flex-col bg-[#160404]" key={`chat-${hasUserParam}-${roomResetTrigger}`}>
               {/* Header Section */}
               <div className="bg-white p-4 lg:hidden">
                 <button className="flex flex-row items-center gap-4" onClick={() => setShowLeftPanel(true)}>
@@ -99,13 +116,13 @@ export default function MatchPage() {
                 </button>
               </div>
 
-              {/* Welcome Message - แสดงเฉพาะเมื่อ is_message = true */}
-              {!chatData.chatRoom?.is_message && (
+              {/* Welcome Message - แสดงเฉพาะเมื่อ is_message = false */}
+              {shouldShowWelcomeMessage && (
                 <div className="flex-shrink-0 pt-6 lg:pt-8 pb-4">
                   <div className="max-w-[740px] flex flex-row justify-center items-center gap-8 border-1 border-[#DF89C6] bg-[#F4EBF2] rounded-2xl lg:rounded-3xl p-3 lg:p-6 mx-4 lg:mx-auto">
                     <DoubleHeartsIcon size={48} color="#FF1659" />
-                    <p className="text-[#64001D] text-xs lg:text-sm ">
-                      Now you and <span className="font-semibold">{getChatUserName()}</span> are Merry Match! You can messege something nice
+                    <p className="text-[#64001D] text-xs lg:text-sm">
+                      Now you and <span className="font-semibold">{getChatUserName()}</span> are Merry Match! You can message something nice
                       and make a good conversation. Happy Merry!
                     </p>
                   </div>
@@ -114,8 +131,13 @@ export default function MatchPage() {
 
               {/* Chat Component - ใช้ flex-1 เพื่อให้ใช้พื้นที่ที่เหลือ */}
               <div className="flex-1 min-h-0">
-                {/* 🚀 UPDATED: เพิ่ม onMessageSent callback */}
-                <Chat chatData={chatData} currentUser={currentUser} onMessageSent={handleMessageSent} />
+                {/* 🚀 UPDATED: เพิ่ม onMessageSent callback และ key สำหรับ force re-render */}
+                <Chat
+                  key={`chat-component-${hasUserParam}-${roomResetTrigger}`}
+                  chatData={chatData}
+                  currentUser={currentUser}
+                  onMessageSent={handleMessageSent}
+                />
               </div>
             </div>
           )}

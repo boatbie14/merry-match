@@ -84,7 +84,7 @@ export function MerryLimitProvider({ children }) {
       setError(null);
     }
     // ถ้า userInfo เป็น undefined หมายถึงยังโหลดอยู่ ให้รอต่อ
-  }, [userInfo]); // เพิ่ม userInfo เป็น dependency
+  }, [userInfo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // เพิ่ม retry function
   const retryFetch = () => {

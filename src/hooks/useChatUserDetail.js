@@ -62,7 +62,7 @@ export function useChatUserDetail() {
     };
 
     fetchChatUserDetail();
-  }, [router.query.u]);
+  }, [router.query]);
 
   return {
     chatUserDetail,

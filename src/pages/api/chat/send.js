@@ -105,8 +105,6 @@ export default async function handler(req, res) {
 
     // 🔥 เพิ่ม Manual Trigger - ส่ง broadcast ให้ทุก client
     try {
-      console.log("📣 Sending manual broadcast trigger for room:", room_id);
-
       const broadcastChannel = supabase.channel(`manual-trigger-${Date.now()}`);
 
       await broadcastChannel.send({
@@ -120,8 +118,6 @@ export default async function handler(req, res) {
           timestamp: new Date().toISOString(),
         },
       });
-
-      console.log("✅ Manual broadcast sent successfully");
 
       // ปิด channel หลังใช้งาน
       supabase.removeChannel(broadcastChannel);
