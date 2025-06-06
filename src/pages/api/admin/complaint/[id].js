@@ -1,101 +1,73 @@
 // pages/api/admin/complaint/[id].js
-import { supabase } from "@/lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
   const { id } = req.query;
 
-  console.log("API Called:", {
-    method: req.method,
-    id: id,
-    body: req.body,
-  });
-
   if (req.method === "GET") {
     try {
-      console.log("Fetching complaint with ID:", id);
-
       const { data, error } = await supabase.from("complaint").select("*").eq("id", id).single();
 
       if (error) {
-        console.error("Supabase error:", error);
-        return res.status(400).json({
-          success: false,
-          message: error.message,
-        });
+        return res.status(400).json({ message: error.message });
       }
 
       if (!data) {
-        console.log("No complaint found");
-        return res.status(404).json({
-          success: false,
-          message: "Complaint not found",
-        });
+        return res.status(404).json({ message: "Complaint not found" });
       }
 
-      console.log("Complaint found:", data);
-      return res.status(200).json({
-        success: true,
-        data: data,
-      });
+      return res.status(200).json({ success: true, data });
     } catch (error) {
-      console.error("Server error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 
   if (req.method === "PATCH") {
+    const { update_to } = req.body;
+
+    if (!update_to) {
+      return res.status(400).json({ message: "Missing update_to field" });
+    }
+
+    const validStatuses = ["pending", "resolved", "cancel"];
+    if (!validStatuses.includes(update_to)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
     try {
-      const { update_to } = req.body;
+      // เตรียมข้อมูลสำหรับอัปเดต
+      const updateData = {
+        status: update_to,
+      };
 
-      console.log("Updating complaint:", { id, update_to });
-
-      if (!update_to) {
-        return res.status(400).json({
-          success: false,
-          message: "Missing update_to field",
-        });
+      // จัดการ resolved_date ตามเงื่อนไข
+      if (update_to === "resolved") {
+        updateData.resolved_date = new Date().toISOString();
+      } else {
+        updateData.resolved_date = null;
       }
 
-      const validStatuses = ["pending", "resolved", "cancel"];
-      if (!validStatuses.includes(update_to)) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid status",
-        });
-      }
-
-      const { data, error } = await supabase.from("complaint").update({ status: update_to }).eq("id", id).select().single();
+      // อัปเดตข้อมูล
+      const { data, error } = await supabase.from("complaint").update(updateData).eq("id", id).select().single();
 
       if (error) {
-        console.error("Update error:", error);
-        return res.status(400).json({
-          success: false,
-          message: error.message,
-        });
+        return res.status(400).json({ message: error.message });
       }
 
-      console.log("Update successful:", data);
       return res.status(200).json({
         success: true,
         message: `Status updated to ${update_to}`,
-        data: data,
+        data,
       });
     } catch (error) {
-      console.error("Server error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
+      return res.status(500).json({ message: "Server error" });
     }
   }
 
-  return res.status(405).json({
-    success: false,
-    message: "Method not allowed",
-  });
+  return res.status(405).json({ message: "Method not allowed" });
 }

@@ -9,11 +9,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log("API called with query params:", req.query);
-
     const { page = 1, limit = 5, issue = "", status = "" } = req.query;
-
-    console.log("Parsed params:", { page, limit, issue, status });
 
     const pageNumber = parseInt(page);
     const limitNumber = parseInt(limit);
@@ -47,7 +43,6 @@ export default async function handler(req, res) {
     const { data: complaints, error: complaintError, count } = await complaintQuery;
 
     if (complaintError) {
-      console.error("Supabase Error:", complaintError);
       return res.status(500).json({
         message: "Error fetching complaints",
         error: complaintError.message,
@@ -65,10 +60,8 @@ export default async function handler(req, res) {
       if (userIds.length > 0) {
         const { data: users, error: userError } = await supabase.from("users").select("id, name").in("id", userIds);
 
-        if (userError) {
-          console.error("Error fetching users:", userError);
-        } else {
-          usersData = users || [];
+        if (!userError && users) {
+          usersData = users;
         }
       }
 
@@ -104,7 +97,6 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error("API Error:", error);
     return res.status(500).json({
       message: "Internal server error",
       error: error.message,

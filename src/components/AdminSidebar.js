@@ -27,7 +27,7 @@ export default function AdminSidebar() {
                 Merry Package
               </Link>
             </li>
-            <li className={`p-6 ${currentPath === "/admin/complaint" ? "bg-[#F1F2F6]" : ""}`}>
+            <li className={`p-6 ${currentPath.startsWith("/admin/complaint") ? "bg-[#F1F2F6]" : ""}`}>
               <Link href="/admin/complaint" className="flex gap-2 text-[#424C6B] font-extrabold">
                 <TbAlertTriangleFilled color="#FFB1C8" size={24} />
                 Complaint

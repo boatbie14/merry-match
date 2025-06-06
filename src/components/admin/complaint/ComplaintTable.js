@@ -1,7 +1,6 @@
 // File: src/components/admin/complaint/ComplaintTable.js
-"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/router";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -13,22 +12,21 @@ export default function ComplaintTable({ filters }) {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 5,
+    itemsPerPage: 10,
     hasNextPage: false,
     hasPreviousPage: false,
   });
 
   // Fetch data
-  async function fetchComplaints() {
+  const fetchComplaints = useCallback(async () => {
     setLoading(true);
 
     try {
       const params = new URLSearchParams({
         page: pagination.currentPage.toString(),
-        limit: "5",
+        limit: "10",
       });
 
-      // Add filters
       if (filters.issue.trim()) {
         params.append("issue", filters.issue.trim());
       }
@@ -36,16 +34,8 @@ export default function ComplaintTable({ filters }) {
         params.append("status", filters.status.trim());
       }
 
-      console.log("Fetching:", `/api/admin/complaint/complaints?${params}`);
-
       const response = await fetch(`/api/admin/complaint/complaints?${params}`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const result = await response.json();
-      console.log("API Response:", result);
 
       setComplaints(result.data || []);
       setPagination(
@@ -53,7 +43,7 @@ export default function ComplaintTable({ filters }) {
           currentPage: 1,
           totalPages: 1,
           totalItems: 0,
-          itemsPerPage: 5,
+          itemsPerPage: 10,
           hasNextPage: false,
           hasPreviousPage: false,
         }
@@ -64,23 +54,23 @@ export default function ComplaintTable({ filters }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [pagination.currentPage, filters.issue, filters.status]);
 
   // Initial load
   useEffect(() => {
     fetchComplaints();
-  }, []);
+  }, [fetchComplaints]);
 
   // When page changes
   useEffect(() => {
     fetchComplaints();
-  }, [pagination.currentPage]);
+  }, [pagination.currentPage, fetchComplaints]);
 
   // When filters change (from parent)
   useEffect(() => {
     setPagination((prev) => ({ ...prev, currentPage: 1 }));
     fetchComplaints();
-  }, [filters.issue, filters.status]);
+  }, [filters.issue, filters.status, fetchComplaints]);
 
   const handlePageChange = (newPage) => {
     setPagination((prev) => ({ ...prev, currentPage: newPage }));

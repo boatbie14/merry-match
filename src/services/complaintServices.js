@@ -2,8 +2,6 @@
 class ComplaintApiService {
   async updateComplaintStatus(complaintId, updateTo) {
     try {
-      console.log(`Updating complaint ${complaintId} to status ${updateTo}`);
-
       const response = await fetch(`/api/admin/complaint/${complaintId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -11,8 +9,6 @@ class ComplaintApiService {
           update_to: updateTo,
         }),
       });
-
-      console.log(`API Response: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

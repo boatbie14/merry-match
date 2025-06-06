@@ -1,12 +1,8 @@
-// pages/api/admin/complaint/update.js
+// pages/api/admin/complaint/[id].js
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error("Missing Supabase environment variables");
-}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -14,23 +10,10 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   if (req.method === "GET") {
-    // Handle GET request - fetch complaint details
     try {
-      const { data, error } = await supabase
-        .from("complaint")
-        .select(
-          `
-          *,
-          users (
-            name
-          )
-        `
-        )
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.from("complaint").select("*").eq("id", id).single();
 
       if (error) {
-        console.error("Database error:", error);
         return res.status(400).json({ message: error.message });
       }
 
@@ -40,16 +23,11 @@ export default async function handler(req, res) {
 
       return res.status(200).json({ success: true, data });
     } catch (error) {
-      console.error("Server error:", error);
       return res.status(500).json({ message: "Server error" });
     }
   }
 
   if (req.method === "PATCH") {
-    // Handle PATCH request - update complaint status
-    console.log("PATCH Request - ID:", id);
-    console.log("Request Body:", req.body);
-
     const { update_to } = req.body;
 
     if (!update_to) {
@@ -62,38 +40,25 @@ export default async function handler(req, res) {
     }
 
     try {
-      // ตรวจสอบว่า complaint มีอยู่จริง
-      const { data: existingComplaint, error: findError } = await supabase.from("complaint").select("*").eq("id", id).single();
+      // เตรียมข้อมูลสำหรับอัปเดต
+      const updateData = {
+        status: update_to,
+        updated_at: new Date().toISOString(),
+      };
 
-      if (findError || !existingComplaint) {
-        console.error("Complaint not found:", findError);
-        return res.status(404).json({ message: "Complaint not found" });
+      // จัดการ resolved_date ตามเงื่อนไข
+      if (update_to === "resolved") {
+        updateData.resolved_date = new Date().toISOString();
+      } else {
+        updateData.resolved_date = null;
       }
 
-      // อัปเดต status
-      const { data, error } = await supabase
-        .from("complaint")
-        .update({
-          status: update_to,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id)
-        .select(
-          `
-          *,
-          users (
-            name
-          )
-        `
-        )
-        .single();
+      // อัปเดตข้อมูล
+      const { data, error } = await supabase.from("complaint").update(updateData).eq("id", id).select().single();
 
       if (error) {
-        console.error("Update error:", error);
         return res.status(400).json({ message: error.message });
       }
-
-      console.log("Update successful:", data);
 
       return res.status(200).json({
         success: true,
@@ -101,7 +66,6 @@ export default async function handler(req, res) {
         data,
       });
     } catch (error) {
-      console.error("Server error:", error);
       return res.status(500).json({ message: "Server error" });
     }
   }
