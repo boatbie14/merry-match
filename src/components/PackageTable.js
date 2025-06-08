@@ -6,6 +6,23 @@ import { supabase } from '@/lib/supabaseClient'
 import { FiTrash2, FiEdit } from 'react-icons/fi'
 import Image from 'next/image'
 
+// DnD Kit imports
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
 export default function PackageTable() {
   const router = useRouter()
   const [packages, setPackages] = useState([])
@@ -18,15 +35,8 @@ export default function PackageTable() {
   async function fetchPackages() {
     const { data, error } = await supabase
       .from('packages')
-      .select(`
-        id,
-        icon_url,
-        package_name,
-        merry_per_day,
-        created_at,
-        updated_at 
-      `)
-      .order('created_at', { ascending: false }) 
+      .select('id, icon_url, package_name, merry_per_day, created_at, updated_at, order')
+      .order('order', { ascending: true })
 
     if (error) {
       console.error('Error fetching packages:', error.message)
@@ -40,6 +50,48 @@ export default function PackageTable() {
     if (!timestamp) return '-'
     const date = new Date(timestamp)
     return date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  async function handleDelete(id) {
+    const confirm = window.confirm('Are you sure you want to delete this package?')
+    if (!confirm) return
+
+    const { error } = await supabase.from('packages').delete().eq('id', id)
+    if (error) {
+      alert('Failed to delete package: ' + error.message)
+    } else {
+      setPackages(packages.filter((p) => p.id !== id))
+    }
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  )
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = packages.findIndex((p) => p.id === active.id)
+    const newIndex = packages.findIndex((p) => p.id === over.id)
+    const newOrder = arrayMove(packages, oldIndex, newIndex)
+
+    setPackages(newOrder)
+
+    // อัปเดต order ใหม่ทั้งหมดลง Supabase
+    const updates = newOrder.map((pkg, index) => ({
+      id: pkg.id,
+      order: index + 1
+    }))
+
+    const { error } = await supabase
+      .from('packages')
+      .upsert(updates, { onConflict: 'id' })
+
+    if (error) {
+      console.error('Error updating order:', error.message)
+    }
   }
 
   if (loading) return <p>Loading packages...</p>
@@ -57,76 +109,84 @@ export default function PackageTable() {
       </div>
 
       <div className="overflow-x-auto rounded-xl">
-        <table className="w-full text-sm text-left text-gray-700">
-          <thead className="bg-[#f2f4f8] text-gray-600">
-            <tr>
-              <th className="px-4 py-3 font-medium rounded-tl-xl w-16">#</th>
-              <th className="px-4 py-3 font-medium">Icon</th>
-              <th className="px-4 py-3 font-medium">Package name</th>
-              <th className="px-4 py-3 font-medium">Merry limit</th>
-              <th className="px-4 py-3 font-medium">Created date</th>
-              <th className="px-4 py-3 font-medium">Updated date</th>
-              <th className="px-4 py-3 font-medium rounded-tr-xl text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {packages.map((pkg, index) => (
-              <tr key={pkg.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-800">{index + 1}</td>
-                <td className="px-4 py-3">
-                  {pkg.icon_url ? (
-                    <Image
-                      src={pkg.icon_url}
-                      alt={pkg.package_name}
-                      width={24}
-                      height={24}
-                      className="rounded-md object-cover"
-                    />
-                  ) : (
-                    <div className="w-6 h-6 bg-gray-200 rounded-md" />
-                  )}
-                </td>
-                <td className="px-4 py-3 font-medium">{pkg.package_name}</td>
-                <td className="px-4 py-3">
-                  {pkg.merry_per_day !== null ? `${pkg.merry_per_day} Merry` : 'ไม่จำกัด'} 
-                </td>
-                <td className="px-4 py-3">{formatDateTime(pkg.created_at)}</td>
-                <td className="px-4 py-3">{formatDateTime(pkg.updated_at)}</td>
-                <td className="px-4 py-3 text-center flex gap-3 justify-center">
-                  <button
-                    onClick={() => router.push(`/admin/edit-package?id=${pkg.id}`)}
-                    className="text-pink-500 hover:text-pink-700"
-                  >
-                    <FiEdit size={18} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(pkg.id)}
-                    className="text-pink-500 hover:text-pink-700"
-                  >
-                    <FiTrash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={packages.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            <table className="w-full text-sm text-left text-gray-700">
+              <thead className="bg-[#f2f4f8] text-gray-600">
+                <tr>
+                  <th className="px-4 py-3 font-medium rounded-tl-xl w-16">#</th>
+                  <th className="px-4 py-3 font-medium">Icon</th>
+                  <th className="px-4 py-3 font-medium">Package name</th>
+                  <th className="px-4 py-3 font-medium">Merry limit</th>
+                  <th className="px-4 py-3 font-medium">Created date</th>
+                  <th className="px-4 py-3 font-medium">Updated date</th>
+                  <th className="px-4 py-3 font-medium rounded-tr-xl text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {packages.map((pkg, index) => (
+                  <SortableRow
+                    key={pkg.id}
+                    pkg={pkg}
+                    index={index}
+                    formatDateTime={formatDateTime}
+                    router={router}
+                    handleDelete={handleDelete}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </SortableContext>
+        </DndContext>
       </div>
     </div>
   )
+}
 
-  async function handleDelete(id) {
-    const confirm = window.confirm('Are you sure you want to delete this package?')
-    if (!confirm) return
+function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: pkg.id })
 
-    const { error } = await supabase
-      .from('packages')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      alert('Failed to delete package: ' + error.message)
-    } else {
-      setPackages(packages.filter((p) => p.id !== id))
-    }
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
   }
+
+  return (
+    <tr ref={setNodeRef} style={style} {...attributes} {...listeners} className="hover:bg-gray-50 cursor-move">
+      <td className="px-4 py-3 text-gray-800">{index + 1}</td>
+      <td className="px-4 py-3">
+        {pkg.icon_url ? (
+          <Image
+            src={pkg.icon_url}
+            alt={pkg.package_name}
+            width={24}
+            height={24}
+            className="rounded-md object-cover"
+          />
+        ) : (
+          <div className="w-6 h-6 bg-gray-200 rounded-md" />
+        )}
+      </td>
+      <td className="px-4 py-3 font-medium">{pkg.package_name}</td>
+      <td className="px-4 py-3">
+        {pkg.merry_per_day !== null ? `${pkg.merry_per_day} Merry` : 'ไม่จำกัด'}
+      </td>
+      <td className="px-4 py-3">{formatDateTime(pkg.created_at)}</td>
+      <td className="px-4 py-3">{formatDateTime(pkg.updated_at)}</td>
+      <td className="px-4 py-3 text-center flex gap-3 justify-center">
+        <button
+          onClick={() => router.push(`/admin/edit-package?id=${pkg.id}`)}
+          className="text-pink-500 hover:text-pink-700"
+        >
+          <FiEdit size={18} />
+        </button>
+        <button
+          onClick={() => handleDelete(pkg.id)}
+          className="text-pink-500 hover:text-pink-700"
+        >
+          <FiTrash2 size={18} />
+        </button>
+      </td>
+    </tr>
+  )
 }
