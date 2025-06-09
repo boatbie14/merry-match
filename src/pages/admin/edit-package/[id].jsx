@@ -31,7 +31,8 @@ export default function EditPackagePage() {
           merry_per_day:
             data.merry_per_day === null ? 'ไม่จำกัด' : data.merry_per_day.toString(),
           icon_url: data.icon_url || '',
-          details: data.details || [''], // หากไม่มี field นี้ใน db จริงสามารถลบได้
+          details: data.details || [''], 
+          price: data.price?.toString() || '',
         };
 
         setInitialData((prev) =>
@@ -75,6 +76,7 @@ export default function EditPackagePage() {
       icon_url: icon,
       updated_at: new Date().toISOString(),
       details,
+      price,
     })
     .eq('id', id);
 

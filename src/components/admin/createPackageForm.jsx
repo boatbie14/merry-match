@@ -3,8 +3,6 @@ import UploadPhotoInput from '@/components/form/UploadPhotoPackage';
 import { uploadImagesToSupabase } from '@/lib/uploadImagesToSupabase';
 import { useEffect } from 'react';
 
-// ... import ทั้งหมด เหมือนเดิม
-
 export default function CreatePackageForm({
   initialData = null,
   isEditMode = false,
@@ -12,6 +10,7 @@ export default function CreatePackageForm({
     console.warn('❌ onSubmit was not provided:', data);
   },
   isSubmitting = false,
+  exposeSubmit,
 }) {
   const {
     control,
@@ -24,6 +23,7 @@ export default function CreatePackageForm({
     defaultValues: {
       packageName: '',
       merryLimit: '10',
+      price: '',
       icon: [{ id: 'img1', src: '' }],
       details: [{ value: '' }],
     },
@@ -42,6 +42,7 @@ export default function CreatePackageForm({
           initialData.merry_per_day === null
             ? 'ไม่จำกัด'
             : String(initialData.merry_per_day),
+        price: String(initialData.price || ''),
         icon: initialData.icon_url
           ? [{ id: 'existing-icon', src: initialData.icon_url }]
           : [{ id: 'img1', src: '' }],
@@ -50,6 +51,12 @@ export default function CreatePackageForm({
       });
     }
   }, [initialData, reset]);
+
+  useEffect(() => {
+    if (exposeSubmit) {
+      exposeSubmit(() => handleSubmit(handleFormSubmit)());
+    }
+  }, [exposeSubmit, handleSubmit]);
 
   const handleFormSubmit = async (data) => {
     console.log('🟢 raw data from form:', data);
@@ -84,6 +91,7 @@ export default function CreatePackageForm({
             : Number(data.merryLimit),
         details: data.details.map((d) => d.value.trim()),
         icon_url: iconUrl,
+        price: parseFloat(data.price) || 0,
       };
 
       console.log('📦 payload to submit:', payload);
@@ -139,6 +147,22 @@ export default function CreatePackageForm({
             </p>
           )}
         </div>
+      </div>
+
+      <div className="w-1/2">
+        <label className="block font-medium mb-1">Price (THB) *</label>
+        <input
+          type="number"
+          step="1"
+          {...register('price', {
+            required: 'Price is required',
+            min: { value: 0, message: 'ราคาไม่สามารถติดลบได้' },
+          })}
+          className="border border-gray-300 w-full p-2 rounded"
+        />
+        {errors.price && (
+          <p className="text-red-500 text-sm mt-2">{errors.price.message}</p>
+        )}
       </div>
 
       <Controller
