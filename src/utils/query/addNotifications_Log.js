@@ -40,7 +40,6 @@ export async function addNotifications_Log(type, from_user_id, to_user_id, match
     switch (type) {
       case "merry": {
         const buffer = await bufferNotificationMerry(from_user_id, to_user_id);
-        console.log("232341234143414");
         if (!buffer) {
           break;
         }

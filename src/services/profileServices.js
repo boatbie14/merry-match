@@ -13,7 +13,7 @@ export const updateUserProfile = async (data) => {
 
 export const deleteUsers = async () => {
   try {
-
+    
     const response = await apiClient.delete(`/profile/delete`);
     return response
   } catch (error) {

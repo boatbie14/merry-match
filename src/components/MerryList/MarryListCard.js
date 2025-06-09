@@ -6,13 +6,12 @@ import DoubleHeartsIcon from "../icons";
 import { calculateAge } from '@/utils/functionCalculate/calculateAge';
 import LikeButton from '../LikeButton';
 
-const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,}) => {
+const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,isChatNotifications}) => {
   const MatchStatus = () => {
     const baseClass = "text-md border border-1 py-1 rounded-full w-[160px]";
     const matchClass = isMatched
       ? "text-[#C70039] font-extrabold flex items-center justify-center gap-1"
       : "text-gray-500";
-
     return (
       <button className={`${baseClass} ${matchClass}`}>
         {isMatched ? (
@@ -28,12 +27,16 @@ const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,}) => {
   };
 
   const ActionButtons = () => (
-    <div className="flex gap-3 lg:gap-4 text-xl text-gray-600 md:mt-8 mt-6">
+    <div className="flex gap-3 lg:gap-4 text-xl text-gray-600 md:mt-8 mt-6 relative">
       {isMatched && (
-        <button className="gray-icon-btn" onClick={()=>clickChat()}>
+        <>
+        <button className="gray-icon-btn " onClick={()=>clickChat()}>
           <BsChatDotsFill />
           <span className="tooltip">Go to chat</span>
         </button>
+        {isChatNotifications&&  <span className="w-4 h-4 bg-pink-400 rounded-full absolute left-9 -top-1 
+                  shadow-lg ring-2 ring-white animate-pulse"></span>}
+        </>
       )}
       <button className="gray-icon-btn" onClick={(isMerry,setIsMerry)=>clickEye(isMerry,setIsMerry)}>
         <AiFillEye />

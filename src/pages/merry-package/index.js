@@ -27,27 +27,9 @@ export default function MembershipPage() {
     }
     fetchPackage()
   },[])
-  const dummy = [{
-    packageName:"Basic",
-    price:"59.00",
-    detail:["‘Merry’ more than a daily limited","Up to 25 Merry per day"],
-    icon:"URL + style"
-  },{
-    packageName:"Platinum",
-    price:"59.00",
-    detail:["‘Merry’ more than a daily limited","Up to 45 Merry per day"],
-    icon:"https://www.pngwing.com/en/free-png-zmzwc"
-  },{
-    packageName:"Premium",
-    price:"149.00",
-    detail:["‘Merry’ more than a daily limited","Up to 70 Merry per day"],
-    icon:"ดูก่อนเก็บภาพยังไง"
-  },
-]
-
   return (
 
-    <div className="row pt-[88px] pb-4 bg-[#FCFCFE] "> 
+    <div className="row pt-[88px] pb-4 bg-[#FCFCFE] flex flex-col justify-center items-center"> 
         <div className="container flex flex-col items-start md:items-center mt-[80px] ">
           <div className="w-full pl-2 md:pl-6">
             <div className="md:flex w-full my-10 md:justify-between items-end md:my-20">
@@ -63,18 +45,23 @@ export default function MembershipPage() {
           </div>
         </div>
 
-        <div className="min-h-scree flex justify-center items-center flex-wrap mb-[160px] md:gap-10 gap-6 px-5 pt-4">
-          {dataPackage.map((item)=>(
-            <PackageCard 
-            key={item.package_name}
-            icon={item.icon_url}
-            packageName={item.package_name}
-            price={item.price}
-            detail={item.details}
-            choosePackage={(package_Name)=>{choosePackage(package_Name)}}
-          />)
-          )}
-        </div>
+<div className="relative w-full max-w-screen xl:px-0 md:px-12 pb-[160px] mx-4 flex justify-center lg:max-w-[1191px]">
+  <div className="w-full flex flex-col md:grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-1 gap-4 md:px-0 px-4 justify-items-center">
+    {dataPackage.map((item) => (
+      <div key={item.package_name} className="inline-block">
+        <PackageCard
+          icon={item.icon_url}
+          packageName={item.package_name}
+          price={item.price}
+          detail={item.details}
+          choosePackage={(package_Name) => choosePackage(package_Name)}
+        />
+      </div>
+    ))}
+  </div>
+</div>
+
+
     </div>
   );
 }

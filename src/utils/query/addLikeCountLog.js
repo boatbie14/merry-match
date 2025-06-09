@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabaseClient";
 //######## Replace
 export async function addLikeCountLog(userId, count) {
   try {
-    console.log("Current count before update:", count); // Log เพื่อดูค่า count ก่อนอัพเดท
 
     // ดึงข้อมูล merry_count_log ล่าสุดของ user นี้
     const { data: latestLog, error: fetchError } = await supabase
@@ -30,8 +29,6 @@ export async function addLikeCountLog(userId, count) {
     if (updateError) {
       throw new Error(updateError.message);
     }
-
-    console.log("Updated log:", updatedLog);
 
     return { success: true, message: "Count updated", count: currentCount - 1 };
   } catch (error) {

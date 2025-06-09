@@ -169,7 +169,16 @@ export function MobileAlertMenuItems() {
                   markAsRead(n.id);
                   setIsAlertMobileMenuOpen(false);
                   if (isPackageName !== "Free") {
-                    handleStartConversation(n);
+                    if(n.noti_type==="merry"){
+                    if (!(window.location.pathname === '/merrylist' && new URLSearchParams(window.location.search).get('selectedBox') === 'merry-to-you')) {
+                      const url = new URL(window.location.href);
+                      url.pathname = '/merrylist';
+                      url.searchParams.set('selectedBox', 'merry-to-you');
+                      window.location.href = url.toString();
+                    }
+                  }else{
+                  handleStartConversation(n);
+                  }
                   }
                 }}
                 className="desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3"

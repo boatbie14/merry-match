@@ -17,7 +17,6 @@ export function PdfRequestPopup({ isOpen,onClose,billingData,requsest}) {
   
   function requsestPdf(){
     setSelectedInvoices([])
-    console.log(selectedInvoices)
     requsest(selectedInvoices)
   }
 
@@ -51,7 +50,7 @@ export function PdfRequestPopup({ isOpen,onClose,billingData,requsest}) {
               <h2 className="" >Billing History</h2>
             </div>
             <div className="md:border border-[#D6D9E4] md:rounded-4xl bg-[#FFFFFF] md:pb-2  max-w-full mx-auto text-sm text-[#3C3C4399] md:mx-4 max-h-[240px] md:max-h-[400px] overflow-y-auto " >
-                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] font-normal md:pt-2 md:border-0 md:pb-2">
+                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] font-semibold md:pt-2 md:border-0 md:pb-2">
                   {billingData.map((item, index) => (
                     <div  key={index}
                           className={`flex justify-between items-center py-3 md:py-4 rounded-md px-4 md:px-6 ${
@@ -61,9 +60,9 @@ export function PdfRequestPopup({ isOpen,onClose,billingData,requsest}) {
                       checked={selectedInvoices.includes(item.invoice_pdf)}
                       onChange={(e) =>handleCheckboxChange(item.invoice_pdf, e.target.checked)}
                     />
-                    <span className="text-[13px] md:text-[16px] md:flex-[0] md:ml-4 pr-2 md:pr-9">{item.created_at}</span>
-                    <span className="text-[12px] md:text-[16px] flex-[1] text-left">{item.plan}</span>
-                    <span className="text-[12px] md:text-[16px] text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
+                    <span className="text-[14px] md:text-[16px] md:flex-[0] md:ml-4 pr-2 md:pr-9">{item.created_at}</span>
+                    <span className="text-[14px] md:text-[16px] flex-[1] text-left">{item.plan?.charAt(0).toUpperCase() + item.plan?.slice(1)}</span>
+                    <span className="text-[14px] md:text-[16px] text-right text-[#646D89]">THB {item.amount_paid.toFixed(2)}</span>
                 </div>
                 ))}
             </div>

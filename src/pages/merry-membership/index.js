@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
-import { PackageLongCard } from "@/components/card/PackageCard";
+import { PackageLongCard,CreditInfomationCard } from "@/components/card/PackageCard";
 import { AlertPopup } from "@/components/popup/AlertPopup";
 import { useState } from "react";
-import { billingPDF, cancelSubscription } from "@/services/paymentServices";
+import { billingPDF,cancelSubscription,getInfomationCreditCard,redirectToStripePortal } from "@/services/paymentServices";
 import { PdfRequestPopup } from "@/components/popup/PdfRequestPopup";
 import { LoadingPop } from "@/components/popup/LoadingPop";
 import { Snackbar, Alert } from "@mui/material";
@@ -33,14 +33,15 @@ function formatPaymentHistory(payments) {
 
 export default function HistoryPage() {
   const router = useRouter();
-  const { isLoggedIn, checkingLogin } = useAuth();
-  const [dataHistoryPayment, setDataHistoryPayment] = useState([]);
-  const [packageNow, setPackageNow] = useState();
-  const [packagInSubscriptions, setPackagInSubscriptions] = useState();
-  const [isAlertPopup, setIsAlertPopup] = useState(false);
-  const [isPdfRequestPopup, setIsPdfRequestPopup] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingTable, setIsLoadingTable] = useState(true);
+  const {isLoggedIn,checkingLogin} = useAuth()  
+  const [dataHistoryPayment,setDataHistoryPayment] = useState([])
+  const [packageNow,setPackageNow]=useState()
+  const [packagInSubscriptions,setPackagInSubscriptions] = useState()
+  const [infomationPackageCard,setInfomationPackageCard] = useState()
+  const [isAlertPopup,setIsAlertPopup] = useState(false)
+  const [isPdfRequestPopup,setIsPdfRequestPopup] = useState(false)
+  const [isLoading,setIsLoading] = useState(false)
+  const [isLoadingTable,setIsLoadingTable] = useState(true)
   const [alertMessage, setAlertMessage] = useState("");
   const [reset, setReset] = useState(false);
 
@@ -50,59 +51,64 @@ export default function HistoryPage() {
     }
   }, [checkingLogin, isLoggedIn, router]);
 
-  useEffect(() => {
-    const fetchPackageNow = async () => {
-      try {
-        let packageNowTemp = await getPackageNow();
-        setPackageNow(packageNowTemp[0].user_packages[0]);
-        setPackagInSubscriptions(packageNowTemp[0].stripe_subscriptions[0]);
-        console.log(packageNowTemp[0]);
-      } catch (e) {
-        console.log(e);
-      } finally {
-      }
-    };
-    const fetchHistoryPayment = async () => {
-      try {
-        setIsLoadingTable(true);
-        let historyTemp = await getHistoryPayment();
-        historyTemp = formatPaymentHistory(historyTemp);
-        setDataHistoryPayment(historyTemp);
-      } catch (e) {
-        console.log(e);
-      } finally {
-        setIsLoadingTable(false);
-      }
-    };
-    if (isLoggedIn) {
-      fetchPackageNow();
-      fetchHistoryPayment();
+  useEffect(()=>{
+    const fetchPackageNow = async()=>{
+      try{
+        let packageNowTemp = await getPackageNow()
+        setPackageNow(packageNowTemp[0].user_packages[0])
+        setPackagInSubscriptions(packageNowTemp[0].stripe_subscriptions[0])
+        const tempInfomationCreditCard = await getInfomationCreditCard(packageNowTemp[0].stripe_subscriptions[0].stripe_subscription_id)
+        setInfomationPackageCard(tempInfomationCreditCard);
+        
+      }catch(e){
+        console.log(e)
+      }finally{}
+    } 
+    const fetchHistoryPayment = async()=>{
+      try{
+        setIsLoadingTable(true)
+        let historyTemp = await getHistoryPayment()
+        historyTemp = formatPaymentHistory(historyTemp)
+        setDataHistoryPayment(historyTemp)
+      }catch(e){
+        console.log(e)
+      }finally{setIsLoadingTable(false)}
+    } 
+    if(isLoggedIn){
+      fetchPackageNow()
+      fetchHistoryPayment()
     }
-  }, [isLoggedIn, reset]);
+    },[isLoggedIn,reset])
 
-  async function showPDF(selectedInvoices) {
-    setIsLoading(true);
-    const error = await billingPDF(selectedInvoices);
-    if (error) {
-      console.error("เกิดข้อผิดพลาดในการสร้าง PDF:", error);
-      setAlertMessage("An error occurred while generating the PDF.");
+async function showPDF (selectedInvoices){
+  setIsLoading(true);
+  const error = await billingPDF(selectedInvoices);
+    if(error){
+    console.error("An error occurred while generating PDF:", error);
+    setAlertMessage("An error occurred while generating the PDF.")
     }
     setIsLoading(false);
     setIsPdfRequestPopup(false);
   }
 
-  async function cancelPackage() {
-    try {
-      setIsLoading(true);
-      await cancelSubscription(packagInSubscriptions.stripe_subscription_id);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setIsAlertPopup(false);
-      setIsLoading(false);
-      setReset(!reset);
-    }
+async function cancelPackage () {
+  try{
+  setIsLoading(true)
+  await cancelSubscription(packagInSubscriptions.stripe_subscription_id)
+  }catch(e){console.log(e)
+  }finally{
+  setIsAlertPopup(false)
+  setIsLoading(false)
+  setReset(!reset)
   }
+}
+
+const editCreditCard = async (subscription_id) => {
+  setIsLoading(true);
+    await redirectToStripePortal(subscription_id)
+    setIsLoading(false);
+  };
+
   return (
     <>
       <AlertPopup
@@ -155,41 +161,40 @@ export default function HistoryPage() {
               }}
             />
           </div>
-          {/* <div className="w-full md:px-5 mt-21">
+          {packagInSubscriptions?.stripe_subscription_id &&
+          <div className="w-full md:px-5 mt-21">
             <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-6" style={{ letterSpacing: "-0.02em" }} >Payment Method</h2>
             <CreditInfomationCard
-              icon="--"
-              cardType="Visa"
-              expire="04/2025"
-              editPaymentMethod={()=>{router.push("/membership/payment")}}  
+              canceled={packagInSubscriptions?.canceled_at}
+              cardType={infomationPackageCard?.brand.charAt(0).toUpperCase() + infomationPackageCard?.brand.slice(1)}
+              expire={`${infomationPackageCard?.exp_month < 10 ? '0' : ''}${infomationPackageCard?.exp_month}/${infomationPackageCard?.exp_year}`}
+              last4 = {infomationPackageCard?.last4}
+              editPaymentMethod={()=>{editCreditCard(packagInSubscriptions?.stripe_subscription_id)}}
             />
-          </div> */}
+          </div>}
         </div>
 
-        <div className="w-full mt-20  flex flex-col items-start md:items-center ">
-          <div className="w-full md:max-w-[1246px] md:px-7 md:pb-[112px]">
-            <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-2 px-4 md:mb-6" style={{ letterSpacing: "-0.02em" }}>
-              Billing History
-            </h2>
-            <div className="md:border border-[#D6D9E4] md:rounded-4xl bg-[#FFFFFF] md:p-8 md:pb-3  max-w-full mx-auto text-sm text-[#3C3C4399] md:mx-4">
-              <div className="font-semibold text-[#646D89] text-[20px] mb-2 md:mb-1 md:pt-1 px-4 md:px-0">
-                {/* TODO รอแก้ NextBilling เป็นวันหมดอายุของ sub */}
-                Next billing : <span className="text-[#646D89]">{formatDateToUserTimezone(packagInSubscriptions?.current_period_end)}</span>
-              </div>
-              <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
-                {isLoadingTable
-                  ? Array(4)
-                      .fill(null)
-                      .map((_, index) => <Skeleton key={index} variant="rectangular" className="w-full mt-8" height={50} />)
-                  : dataHistoryPayment.map((item, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center py-3 md:py-4 rounded-md px-4 ${index % 2 !== 0 ? "bg-[#F5F5FA]" : ""}`}
+        {dataHistoryPayment.length>0 &&
+          <div className="w-full mt-20  flex flex-col items-start md:items-center ">
+            <div className="w-full md:max-w-[1246px] md:px-7 md:pb-[112px]">
+              <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-2 px-4 md:mb-6" style={{ letterSpacing: "-0.02em" }}>Billing History</h2>
+              <div className="md:border border-[#D6D9E4] md:rounded-4xl bg-[#FFFFFF] md:p-8 md:pb-3  max-w-full mx-auto text-sm text-[#3C3C4399] md:mx-4" >
+                <div className="font-semibold text-[#646D89] text-[20px] mb-2 md:mb-1 md:pt-1 px-4 md:px-0">
+                  {packagInSubscriptions?.canceled_at ? "Subscription ends on" :"Next billing"} : <span className="text-[#646D89]">{formatDateToUserTimezone(packagInSubscriptions?.current_period_end)}</span>
+                </div>
+                <div className="divide-y divide-[#E4E4EB] border-t-1 border-[#E4E6ED] text-[16px] text-[#646D89] font-normal md:pt-4 md:pb-2 max-h-[468px] overflow-y-auto">
+                  {isLoadingTable
+                      ? Array(4).fill(null).map((_,index)=> <Skeleton key={index} variant="rectangular" className="w-full mt-8" height={50} />)
+                      :dataHistoryPayment.map((item, index) => (
+                        <div  key={index}
+                            className={`flex items-center py-4 rounded-md px-4 ${
+                            index % 2 !== 0 ? "bg-[#F5F5FA]" : ""
+                            }`}
                       >
-                        <span className="md:flex-[0] pr-9  ">{item.created_at}</span>
-                        <span className="flex-[1] text-left">{item.plan}</span>
-                        <span className="text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
-                      </div>
+                      <span className="md:flex-[0] pr-9  ">{item.created_at}</span>
+                      <span className="flex-[1] text-left">{item.plan?.charAt(0).toUpperCase() + item.plan?.slice(1)}</span>
+                      <span className="text-right text-[#424C6B]">THB {item.amount_paid.toFixed(2)}</span>
+                    </div>
                     ))}
               </div>
 
@@ -205,8 +210,8 @@ export default function HistoryPage() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </div>}
+    </div>
 
       <Snackbar
         className="mt-[100px]"

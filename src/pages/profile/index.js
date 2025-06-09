@@ -168,12 +168,34 @@ import { Country, State } from "country-state-city";
 
   const onError = (errors) => {
   setAlertSeverity("error");
+  console.log(errors)
   const firstField = Object.keys(errors)[0]; // หาชื่อ field แรกที่ error
-  if (firstField) {
-    const firstError = errors[firstField];
-    const message = firstError?.message || "Unexpected error occurred. Please try again.";
-    setAlertMessage(message);
-  }else setAlertMessage("Incorrect information. Please check the information")
+  if (Object.keys(errors).length>0) {
+        if (window.innerWidth >= 768) {
+          const firstError = errors[firstField];
+          const message = firstError?.message || "Unexpected error occurred. Please try again.";
+          setAlertMessage(message);
+          setIsAlertPopup(false);
+        }else{
+          setIsAlertPopup(true)
+          setIsAlertPopupInfo({ 
+          title: "Required fields missing",
+          description: "Please complete: " + Object.keys(errors).map(value => {return value.charAt(0).toUpperCase() + value.slice(1);})                                                            .join(", "),
+          buttonRightText: "OK",
+          buttonRightClick: () => { setIsAlertPopup(false); },
+        });
+      }
+  }else {
+    if (window.innerWidth >= 768){setAlertMessage("Incorrect information. Please check the information")}
+    else {setIsAlertPopup(true)
+          setIsAlertPopupInfo({ 
+          title: "Required fields missing",
+          description: "Incorrect information. Please check the information",
+          buttonRightText: "OK",
+          buttonRightClick: () => { setIsAlertPopup(false); },
+        }); 
+      }
+      }
   return;
 }
 
@@ -184,7 +206,6 @@ import { Country, State } from "country-state-city";
     setIsAlertPopup(false)
     setLoading(true)
     const response = await deleteUsers()
-        console.log("delete")
     if (response.status === 204){
             setIsAlertPopup(false)
             router.push('/logout'); 
@@ -363,13 +384,15 @@ const TwoButton =()=>{
                   render={({ field }) => (
                     <SelectInput
                       label="Racial Preference"
-                    options={[
-                      { value: "asian", label: "Asian" },
-                      { value: "caucasian", label: "Caucasian" },
-                      { value: "african", label: "African" },
-                      { value: "mixed", label: "Mixed" },
-                      { value: "other", label: "Other" },
-                      { value: "no_preference", label: "No preference" },]}
+                          options={[
+                            { value: "asian", label: "Asian" },
+                            { value: "caucasian", label: "Caucasian" },
+                            { value: "african", label: "African" },
+                            { value: "mixed", label: "Mixed" },
+                            { value: "hispanic", label: "Hispanic" },
+                            { value: "no_preference", label: "No preference" },
+                            { value: "other", label: "Other" },
+                          ]}
                     {...field}
                     />
                   )}
