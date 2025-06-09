@@ -13,7 +13,7 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export default async function handler(req, res) {
   console.log("🔥 Stripe webhook เรียกแล้ว");
-console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
+
   if (req.method !== "POST") {
     return res.status(405).end("Method not allowed");
   }
@@ -47,21 +47,39 @@ console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
       const subscription = fullSession.subscription;
 
       if (!subscription?.start_date) {
-        console.error(
-          ":no_entry: Subscription missing start_date:",
-          subscription
-        );
+        console.error(":no_entry: Subscription missing start_date:", subscription);
         return res.status(500).send("Subscription missing start_date");
       }
 
-      const invoices = await stripe.invoices.list({subscription: subscription.id,limit: 1});
-      const latestInvoice = invoices.data[0];
-      const invoicePdfUrl = latestInvoice?.invoice_pdf ?? null;
+      // ✅ บันทึก stripe_customer_id ลง stripe_customers
+      const stripeCustomerId = fullSession.customer;
 
+      const { data: existingCustomer } = await supabase
+        .from("stripe_customers")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!existingCustomer) {
+        const { error: insertCustomerErr } = await supabase
+          .from("stripe_customers")
+          .insert({
+            user_id: userId,
+            stripe_customer_id: stripeCustomerId,
+          });
+
+        if (insertCustomerErr) {
+          console.error("❌ Failed to insert stripe_customer:", insertCustomerErr);
+        } else {
+          console.log("💾 Saved stripe_customer_id to stripe_customers");
+        }
+      } else {
+        console.log("✅ stripe_customer already exists, skipping insert");
+      }
+
+      // ✅ บันทึก subscription
       const status = subscription.status;
-      const currentPeriodStart = new Date(
-        subscription.start_date * 1000
-      ).toISOString();
+      const currentPeriodStart = new Date(subscription.start_date * 1000).toISOString();
       const currentPeriodEnd = new Date(
         subscription.start_date * 1000 + 30 * 24 * 60 * 60 * 1000
       ).toISOString();
@@ -88,6 +106,7 @@ console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
         console.log("➕ Inserted stripe_subscriptions");
       }
 
+      // ✅ จัดการ user_packages และ merry_count_log
       const { data: pkg, error: pkgError } = await supabase
         .from("packages")
         .select("id, merry_per_day")
@@ -172,17 +191,15 @@ console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
     }
   }
 
-  // ✅ Handle expiration after unsubscribe (cancelation completed)
+  // ✅ กรณียกเลิก subscription ทันที
   else if (eventType === "customer.subscription.updated") {
     try {
       const subscription = event.data.object;
       const status = subscription.status;
       const stripeSubscriptionId = subscription.id;
 
-      // fallback: try metadata first
       let userId = subscription.metadata?.user_id;
 
-      // if metadata is missing, fallback to DB
       if (!userId) {
         const { data: subRecord, error: subErr } = await supabase
           .from("stripe_subscriptions")
@@ -210,16 +227,64 @@ console.log("🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵🥵");
           .eq("user_id", userId);
 
         if (updateErr) {
-          console.error(
-            "❌ Failed to mark user_packages as expired:",
-            updateErr
-          );
+          console.error("❌ Failed to mark user_packages as expired:", updateErr);
         } else {
           console.log("✅ Marked subscription as expired for user:", userId);
         }
       }
     } catch (err) {
       console.error("🔥 Error handling customer.subscription.updated:", err);
+    }
+  }
+
+  // ✅ กรณี cancel_at_period_end แล้วหมดรอบ
+  else if (eventType === "customer.subscription.deleted") {
+    try {
+      const subscription = event.data.object;
+      const stripeSubscriptionId = subscription.id;
+
+      let userId = subscription.metadata?.user_id;
+
+      if (!userId) {
+        const { data: subRecord, error: subErr } = await supabase
+          .from("stripe_subscriptions")
+          .select("user_id")
+          .eq("stripe_subscription_id", stripeSubscriptionId)
+          .single();
+
+        if (subErr || !subRecord) {
+          console.warn(
+            "⚠️ Cannot find user_id for deleted subscription",
+            stripeSubscriptionId
+          );
+          return res.status(200).json({ received: true });
+        }
+
+        userId = subRecord.user_id;
+      }
+
+      console.log("☠️ Subscription deleted at period end:", stripeSubscriptionId);
+
+      const { error: updateErr } = await supabase
+        .from("user_packages")
+        .update({ package_status: "expired" })
+        .eq("user_id", userId);
+
+      if (updateErr) {
+        console.error("❌ Failed to mark user_packages as expired:", updateErr);
+      } else {
+        console.log("✅ Marked user_packages as expired for user:", userId);
+      }
+
+      await supabase
+        .from("stripe_subscriptions")
+        .update({
+          status: "expired",
+          canceled_at: new Date().toISOString(),
+        })
+        .eq("stripe_subscription_id", stripeSubscriptionId);
+    } catch (err) {
+      console.error("🔥 Error handling customer.subscription.deleted:", err);
     }
   }
 
