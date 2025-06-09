@@ -86,7 +86,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
                     </div>:
                     <div className="flex flex-col pt-2 md:pt-0">
                         {packageName?<h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>:<Skeleton width={170} height={50}/>}
-                        {price?<h3 className='text-[20px] text-[#F4EBF2] font-semibold md:font-normal '>THB {price} <span className='text-[#F4EBF2] text-[16px] font-normal'>/Month</span></h3>:<Skeleton width={100} height={30}/>}
+                        {packageName?<h3 className='text-[20px] text-[#F4EBF2] font-semibold md:font-normal '>THB {price.toFixed(2)} <span className='text-[#F4EBF2] text-[16px] font-normal'>/Month</span></h3>:<Skeleton width={100} height={30}/>}
                     </div>
                 </div>
                 <div className='flex flex-col text-[#F4EBF2] text-[16px] gap-4 md:gap-3 mt-4 md:mt-3 md:pr-24'>
@@ -137,7 +137,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
   );
 };
 
-export const CreditInfomationCard = ({cardType,expire,last4,editPaymentMethod}) => {
+export const CreditInfomationCard = ({cardType,expire,last4,editPaymentMethod,canceled=false}) => {
     return (
     <div className=" mx-auto max-w-[1200px]"> 
         <div className="flex flex-col p-4 rounded-3xl md:rounded-4xl border-[1px] border-[#D6D9E4] gap-[16px] md:p-8 md:pb-6 bg-white ">
@@ -152,7 +152,7 @@ export const CreditInfomationCard = ({cardType,expire,last4,editPaymentMethod}) 
             </div>
             <hr className='text-[#D6D9E4] mt-2 md:mt-[6px]'/>
             <div className=' md:flex justify-end text-[#C70039] font-bold w-full pr-2 md:mt-1 text-end'>
-                {last4 ? <button className='cursor-pointer hover:underline md:mt-1' onClick={()=>{editPaymentMethod()}}>Edit Payment Method</button>:<div className="h-7"></div>}
+                {last4 && !canceled ? <button className='cursor-pointer hover:underline md:mt-1' onClick={()=>{editPaymentMethod()}}>Edit Payment Method</button>:<div className="h-7"></div>}
             </div>
         </div>
     </div>

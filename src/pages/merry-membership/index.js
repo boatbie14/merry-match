@@ -165,6 +165,7 @@ const editCreditCard = async (subscription_id) => {
           <div className="w-full md:px-5 mt-21">
             <h2 className="text-[#2A2E3F] text-[24px] font-bold mb-6" style={{ letterSpacing: "-0.02em" }} >Payment Method</h2>
             <CreditInfomationCard
+              canceled={packagInSubscriptions?.canceled_at}
               cardType={infomationPackageCard?.brand.charAt(0).toUpperCase() + infomationPackageCard?.brand.slice(1)}
               expire={`${infomationPackageCard?.exp_month < 10 ? '0' : ''}${infomationPackageCard?.exp_month}/${infomationPackageCard?.exp_year}`}
               last4 = {infomationPackageCard?.last4}

@@ -168,12 +168,34 @@ import { Country, State } from "country-state-city";
 
   const onError = (errors) => {
   setAlertSeverity("error");
+  console.log(errors)
   const firstField = Object.keys(errors)[0]; // หาชื่อ field แรกที่ error
-  if (firstField) {
-    const firstError = errors[firstField];
-    const message = firstError?.message || "Unexpected error occurred. Please try again.";
-    setAlertMessage(message);
-  }else setAlertMessage("Incorrect information. Please check the information")
+  if (Object.keys(errors).length>0) {
+        if (window.innerWidth >= 768) {
+          const firstError = errors[firstField];
+          const message = firstError?.message || "Unexpected error occurred. Please try again.";
+          setAlertMessage(message);
+          setIsAlertPopup(false);
+        }else{
+          setIsAlertPopup(true)
+          setIsAlertPopupInfo({ 
+          title: "Required fields missing",
+          description: "Please complete: " + Object.keys(errors).map(value => {return value.charAt(0).toUpperCase() + value.slice(1);})                                                            .join(", "),
+          buttonRightText: "OK",
+          buttonRightClick: () => { setIsAlertPopup(false); },
+        });
+      }
+  }else {
+    if (window.innerWidth >= 768){setAlertMessage("Incorrect information. Please check the information")}
+    else {setIsAlertPopup(true)
+          setIsAlertPopupInfo({ 
+          title: "Required fields missing",
+          description: "Incorrect information. Please check the information",
+          buttonRightText: "OK",
+          buttonRightClick: () => { setIsAlertPopup(false); },
+        }); 
+      }
+      }
   return;
 }
 
