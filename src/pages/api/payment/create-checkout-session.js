@@ -16,22 +16,54 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const { data, error } = await supabase
+  // STEP 1: ดึง price_id จากแพ็กเกจ
+  const { data: priceRow, error: priceErr } = await supabase
     .from("packages")
     .select("price_id")
     .eq("package_name", plan)
     .single();
 
-  if (error || !data?.price_id) {
-    console.warn("⛔ Invalid plan or missing price_id:", error);
+  if (priceErr || !priceRow?.price_id) {
+    console.warn("⛔ Invalid plan or missing price_id:", priceErr);
     return res.status(400).json({ error: "Invalid plan selected" });
   }
 
-  const priceId = data.price_id;
+  const priceId = priceRow.price_id;
   console.log("💰 Loaded priceId from DB:", priceId);
 
+  // STEP 2: ดึง stripe_customer_id จากตาราง stripe_customers
+  const { data: customerRow, error: customerErr } = await supabase
+    .from("stripe_customers")
+    .select("stripe_customer_id")
+    .eq("user_id", userId)
+    .single();
+
+  if (customerErr || !customerRow?.stripe_customer_id) {
+    console.warn("⛔ Missing stripe_customer_id:", customerErr);
+    return res.status(400).json({ error: "User not connected with Stripe" });
+  }
+
+  const customerId = customerRow.stripe_customer_id;
+
+  // STEP 3: ตรวจสอบ subscription เดิม และตั้งให้ยกเลิกตอนจบรอบ
+  const subscriptions = await stripe.subscriptions.list({
+    customer: customerId,
+    status: "active",
+    limit: 1,
+  });
+
+  const activeSub = subscriptions.data[0];
+  if (activeSub) {
+    console.log("🔁 Found existing subscription. Scheduling cancel:", activeSub.id);
+    await stripe.subscriptions.update(activeSub.id, {
+      cancel_at_period_end: true,
+    });
+  }
+
+  // STEP 4: สร้าง checkout session ใหม่
   try {
     const session = await stripe.checkout.sessions.create({
+      customer: customerId, // ใช้ customer เดิม
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [
