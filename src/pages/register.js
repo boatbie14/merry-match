@@ -100,6 +100,8 @@ export default function RegisterPage() {
 
   useEffect(() => {
     Object.entries(watchedValues).forEach(([key, value]) => {
+      if (key === "images") return;
+
       const isFilled = Array.isArray(value) ? value.length > 0 : !!value;
       if (errors[key] && isFilled) {
         clearErrors(key);

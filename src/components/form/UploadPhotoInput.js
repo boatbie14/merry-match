@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   IconButton,
@@ -23,6 +23,7 @@ import {
   horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { IoAdd } from "react-icons/io5";
+import { AlertPopup } from "@/components/popup/AlertPopup";
 
 const UploadBox = styled(Paper)(() => ({
   width: 180,
@@ -71,7 +72,7 @@ function SortableImageItem({ id, src, onRemove, onUpload, index }) {
   };
 
   return (
-    <Grid sx={{ xs: '50%', sm: '33.33%', md: '25%' } }>
+    <Grid sx={{ xs: "50%", sm: "33.33%", md: "25%" }}>
       {src ? (
         <ImageBox ref={setNodeRef} style={style} {...attributes} {...listeners}>
           <ImageWrapper>
@@ -151,6 +152,9 @@ function SortableImageItem({ id, src, onRemove, onUpload, index }) {
 }
 
 export default function UploadPhotoInput({ name, value, onChange }) {
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const sensors = useSensors(useSensor(PointerSensor));
   const items = Array.isArray(value)
     ? value
@@ -164,19 +168,21 @@ export default function UploadPhotoInput({ name, value, onChange }) {
     fileInput.onchange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // ✅ เช็คว่าเป็นรูปภาพ
         if (!file.type.startsWith("image/")) {
-          alert("Please upload a valid image file.");
+          setAlertMessage("Please upload a valid image file.");
+          setIsAlertOpen(true);
           return;
         }
-    
-        // ✅ เช็คขนาดไม่เกิน 2MB
+
         const maxSizeInMB = 2;
         if (file.size > maxSizeInMB * 1024 * 1024) {
-          alert(`File is too large. Maximum size is ${maxSizeInMB}MB.`);
+          setAlertMessage(
+            `File is too large. Maximum size is ${maxSizeInMB}MB.`
+          );
+          setIsAlertOpen(true);
           return;
         }
-    
+
         const reader = new FileReader();
         reader.onload = (event) => {
           const current = Array.isArray(value)
@@ -185,17 +191,16 @@ export default function UploadPhotoInput({ name, value, onChange }) {
                 id: `img${i + 1}`,
                 src: "",
               }));
-    
+
           const updated = current.map((item) =>
             item.id === id ? { ...item, src: event.target.result, file } : item
           );
-    
+
           onChange(updated);
         };
         reader.readAsDataURL(file);
       }
     };
-    
 
     fileInput.click();
   };
@@ -218,7 +223,9 @@ export default function UploadPhotoInput({ name, value, onChange }) {
 
   return (
     <Box>
-      <Typography sx={{ fontSize: 16, fontWeight: 400, mb: 1, color: "#424C6B" }}>
+      <Typography
+        sx={{ fontSize: 16, fontWeight: 400, mb: 1, color: "#424C6B" }}
+      >
         Upload at least 2 photos
       </Typography>
       <DndContext
@@ -244,6 +251,15 @@ export default function UploadPhotoInput({ name, value, onChange }) {
           </Grid>
         </SortableContext>
       </DndContext>
+
+      <AlertPopup
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title="Oops!"
+        description={alertMessage}
+        buttonRightText="OK"
+        buttonRightClick={() => setIsAlertOpen(false)}
+      />
     </Box>
   );
 }
