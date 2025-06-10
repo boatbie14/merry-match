@@ -1,12 +1,9 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '@/lib/supabaseClient'
-import { FiTrash2, FiEdit } from 'react-icons/fi'
+import { FiTrash2, FiEdit, FiMenu } from 'react-icons/fi'
 import Image from 'next/image'
 
-// DnD Kit imports
 import {
   DndContext,
   closestCenter,
@@ -79,7 +76,7 @@ export default function PackageTable() {
 
     setPackages(newOrder)
 
-    // อัปเดต order ใหม่ทั้งหมดลง Supabase
+ 
     const updates = newOrder.map((pkg, index) => ({
       id: pkg.id,
       order: index + 1
@@ -114,7 +111,7 @@ export default function PackageTable() {
             <table className="w-full text-sm text-left text-gray-700">
               <thead className="bg-[#f2f4f8] text-gray-600">
                 <tr>
-                  <th className="px-4 py-3 font-medium rounded-tl-xl w-16">#</th>
+                  <th className="px-4 py-3 font-medium rounded-tl-xl w-16">☰</th>
                   <th className="px-4 py-3 font-medium">Icon</th>
                   <th className="px-4 py-3 font-medium">Package name</th>
                   <th className="px-4 py-3 font-medium">Merry limit</th>
@@ -152,8 +149,10 @@ function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
   }
 
   return (
-    <tr ref={setNodeRef} style={style} {...attributes} {...listeners} className="hover:bg-gray-50 cursor-move">
-      <td className="px-4 py-3 text-gray-800">{index + 1}</td>
+    <tr ref={setNodeRef} style={style} {...attributes} className="hover:bg-gray-50">
+      <td className="px-4 py-3 text-gray-800 cursor-grab" {...listeners}>
+        <FiMenu size={18} /> 
+      </td>
       <td className="px-4 py-3">
         {pkg.icon_url ? (
           <Image
@@ -175,13 +174,19 @@ function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
       <td className="px-4 py-3">{formatDateTime(pkg.updated_at)}</td>
       <td className="px-4 py-3 text-center flex gap-3 justify-center">
         <button
-          onClick={() => router.push(`/admin/edit-package?id=${pkg.id}`)}
+          onClick={(e) => {
+            e.stopPropagation()
+            router.push(`/admin/edit-package?id=${pkg.id}`)
+          }}
           className="text-pink-500 hover:text-pink-700"
         >
           <FiEdit size={18} />
         </button>
         <button
-          onClick={() => handleDelete(pkg.id)}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleDelete(pkg.id)
+          }}
           className="text-pink-500 hover:text-pink-700"
         >
           <FiTrash2 size={18} />
