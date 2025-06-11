@@ -8,9 +8,9 @@ import { supabase } from '@/lib/supabaseClient';
 export default function CreatePackagePage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const submitFormRef = useRef(); // ฟังก์ชันที่จะใช้ trigger submit
+  const submitFormRef = useRef();
 
-  const handleCreate = async ({ package_name, merry_per_day, price, details }) => {
+  const handleCreate = async ({ package_name, merry_per_day, price, details, price_id, }) => {
     if (!package_name || merry_per_day === undefined) {
       alert('กรอกข้อมูลให้ครบ');
       return;
@@ -22,8 +22,9 @@ export default function CreatePackagePage() {
       {
         package_name,
         merry_per_day,
-        price,
+        price: parseFloat(price) || 0,
         details,
+        price_id,
       },
     ]);
 
@@ -32,8 +33,7 @@ export default function CreatePackagePage() {
       setIsSubmitting(false);
       return;
     }
-
-    alert('สร้างแพ็กเกจสำเร็จ!');
+    
     router.push('/admin');
   };
 
@@ -48,7 +48,7 @@ export default function CreatePackagePage() {
         <CreatePackageForm
           onSubmit={handleCreate}
           isSubmitting={isSubmitting}
-          setExternalSubmit={(submitFn) => {
+          exposeSubmit={(submitFn) => {
             submitFormRef.current = submitFn;
           }}
         />

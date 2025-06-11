@@ -2,8 +2,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import UploadPhotoInput from '@/components/form/UploadPhotoPackage';
 import { uploadImagesToSupabase } from '@/lib/uploadImagesToSupabase';
 import { useEffect } from 'react';
-
-// ... import ทั้งหมด เหมือนเดิม
+import { supabase } from '@/lib/supabaseClient';
 
 export default function CreatePackageForm({
   initialData = null,
@@ -12,6 +11,8 @@ export default function CreatePackageForm({
     console.warn('❌ onSubmit was not provided:', data);
   },
   isSubmitting = false,
+  exposeSubmit,
+  onDeleteConfirm = () => {},
 }) {
   const {
     control,
@@ -24,6 +25,7 @@ export default function CreatePackageForm({
     defaultValues: {
       packageName: '',
       merryLimit: '10',
+      price: '',
       icon: [{ id: 'img1', src: '' }],
       details: [{ value: '' }],
     },
@@ -42,6 +44,7 @@ export default function CreatePackageForm({
           initialData.merry_per_day === null
             ? 'ไม่จำกัด'
             : String(initialData.merry_per_day),
+        price: String(initialData.price || ''),
         icon: initialData.icon_url
           ? [{ id: 'existing-icon', src: initialData.icon_url }]
           : [{ id: 'img1', src: '' }],
@@ -51,9 +54,13 @@ export default function CreatePackageForm({
     }
   }, [initialData, reset]);
 
-  const handleFormSubmit = async (data) => {
-    console.log('🟢 raw data from form:', data);
+  useEffect(() => {
+    if (exposeSubmit) {
+      exposeSubmit(() => handleSubmit(handleFormSubmit)());
+    }
+  }, [exposeSubmit, handleSubmit]);
 
+  const handleFormSubmit = async (data) => {
     const allFilled = data.details.every((d) => d.value.trim() !== '');
     if (!allFilled) {
       setError('details', { message: 'กรุณากรอกรายละเอียดให้ครบทุกช่อง' });
@@ -63,7 +70,6 @@ export default function CreatePackageForm({
     try {
       const uploadedIcon = data.icon?.[0];
       const isNewImage = uploadedIcon && !uploadedIcon.src.startsWith('https://');
-
       let iconUrl = initialData?.icon_url || '';
 
       if (isNewImage) {
@@ -76,17 +82,44 @@ export default function CreatePackageForm({
         return;
       }
 
+      const packageName = data.packageName.trim();
+      const price = parseFloat(data.price) || 0;
+
+      // ✅ เรียก API สำหรับสร้าง Stripe product + price
+      let stripeProductId = initialData?.stripe_product_id || '';
+      let stripePriceId = initialData?.price_id || '';
+      
+      if (!isEditMode) {
+    
+        const res = await fetch('/api/admin/create-stripe-product', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: packageName, price }),
+        });
+        console.log('✅ create-stripe-product response:', res);
+        
+        if (!res.ok) {
+          throw new Error('Stripe product creation failed');
+        }
+
+        const stripeData = await res.json();
+        stripeProductId = stripeData.productId;
+        stripePriceId = stripeData.priceId;
+        console.log('✅ stripeData:', stripeData);
+
+      }
+
       const payload = {
-        package_name: data.packageName.trim(),
+        package_name: packageName,
         merry_per_day:
-          data.merryLimit === 'ไม่จำกัด'
-            ? null
-            : Number(data.merryLimit),
+          data.merryLimit === 'ไม่จำกัด' ? null : Number(data.merryLimit),
         details: data.details.map((d) => d.value.trim()),
         icon_url: iconUrl,
+        price,
+        stripe_product_id: stripeProductId,
+        price_id: stripePriceId,
       };
 
-      console.log('📦 payload to submit:', payload);
       await onSubmitProp(payload);
     } catch (error) {
       console.error('❌ Upload or save failed', error);
@@ -99,6 +132,21 @@ export default function CreatePackageForm({
       onSubmit={handleSubmit(handleFormSubmit)}
       className="bg-white mt-6 rounded-xl mx-8 p-8 space-y-8"
     >
+      <div className="flex justify-between">
+        <h2 className="text-xl font-semibold text-gray-700">
+          {isEditMode ? 'Edit Package' : 'Create Package'}
+        </h2>
+        {isEditMode && (
+          <button
+            type="button"
+            onClick={onDeleteConfirm}
+            className="text-red-500 hover:text-red-700 text-sm underline"
+          >
+            ลบแพ็กเกจนี้
+          </button>
+        )}
+      </div>
+
       <div className="flex gap-6">
         <div className="w-1/2">
           <label className="block font-medium mb-1">Package name *</label>
@@ -139,6 +187,22 @@ export default function CreatePackageForm({
             </p>
           )}
         </div>
+      </div>
+
+      <div className="w-1/2">
+        <label className="block font-medium mb-1">Price (THB) *</label>
+        <input
+          type="number"
+          step="1"
+          {...register('price', {
+            required: 'Price is required',
+            min: { value: 0, message: 'ราคาไม่สามารถติดลบได้' },
+          })}
+          className="border border-gray-300 w-full p-2 rounded"
+        />
+        {errors.price && (
+          <p className="text-red-500 text-sm mt-2">{errors.price.message}</p>
+        )}
       </div>
 
       <Controller

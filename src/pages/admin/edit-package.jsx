@@ -58,7 +58,6 @@ export default function EditPackagePage() {
       return;
     }
 
-    alert('อัปเดตแพ็กเกจสำเร็จ!');
     router.push('/admin');
   };
 
@@ -80,6 +79,7 @@ export default function EditPackagePage() {
           isEditMode
           isSubmitting={isSubmitting}
         />
+        
       </main>
     </div>
   );
