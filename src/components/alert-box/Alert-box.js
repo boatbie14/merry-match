@@ -1,4 +1,4 @@
-//// this is new one
+//// this is 10/6
 // components/DesktopAlertMenuItems.js
 import React, { useState, useContext } from "react";
 import { useRouter } from "next/router";
@@ -74,22 +74,26 @@ export function DesktopAlertMenuItems() {
               onClick={() => {
                 if (isPackageName !== "Free") {
                   markAsRead(n.id);
-                  if(n.noti_type==="merry"){
-                    if (!(window.location.pathname === '/merrylist' && new URLSearchParams(window.location.search).get('selectedBox') === 'merry-to-you')) {
+                  if (n.noti_type === "merry") {
+                    if (
+                      !(
+                        window.location.pathname === "/merrylist" &&
+                        new URLSearchParams(window.location.search).get(
+                          "selectedBox"
+                        ) === "merry-to-you"
+                      )
+                    ) {
                       const url = new URL(window.location.href);
-                      url.pathname = '/merrylist';
-                      url.searchParams.set('selectedBox', 'merry-to-you');
+                      url.pathname = "/merrylist";
+                      url.searchParams.set("selectedBox", "merry-to-you");
                       window.location.href = url.toString();
                     }
-                  }else{
-                  handleStartConversation(n);
+                  } else {
+                    handleStartConversation(n);
                   }
                 }
               }}
-              className={
-                "flex flex-row space-x-2 relative p-2 rounded cursor-pointer " +
-                (n.is_read ? "bg-gray-200" : "")
-              }
+              className="flex flex-row space-x-2 relative p-2 rounded cursor-pointer "
             >
               <Image
                 src={avatarSrc}
@@ -102,6 +106,11 @@ export function DesktopAlertMenuItems() {
                 <FaHeart size={10} color="#FF1659" />
               </div>
               <span className="text-start text-xs ">{n.message}</span>
+              {n.is_read !== true && (
+                <div className="flex flex-col justify-center items-center">
+                  <div className="bg-pink-600 rounded-full w-2 h-2"></div>
+                </div>
+              )}
             </div>
           );
         })}
@@ -183,12 +192,7 @@ export function MobileAlertMenuItems() {
                 }}
                 className="desktop-alert-menu-items flex flex-col space-y-5 px-4 py-3"
               >
-                <div
-                  className={
-                    "flex flex-row space-x-10 relative p-2 rounded cursor-pointer " +
-                    (n.is_read ? "bg-gray-200" : "")
-                  }
-                >
+                <div className="flex flex-row space-x-3 relative p-2 rounded cursor-pointer ">
                   <Image
                     src={avatarSrc}
                     alt="Alert-noti"
@@ -200,6 +204,11 @@ export function MobileAlertMenuItems() {
                     <FaHeart size={10} color="#FF1659" />
                   </div>
                   <span className="text-start text-sm ">{n.message}</span>
+                  {n.is_read !== true && (
+                    <div className="flex flex-col justify-center items-center mr-2">
+                      <div className="bg-pink-600 rounded-full w-2 h-2"></div>
+                    </div>
+                  )}
                 </div>
               </div>
             );

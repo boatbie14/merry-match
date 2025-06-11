@@ -1,3 +1,4 @@
+//// this is 10/6
 import React, { createContext, useContext, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 
@@ -23,10 +24,16 @@ export const NavbarProvider = ({ children }) => {
 
   const toggleAlertDesktopMenu = () => {
     setisAlertDesktopMenuOpen(!isAlertDesktopMenuOpen);
+    if(isUserMenuOpen) {
+      setIsUserMenuOpen(false);
+    }
   };
 
   const toggleUserMenu = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
+    if (isAlertDesktopMenuOpen) {
+      setisAlertDesktopMenuOpen(false);
+    }
   };
 
   const toggleAlertMobileMenu = () => {
@@ -43,24 +50,6 @@ export const NavbarProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setIsUserMenuOpen(false);
-      }
-      if (
-        alertMenuRef.current &&
-        !alertMenuRef.current.contains(event.target)
-      ) {
-        setisAlertDesktopMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   return (
     <NavbarContext.Provider

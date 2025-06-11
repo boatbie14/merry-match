@@ -1,3 +1,4 @@
+//// this is 10/6
 import React, {
   createContext,
   useContext,
@@ -46,14 +47,12 @@ export function NotificationContextProvider({ children }) {
         // Step 3: Check if package_name is "Free"
         if (userPackage?.package_status === "active") {
           setIsPackageName(packageData.package_name);
-          
         } else {
           setIsPackageName(false);
         }
       } catch (error) {
         console.error("Error fetching package data:", error);
       }
-      
     };
 
     fetchPackageData();

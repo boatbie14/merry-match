@@ -1,4 +1,4 @@
-//// this is new one 1
+//// this is 10/6
 import React from "react";
 import { useRouter } from "next/router";
 
@@ -20,6 +20,8 @@ import {
   DesktopAlertMenuItems,
   MobileAlertMenuItems,
 } from "@/components/alert-box/Alert-box.js";
+/// import UnreadCount from components
+import { UnreadCount } from "@/components/alert-box/UnreadCount.js";
 
 // DesktopAlertMenuItems Old placement
 
@@ -32,7 +34,10 @@ export const DesktopUserMenuItems = () => {
 
   return (
     <div className="flex flex-col w-[198px] h-[258px] ">
-      <Link href="merry-package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer">
+      <Link
+        href="merry-package"
+        className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer"
+      >
         <span className="text-xs font-bold">✨ More limit Merry!</span>
       </Link>
       <div className="profile-menu-items mt-2 space-y-6 px-5 text-xs text-[#646D89]  ">
@@ -55,13 +60,19 @@ export const DesktopUserMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <Link href="merry-membership" className="flex flex-row space-x-5 cursor-pointer">
+          <Link
+            href="merry-membership"
+            className="flex flex-row space-x-5 cursor-pointer"
+          >
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
           </Link>
         </div>
         <div className="compliant-button-mobile-menu-items">
-          <Link href="/complaint" className="flex flex-row space-x-5 cursor-pointer">
+          <Link
+            href="/complaint"
+            className="flex flex-row space-x-5 cursor-pointer"
+          >
             <GoAlertFill color="pink" />
             <span>Complaint </span>
           </Link>
@@ -89,15 +100,18 @@ export const MobileMenuItems = () => {
 
   return (
     <div className="flex flex-col ">
-      <Link href="merry-package" className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center">
+      <Link
+        href="merry-package"
+        className="bg-gradient-to-r from-[#742138] to-[#A878BF] px-6 py-2.5 rounded-4xl sm:mx-4 my-6 text-white flex items-center justify-center"
+      >
         <span className=" sm:text-3xl font-bold">✨ More limit Merry!</span>
       </Link>
-      <div className="profile-menu-items space-y-10 px-10  mt-5 mb-5 sm:mt-10 sm:mb-10 sm:text-3xl text-[#646D89] ">
+      <div className="profile-menu-items space-y-10 px-5  mt-5 mb-5 sm:mt-10 sm:mb-10 sm:text-3xl text-[#646D89] ">
         <div className="profile-button-mobile-menu-items ">
           <Link
             href="/profile"
             onClick={() => setIsOpen(false)}
-            className="flex flex-row space-x-10 "
+            className="flex flex-row space-x-5 "
           >
             <FaUser color="pink" />
             <span>Profile</span>
@@ -108,7 +122,7 @@ export const MobileMenuItems = () => {
           <Link
             href="/matching"
             onClick={() => setIsOpen(false)}
-            className="flex flex-row space-x-10 "
+            className="flex flex-row space-x-5 "
           >
             <BsFillSearchHeartFill color="pink" />
             <span>Start Matching</span>
@@ -118,7 +132,7 @@ export const MobileMenuItems = () => {
         <div className="merrylist-button-mobile-menu-items">
           <Link
             href="/merrylist"
-            className="flex flex-row space-x-10"
+            className="flex flex-row space-x-5"
             onClick={() => setIsOpen(false)}
           >
             <FaHeart color="pink" />
@@ -126,13 +140,13 @@ export const MobileMenuItems = () => {
           </Link>
         </div>
         <div className="merry-membership-button-mobile-menu-items">
-          <Link href="merry-membership" className="flex flex-row space-x-10">
+          <Link href="merry-membership" className="flex flex-row space-x-5">
             <BsFillBoxFill color="pink" />
             <span>Merry Membership</span>
           </Link>
         </div>
         <div className="compliant-button-mobile-menu-items">
-          <button className="flex flex-row space-x-10">
+          <button className="flex flex-row space-x-5">
             <GoAlertFill color="pink" />
             <span>Complaint </span>
           </button>
@@ -140,7 +154,7 @@ export const MobileMenuItems = () => {
       </div>
       <button
         onClick={handleLogout}
-        className=" md:hidden flex flex-row space-x-10 sm:text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-10 py-6 mt-5  "
+        className=" md:hidden flex flex-row space-x-5 sm:text-4xl text-[#646D89] border-t border-[#E4E6ED]-300 px-5 py-6 mt-5  "
       >
         <IoLogOutOutline style={{ marginTop: "4px" }} />
         <span>Log out</span>
@@ -148,7 +162,6 @@ export const MobileMenuItems = () => {
     </div>
   );
 };
-
 
 const NavbarUser = () => {
   const { userInfo } = useAuth();
@@ -191,10 +204,16 @@ const NavbarUser = () => {
             >
               Start Matching!
             </Link>
-            <Link href="merry-membership" className="hidden md:flex text-[#7D2262] font-bold">
+            <Link
+              href="merry-membership"
+              className="hidden md:flex text-[#7D2262] font-bold"
+            >
               Merry Membership
             </Link>
-            <button className="talk-button md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center ">
+            <Link
+              href="/chat"
+              className="talk-button md:hidden w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] rounded-3xl bg-[#F6F7FC] flex justify-center items-center "
+            >
               <svg
                 width="30"
                 height="30"
@@ -209,7 +228,7 @@ const NavbarUser = () => {
                   fill="#FFB1C8"
                 />
               </svg>
-            </button>
+            </Link>
             <button
               onClick={toggleAlertMobileMenu}
               className="alert-button-mobile w-[25px] h-[25px] sm:w-[40px] sm:h-[40px] md:hidden rounded-3xl bg-[#F6F7FC] flex justify-center items-center mr-0 cursor-pointer "
@@ -249,6 +268,7 @@ const NavbarUser = () => {
                   />
                 </svg>
               </button>
+              <div className="absolute top-0 right-0"> <UnreadCount userId={userInfo.id} /> </div>
               {isAlertDesktopMenuOpen && (
                 <div
                   ref={alertMenuRef}
