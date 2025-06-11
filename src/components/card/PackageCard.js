@@ -25,7 +25,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
     <div 
     className="flex flex-col  p-4 bg-[#ffffff] rounded-3xl border-[1px] border-[#D6D9E4] gap-[12px] md:p-10 md:gap-[20px] md:w-[357px] w-full  md:min-h-[441px] mb-6 md:shadow-[0_4px_8px_-2px_rgba(0,0,0,0.1)]">
         <button className={`w-[60px] h-[60px] border-none rounded-2xl inline-flex items-center justify-center bg-[#F6F7FC]`}>
-            <Image src={icon} alt={packageName} width={36} height={36}/>
+            <Image src={icon} alt={packageName} width={30} height={30}/>
         </button>
         <div className="flex flex-col">
             <h2 className={`text-[#411032] text-[32px] font-bold md:text-[36px]`}>{packageName.charAt(0).toUpperCase() + packageName.slice(1)}</h2>
@@ -75,6 +75,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
 
 
 export const PackageLongCard = ({icon,packageName,price,detail=[],status, period_end, period_start,canceled=false,cancelPackage }) => {
+    console.log(detail)
     return (
     <div className=" mx-auto max-w-[1200px]"> 
         <div style={{background: "linear-gradient(100deg, #820025, #93345F, #A878BF)"}}
@@ -82,7 +83,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
             <div className='md:flex md:relative '>
                 <div className='md:flex gap-4 pr-8 md:pr-3 lg:w-[319px]'>
                     <div className={`w-[60px] h-[60px] md:w-[78px] md:h-[78px] border-none rounded-2xl flex items-center justify-center bg-[#F6F7FC] `}>
-                        {icon? <Image src={icon} alt={packageName || 'icon'} width={48} height={48} />:<Skeleton variant="circular" height={48} width={48}/>}
+                        {icon? <Image src={icon} alt={packageName || 'icon'} width={32.5} height={32.5} />:<Skeleton variant="circular" height={48} width={48}/>}
                     </div>:
                     <div className="flex flex-col pt-2 md:pt-0">
                         {packageName?<h2 className='text-[#ffffff] text-[32px] font-bold '>{packageName.charAt(0).toUpperCase() + packageName?.slice(1)}</h2>:<Skeleton width={170} height={50}/>}
@@ -93,7 +94,7 @@ export const PackageLongCard = ({icon,packageName,price,detail=[],status, period
                     {detail.map((value,index)=>(
                         <div key={index} className="flex flex-row items-center gap-4">
                             <GoCheckCircleFill  color="#DF89C6" className='md:text-[20px]'/> 
-                            <h3>{packageName==="Free"?"":value}</h3>
+                            <h3>{value}</h3>
                         </div>
                         )
                     )}

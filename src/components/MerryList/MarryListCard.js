@@ -5,8 +5,9 @@ import { AiFillEye } from "react-icons/ai";
 import DoubleHeartsIcon from "../icons";
 import { calculateAge } from '@/utils/functionCalculate/calculateAge';
 import LikeButton from '../LikeButton';
-
+import { useState } from 'react';
 const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,isChatNotifications}) => {
+  const [imgLoaded, setImgLoaded] = useState(false);
   const MatchStatus = () => {
     const baseClass = "text-md border border-1 py-1 rounded-full w-[160px]";
     const matchClass = isMatched
@@ -57,14 +58,18 @@ const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,isChatNot
     <div className="flex flex-col border-b border-gray-200 pb-8 md:pb-8 md:max-w-[933px] md:flex-row justify-center  gap-4 md:gap-1.5 pt-4 md:pt-12 w-full">
       <div className='flex flex-row justify-between'>
         <div className="relative w-[114px] h-[114px] sm:w-[164px] sm:h-[164px] md:w-[200px] md:h-[200px] mb-4">
-          <Image
-            src={items.profile_image_url}
-            alt={items.name}
-            className="object-cover rounded-2xl md:rounded-3xl"
-            fill
-            sizes='w-full'
-            // priority 
-          />
+          {!imgLoaded && (
+            <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-2xl md:rounded-3xl" />)
+          }
+            <Image
+              src={items.profile_image_url}
+              alt={items.name}
+              className="object-cover rounded-2xl md:rounded-3xl"
+              fill
+              sizes='w-full'
+              onLoad={() => setImgLoaded(true)}
+            />
+          
         <MatchTodayTag />
         </div>
         
