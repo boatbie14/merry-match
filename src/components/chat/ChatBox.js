@@ -1,5 +1,5 @@
 // components/ChatBox.js
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useChatMessages } from "@/hooks/useChatMessages";
 import { HiPaperAirplane } from "react-icons/hi2";
@@ -19,6 +19,8 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fileInputRef = useRef(null);
+  // 🎯 เพิ่ม ref สำหรับ scroll container
+  const messagesContainerRef = useRef(null);
 
   // ดึงข้อมูลจาก props
   const senderId = currentUser?.id;
@@ -26,13 +28,96 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   const username = currentUser?.name || "Unknown";
   const roomId = chatData?.chatRoom?.id;
 
-  // ใช้ custom hook สำหรับจัดการ chat (กลับไปใช้ไฟล์เก่า)
-  const { messages, loading, error, sending, sendMessage, isOwnMessage, messagesEndRef, clearError } = useChatMessages(
+  // ใช้ custom hook สำหรับจัดการ chat (ไม่ใช้ messagesEndRef จาก hook)
+  const { messages, loading, error, sending, sendMessage, isOwnMessage, clearError } = useChatMessages(
     senderId,
     receiverId,
     username,
     roomId
   );
+
+  // 🎯 ปิดการใช้ auto scroll ของ hook โดยการ override useEffect
+  useEffect(() => {
+    // ไม่ทำอะไร - ให้เราจัดการ scroll เอง
+  }, [messages]);
+
+  // 🎯 State สำหรับติดตามการโหลดรูป
+  const [loadingImages, setLoadingImages] = useState(new Set());
+
+  // 🎯 ฟังก์ชันสำหรับ scroll ไปล่าสุด
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+
+      // 🔍 Debug: ดูข้อมูลความสูง
+      console.log("=== SCROLL DEBUG ===");
+      console.log("scrollHeight:", container.scrollHeight);
+      console.log("clientHeight:", container.clientHeight);
+      console.log("current scrollTop:", container.scrollTop);
+      console.log("target scrollTop:", container.scrollHeight - container.clientHeight);
+      console.log("loadingImages count:", loadingImages.size);
+      console.log("==================");
+
+      container.scrollTop = container.scrollHeight;
+
+      // ตรวจสอบหลัง scroll
+      setTimeout(() => {
+        console.log("After scroll - scrollTop:", container.scrollTop);
+      }, 10);
+    }
+  };
+
+  // 🎯 ฟังก์ชันจัดการเมื่อรูปเริ่มโหลด
+  const handleImageLoadStart = (imageUrl) => {
+    console.log("🚀 Image loading started:", imageUrl);
+    setLoadingImages((prev) => new Set([...prev, imageUrl]));
+  };
+
+  // 🎯 ฟังก์ชันจัดการเมื่อรูปโหลดเสร็จ
+  const handleImageLoaded = (imageUrl) => {
+    console.log("✅ Image loaded:", imageUrl);
+    setLoadingImages((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(imageUrl);
+      console.log("📊 Remaining loading images:", newSet.size);
+      return newSet;
+    });
+    // ⚡ เปลี่ยน: รอสักหน่อยเพื่อให้แน่ใจว่ารูปอื่นๆ โหลดเสร็จด้วย
+    setTimeout(() => {
+      if (loadingImages.size <= 1) {
+        // ถ้าเหลือรูปที่กำลังโหลดแค่รูปนี้หรือไม่มีเลย
+        console.log("🎯 Scrolling after image load...");
+        scrollToBottom();
+      }
+    }, 100);
+  };
+
+  // 🎯 Auto scroll เมื่อ messages เปลี่ยน (รอให้รูปทั้งหมดโหลดเสร็จ)
+  useEffect(() => {
+    console.log("📝 Messages changed, loading images:", loadingImages.size);
+    // ถ้าไม่มีรูปที่กำลังโหลดอยู่เลย ให้ scroll ได้
+    if (loadingImages.size === 0) {
+      console.log("🎯 No loading images, scrolling...");
+      setTimeout(scrollToBottom, 50);
+    } else {
+      console.log("⏳ Waiting for images to load...");
+    }
+  }, [messages, loadingImages]);
+
+  // 🎯 เพิ่ม useEffect เพื่อ scroll เมื่อรูปทั้งหมดโหลดเสร็จ
+  useEffect(() => {
+    console.log("🔄 Loading images count changed to:", loadingImages.size);
+    if (loadingImages.size === 0 && messages.length > 0) {
+      console.log("🎯 All images loaded, final scroll...");
+      // รอสักครู่แล้ว scroll อีกรอบเพื่อให้แน่ใจ
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [loadingImages.size, messages.length]);
+
+  // 🎯 Auto scroll เมื่อ component mount
+  useEffect(() => {
+    setTimeout(scrollToBottom, 100);
+  }, []);
 
   // ตรวจสอบว่ามีข้อมูลครบหรือไม่
   if (!senderId || !receiverId || !roomId) {
@@ -170,6 +255,11 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
         setNewMessage("");
         handleRemoveImage();
 
+        // 🎯 Scroll ไปล่าสุดหลังส่งข้อความ
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100);
+
         // 🎉 NEW: เรียก callback เมื่อส่งสำเร็จ
         if (onMessageSent && typeof onMessageSent === "function") {
           onMessageSent();
@@ -210,6 +300,8 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
               height={200}
               className="object-cover w-full h-full"
               onClick={() => openImageModal(message.image_url)}
+              onLoadStart={() => handleImageLoadStart(message.image_url)} // 🎯 เริ่มโหลด
+              onLoad={() => handleImageLoaded(message.image_url)} // 🎯 โหลดเสร็จ
               unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
             />
           </div>
@@ -272,7 +364,7 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
       )}
 
       {/* กล่องข้อความ */}
-      <div className="flex-1 p-4 overflow-y-auto px-4 lg:px-24">
+      <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto px-4 lg:px-24">
         {loading ? (
           <div className="text-center text-gray-500 py-4">Loading...</div>
         ) : messages.length === 0 ? (
@@ -293,6 +385,8 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
                           height={300}
                           className="object-cover w-full h-full"
                           onClick={() => openImageModal(message.image_url)}
+                          onLoadStart={() => handleImageLoadStart(message.image_url)} // 🎯 เริ่มโหลด
+                          onLoad={() => handleImageLoaded(message.image_url)} // 🎯 โหลดเสร็จ
                           unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
                         />
                       </div>
@@ -356,7 +450,6 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
             </div>
           ))
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* ฟอร์มส่งข้อความ */}
