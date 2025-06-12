@@ -6,7 +6,7 @@ import CreatePackageHeader from '@/components/admin/createPackageHeader';
 import CreatePackageForm from '@/components/admin/createPackageForm';
 import { getPackageById } from '@/lib/supabase/packages';
 import { supabase } from "@/lib/supabaseClient";
-import AlertBoxDelete from '@/components/alert-box/AlertBoxDelete';
+
 
 export default function EditPackagePage() {
   const router = useRouter();
@@ -140,14 +140,7 @@ export default function EditPackagePage() {
           isSubmitting={isSubmitting}
           onDeleteConfirm={() => setShowAlert(true)} 
         />
-        {showAlert && (
-          <AlertBoxDelete
-            title="คุณแน่ใจหรือไม่?"
-            description="การลบแพ็กเกจนี้จะไม่สามารถย้อนกลับได้"
-            onConfirm={handleDeleteConfirmed}
-            onCancel={() => setShowAlert(false)}
-          />
-        )}
+        
       </main>
     </div>
   );
