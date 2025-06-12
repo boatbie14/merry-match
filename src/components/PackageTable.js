@@ -32,7 +32,7 @@ export default function PackageTable() {
   async function fetchPackages() {
     const { data, error } = await supabase
       .from('packages')
-      .select('id, icon_url, package_name, merry_per_day, created_at, updated_at, order')
+      .select('id, icon_url, package_name, merry_per_day, price, created_at, order')
       .order('order', { ascending: true })
 
     if (error) {
@@ -115,8 +115,8 @@ export default function PackageTable() {
                   <th className="px-4 py-3 font-medium">Icon</th>
                   <th className="px-4 py-3 font-medium">Package name</th>
                   <th className="px-4 py-3 font-medium">Merry limit</th>
-                  <th className="px-4 py-3 font-medium">Created date</th>
-                  <th className="px-4 py-3 font-medium">Updated date</th>
+                  <th className="px-4 py-3 font-medium">Price</th>
+                  <th className="px-4 py-3 font-medium">Created Date</th>
                   <th className="px-4 py-3 font-medium rounded-tr-xl text-center">Actions</th>
                 </tr>
               </thead>
@@ -170,8 +170,8 @@ function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
       <td className="px-4 py-3">
         {pkg.merry_per_day !== null ? `${pkg.merry_per_day} Merry` : 'ไม่จำกัด'}
       </td>
+      <td className="px-4 py-3">{pkg.price ? `${pkg.price.toLocaleString()} ฿` : '-'}</td>
       <td className="px-4 py-3">{formatDateTime(pkg.created_at)}</td>
-      <td className="px-4 py-3">{formatDateTime(pkg.updated_at)}</td>
       <td className="px-4 py-3 text-center flex gap-3 justify-center">
         <button
           onClick={(e) => {
