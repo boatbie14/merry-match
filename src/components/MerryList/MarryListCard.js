@@ -31,11 +31,11 @@ const MarryListCard = ({ items,isMatched,matchToday,clickEye,clickChat,isChatNot
     <div className="flex gap-3 lg:gap-4 text-xl text-gray-600 md:mt-8 mt-6 relative">
       {isMatched && (
         <>
-        <button className="gray-icon-btn " onClick={()=>clickChat()}>
+        <button className="gray-icon-btn " onClick={()=>clickChat(isChatNotifications)}>
           <BsChatDotsFill />
           <span className="tooltip">Go to chat</span>
         </button>
-        {isChatNotifications&&  <span className="w-4 h-4 bg-pink-400 rounded-full absolute left-9 -top-1 
+        {isChatNotifications.length>0&&  <span className="w-4 h-4 bg-pink-400 rounded-full absolute left-9 -top-1 
                   shadow-lg ring-2 ring-white animate-pulse"></span>}
         </>
       )}

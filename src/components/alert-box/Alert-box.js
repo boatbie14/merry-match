@@ -27,10 +27,8 @@ export function DesktopAlertMenuItems() {
 
   const handleStartConversation = (notification) => {
     try {
-      console.log("Hey User Id = " + notification.from_user?.id);
       const chatToUserID = notification.from_user?.id;
       const encryptedId = encryptUserId(chatToUserID);
-
       if (encryptedId) {
         router.push(`/chat?u=${encryptedId}`);
       } else {

@@ -51,7 +51,6 @@ useEffect(() => {
           setLoadingData(true);
           setLoadingMerriedMe(true);
           setLoadingMerriedMatch(true);
-  
           const [users, me, match] = await Promise.all([
             getMarriedUsers(),
             getMerriedMe(),
@@ -86,8 +85,10 @@ useEffect(() => {
      setfilterData(filterDataTemp)
   },[selectedBox,data])
 
-const handleStartConversation = (userId) => {
+const handleStartConversation = (userId,notificationId) => {
   try {
+    console.log(notificationId)
+    notificationId.length && notificationId.map(value=>markAsRead(value?.id))
     const chatToUserID = userId;
     const encryptedId = encryptUserId(chatToUserID);
 
@@ -144,7 +145,7 @@ const handleStartConversation = (userId) => {
           >
             <div className="flex flex-row gap-5 mx-1  text-[#646D89] justify-center">
               <div
-                className={`hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
+                className={`cursor-pointer hover:scale-110 transition-transform duration-300   border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
                   selectedBox === "merry-to-you" ? "scale-110 bg-pink-100 " : "bg-white"
                 } `}
                 onClick={() => {
@@ -163,7 +164,7 @@ const handleStartConversation = (userId) => {
               </div>
 
               <div
-                className={`hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
+                className={`cursor-pointer hover:scale-110 transition-transform duration-300  border-1 hover:border-[#d9dadd] border-[#F1F2F6] rounded-xl w-full md:w-[200px] h-[98px] px-[20px] py-[24px] flex flex-col justify-center ${
                   selectedBox === "merry me" ? "scale-110 bg-pink-100 " : "bg-white"
                 } `}
                 onClick={() => handleClickTopBox("merry me")}
@@ -197,12 +198,13 @@ const handleStartConversation = (userId) => {
                   </div>)
                   :
                   (filterData||[])
+                  
                       .map((obj, index) => {
                         return(
                           <div className="flex flex-col gap-[28px] justify-center  items-center w-full mt-14 md:mt-0" key={obj.id}>
                             <MarryListCard items={obj}
-                                       isChatNotifications= {!!(notifications.filter((value)=>value?.from_user === obj.id && value?.is_read===false))}
-                                       clickChat={()=>handleStartConversation(obj.id)}
+                                       isChatNotifications= {(notifications.filter((value)=>value?.from_user.id === obj.id && value?.is_read===false && (value?.noti_type==="chat"||value?.noti_type==="first_chat") ))}
+                                       clickChat={(notificationId)=>handleStartConversation(obj.id,notificationId)}
                                        clickEye={(isMerry,setIsMerry)=>handleClickEye(index,isMerry,setIsMerry)}
                                        isMatched={merriedMatch?.allMatches?.includes(obj.id)}
                                        matchToday={merriedMatch?.todayMatches?.includes(obj.id)}
