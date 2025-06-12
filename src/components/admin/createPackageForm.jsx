@@ -140,15 +140,7 @@ export default function CreatePackageForm({
         <h2 className="text-xl font-semibold text-gray-700">
           {isEditMode ? 'Edit Package' : 'Create Package'}
         </h2>
-        {isEditMode && (
-          <button
-            type="button"
-            onClick={onDeleteConfirm}
-            className="text-red-500 hover:text-red-700 text-sm underline"
-          >
-            ลบแพ็กเกจนี้
-          </button>
-        )}
+        
       </div>
 
       <div className="flex gap-6">
