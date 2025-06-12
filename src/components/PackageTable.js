@@ -1,8 +1,11 @@
+// components/PackageTable.jsx
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { supabase } from '@/lib/supabaseClient'
 import { FiTrash2, FiEdit, FiMenu } from 'react-icons/fi'
 import Image from 'next/image'
+import { AlertPopup } from './popup/AlertPopup'
 
 import {
   DndContext,
@@ -25,6 +28,9 @@ export default function PackageTable() {
   const [packages, setPackages] = useState([])
   const [loading, setLoading] = useState(true)
 
+  const [packageToDelete, setPackageToDelete] = useState(null) // ⭐ ใช้แทน window.confirm
+  const [deleteSuccessAlert, setDeleteSuccessAlert] = useState(false)
+
   useEffect(() => {
     fetchPackages()
   }, [])
@@ -46,19 +52,24 @@ export default function PackageTable() {
   const formatDateTime = (timestamp) => {
     if (!timestamp) return '-'
     const date = new Date(timestamp)
-    return date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    return (
+      date.toLocaleDateString('en-GB') +
+      ' ' +
+      date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    )
   }
 
-  async function handleDelete(id) {
-    const confirm = window.confirm('Are you sure you want to delete this package?')
-    if (!confirm) return
+  async function confirmDeletePackage() {
+    if (!packageToDelete) return
 
-    const { error } = await supabase.from('packages').delete().eq('id', id)
+    const { error } = await supabase.from('packages').delete().eq('id', packageToDelete.id)
     if (error) {
       alert('Failed to delete package: ' + error.message)
     } else {
-      setPackages(packages.filter((p) => p.id !== id))
+      setPackages(packages.filter((p) => p.id !== packageToDelete.id))
+      setDeleteSuccessAlert(true)
     }
+    setPackageToDelete(null)
   }
 
   const sensors = useSensors(
@@ -76,7 +87,6 @@ export default function PackageTable() {
 
     setPackages(newOrder)
 
- 
     const updates = newOrder.map((pkg, index) => ({
       id: pkg.id,
       order: index + 1
@@ -94,53 +104,80 @@ export default function PackageTable() {
   if (loading) return <p>Loading packages...</p>
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Merry Package</h1>
-        <button
-          onClick={() => router.push('/admin/createPackage')}
-          className="bg-[#C70039] hover:bg-[#a8002f] text-white px-5 py-2 rounded-full transition duration-200"
-        >
-          + Add Package
-        </button>
-      </div>
+    <>
+      {/* ❗️ Alert สำหรับยืนยันการลบ */}
+      {packageToDelete && (
+        <AlertPopup
+          isOpen={!!packageToDelete}
+          onClose={() => setPackageToDelete(null)}
+          title="Confirm Delete"
+          description={`Do you sure to delete this "${packageToDelete.package_name}" package?`}
+          buttonLeftText="Yes, I want to delete"
+          buttonRightText="No, I don't want to delete"
+          buttonLeftClick={confirmDeletePackage}
+          buttonRightClick={() => setPackageToDelete(null)}
+        />
+      )}
 
-      <div className="overflow-x-auto rounded-xl">
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={packages.map((p) => p.id)} strategy={verticalListSortingStrategy}>
-            <table className="w-full text-sm text-left text-gray-700">
-              <thead className="bg-[#f2f4f8] text-gray-600">
-                <tr>
-                  <th className="px-4 py-3 font-medium rounded-tl-xl w-16">☰</th>
-                  <th className="px-4 py-3 font-medium">Icon</th>
-                  <th className="px-4 py-3 font-medium">Package name</th>
-                  <th className="px-4 py-3 font-medium">Merry limit</th>
-                  <th className="px-4 py-3 font-medium">Price</th>
-                  <th className="px-4 py-3 font-medium">Created Date</th>
-                  <th className="px-4 py-3 font-medium rounded-tr-xl text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {packages.map((pkg, index) => (
-                  <SortableRow
-                    key={pkg.id}
-                    pkg={pkg}
-                    index={index}
-                    formatDateTime={formatDateTime}
-                    router={router}
-                    handleDelete={handleDelete}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </SortableContext>
-        </DndContext>
+      {/* ✅ Alert หลังลบเสร็จ */}
+      <AlertPopup
+        isOpen={deleteSuccessAlert}
+        onClose={() => setDeleteSuccessAlert(false)}
+        title="Delete Package Success"
+        description="The package has been successfully deleted."
+        buttonLeftText="OK"
+        hideRightButton
+        buttonLeftClick={() => setDeleteSuccessAlert(false)}
+      />
+
+      <div className="bg-white rounded-xl shadow-md p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold text-gray-800">Merry Package</h1>
+          <button
+            onClick={() => router.push('/admin/createPackage')}
+            className="bg-[#C70039] hover:bg-[#a8002f] text-white px-5 py-2 rounded-full transition duration-200 cursor-pointer"
+          >
+            + Add Package
+          </button>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl">
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={packages.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+              <table className="w-full text-sm text-left text-gray-700">
+                <thead className="bg-[#f2f4f8] text-gray-600">
+                  <tr>
+                    <th className="px-4 py-3 font-medium rounded-tl-xl w-16">☰</th>
+                    <th className="px-4 py-3 font-medium">Icon</th>
+                    <th className="px-4 py-3 font-medium">Package name</th>
+                    <th className="px-4 py-3 font-medium">Merry limit</th>
+                    <th className="px-4 py-3 font-medium">Price</th>
+                    <th className="px-4 py-3 font-medium">Created Date</th>
+                    <th className="px-4 py-3 font-medium rounded-tr-xl text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {packages.map((pkg, index) => (
+                    <SortableRow
+                      key={pkg.id}
+                      pkg={pkg}
+                      index={index}
+                      formatDateTime={formatDateTime}
+                      router={router}
+                      onDelete={() => setPackageToDelete(pkg)} 
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </SortableContext>
+          </DndContext>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
-function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
+function SortableRow({ pkg, index, formatDateTime, router, onDelete }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: pkg.id })
 
   const style = {
@@ -151,7 +188,7 @@ function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
   return (
     <tr ref={setNodeRef} style={style} {...attributes} className="hover:bg-gray-50">
       <td className="px-4 py-3 text-gray-800 cursor-grab" {...listeners}>
-        <FiMenu size={18} /> 
+        <FiMenu size={18} />
       </td>
       <td className="px-4 py-3">
         {pkg.icon_url ? (
@@ -178,16 +215,16 @@ function SortableRow({ pkg, index, formatDateTime, router, handleDelete }) {
             e.stopPropagation()
             router.push(`/admin/edit-package?id=${pkg.id}`)
           }}
-          className="text-pink-500 hover:text-pink-700"
+          className="text-pink-500 hover:text-pink-700 cursor-pointer"
         >
           <FiEdit size={18} />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation()
-            handleDelete(pkg.id)
+            onDelete()
           }}
-          className="text-pink-500 hover:text-pink-700"
+          className="text-pink-500 hover:text-pink-700 cursor-pointer"
         >
           <FiTrash2 size={18} />
         </button>

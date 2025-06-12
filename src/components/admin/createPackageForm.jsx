@@ -85,10 +85,14 @@ export default function CreatePackageForm({
       const packageName = data.packageName.trim();
       const price = parseFloat(data.price) || 0;
 
+      // console.log('✅ packageName:', packageName);
+      // console.log('✅ price:', price);
+
       // ✅ เรียก API สำหรับสร้าง Stripe product + price
       let stripeProductId = initialData?.stripe_product_id || '';
       let stripePriceId = initialData?.price_id || '';
       
+      // console.log('✅ stripeProductId:', price);
       if (!isEditMode) {
     
         const res = await fetch('/api/admin/create-stripe-product', {
