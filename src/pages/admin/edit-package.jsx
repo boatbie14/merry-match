@@ -34,7 +34,7 @@ export default function EditPackagePage() {
     loadPackage();
   }, [id]);
 
-  const handleUpdate = async ({ package_name, merry_per_day, icon_url, details }) => {
+  const handleUpdate = async ({ package_name, merry_per_day, icon_url, details, price }) => {
     if (!package_name || (!icon_url && !pkg.icon_url) || (merry_per_day === undefined)) {
       alert('กรอกข้อมูลให้ครบ.... ' + package_name + ' ' + merry_per_day + ' ' + icon_url);
       return;
@@ -49,6 +49,7 @@ export default function EditPackagePage() {
         merry_per_day,
         icon_url,
         details,
+        price,
       })
       .eq('id', id);
 
