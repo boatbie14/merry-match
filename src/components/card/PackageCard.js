@@ -48,7 +48,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
                 transition: "max-height 0.5s ease",              
                 }}
             >
-                <div className={`flex flex-col text-[#424C6B] mb-[10px] md:pb-[3px] text-[16px] gap-2 md:gap-4`}>
+                <div className={`flex flex-col text-[#424C6B] mb-[10px] md:pb-[18px] text-[16px] gap-2 md:gap-4`}>
                     {hiddenDetails.map((value, index) => (
                         <div key={index} className="flex flex-row items-center gap-2 md:gap-4">
                             <GoCheckCircleFill color={styleGradient ? "#DF89C6" : "#CF4FA9"} />
@@ -60,7 +60,7 @@ export const PackageCard = ({ packageName, price=0, detail=[],icon,choosePackage
         
             <div>
                 {detail.length>2
-                    ?<h3 className="text-center text-[#CF4FA9] text-[15px] cursor-pointer hover:underline mb-[-5.5px]"
+                    ?<h3 className="text-center text-[#CF4FA9] text-[15px] cursor-pointer hover:underline mt-[-16px] mb-[8.5px]"
                         onClick={() => setIsExpanded(!isExpanded)} > {isExpanded ? "Show Less" : "Show More"}
                     </h3>
                     :<div className="pt-[16px] "></div> }
