@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useChatMessages } from "@/hooks/useChatMessages";
+import StatusModal from "@/components/popup/StatusModal";
 import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
 import { PiImageFill } from "react-icons/pi";
@@ -17,8 +18,18 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   const [modalImage, setModalImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // State สำหรับ Status Modal
+  const [modalType, setModalType] = useState("success"); // "success" หรือ "error"
+  const [modalMessage, setModalMessage] = useState("");
+
   const fileInputRef = useRef(null);
   const messagesContainerRef = useRef(null);
+
+  const [showModal, setShowModal] = useState(false);
+
+  function handleCloseModal() {
+    setShowModal(false);
+  }
 
   // ดึงข้อมูลจาก props
   const senderId = currentUser?.id;
@@ -80,7 +91,6 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   // เพิ่ม useEffect เพื่อ scroll เมื่อรูปทั้งหมดโหลดเสร็จ
   useEffect(() => {
     if (loadingImages.size === 0 && messages.length > 0) {
-      // รอสักครู่แล้ว scroll อีกรอบเพื่อให้แน่ใจ
       setTimeout(scrollToBottom, 100);
     }
   }, [loadingImages.size, messages.length]);
@@ -146,13 +156,17 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
     // เช็คประเภทไฟล์
     const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      alert("Please select an image file. (JPG, PNG, WebP)");
+      setModalType("error");
+      setModalMessage("Please select an image file. (JPG, PNG, WebP)");
+      setShowModal(true);
       return;
     }
 
     // เช็คขนาดไฟล์ (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert("The image file must not exceed the size limit. 5MB");
+    if (file.size > 2 * 1024 * 1024) {
+      setModalType("error");
+      setModalMessage("The image file must not exceed the size limit. 2MB");
+      setShowModal(true);
       return;
     }
 
@@ -293,104 +307,60 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Image Modal */}
-      {isModalOpen && modalImage && (
-        <div className="fixed inset-0 bg-black/70 bg-opacity-75 flex items-center justify-center z-50" onClick={closeImageModal}>
-          <div className="relative max-w-4xl max-h-4xl p-6 lg:p-3">
-            {/* Close Button */}
-            <button
-              onClick={closeImageModal}
-              className="absolute top-[4px] right-[4px] lg:top-[-4px] lg:right-[-4px] text-white bg-[#C70039] bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all z-10"
-            >
-              <HiX size={20} />
-            </button>
+    <>
+      <div className="h-full flex flex-col">
+        {/* Image Modal */}
+        {isModalOpen && modalImage && (
+          <div className="fixed inset-0 bg-black/70 bg-opacity-75 flex items-center justify-center z-9999" onClick={closeImageModal}>
+            <div className="relative max-w-4xl max-h-4xl p-6 lg:p-3">
+              {/* Close Button */}
+              <button
+                onClick={closeImageModal}
+                className="absolute top-[4px] right-[4px] lg:top-[-4px] lg:right-[-4px] text-white bg-[#C70039] bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all z-99991 cursor-pointer"
+              >
+                <HiX size={20} />
+              </button>
 
-            {/* Modal Image */}
-            <div className="relative max-w-full max-h-full">
-              <Image
-                src={modalImage}
-                alt="Full size view"
-                width={800}
-                height={600}
-                className="max-w-full max-h-full object-contain rounded-lg"
-                onClick={(e) => e.stopPropagation()}
-                unoptimized={modalImage?.startsWith("blob:") || modalImage?.startsWith("data:")}
-              />
+              {/* Modal Image */}
+              <div className="relative  max-w-[300px] lg:max-w-[500px] ">
+                <Image
+                  src={modalImage}
+                  alt="Full size view"
+                  width={800}
+                  height={600}
+                  className="max-w-full max-h-full object-contain rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
+                  unoptimized={modalImage?.startsWith("blob:") || modalImage?.startsWith("data:")}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* แสดงข้อผิดพลาด (ถ้ามี) */}
-      {error && (
-        <div className="bg-red-100 text-red-700 p-2 m-4 rounded flex justify-between items-center">
-          <span>{error}</span>
-          <button onClick={clearError} className="text-red-500 hover:text-red-700 ml-2">
-            ✕
-          </button>
-        </div>
-      )}
+        {/* แสดงข้อผิดพลาด (ถ้ามี) */}
+        {error && (
+          <div className="bg-red-100 text-red-700 p-2 m-4 rounded flex justify-between items-center">
+            <span>{error}</span>
+            <button onClick={clearError} className="text-red-500 hover:text-red-700 ml-2">
+              ✕
+            </button>
+          </div>
+        )}
 
-      {/* กล่องข้อความ */}
-      <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto px-4 lg:px-24">
-        {loading ? (
-          <div className="text-center text-gray-500 py-4">Loading...</div>
-        ) : messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-4">No Message</div>
-        ) : (
-          messages.map((message) => (
-            <div key={message.id} className={`mb-3 ${isOwnMessage(message) ? "text-right" : "text-left"}`}>
-              {isOwnMessage(message) ? (
-                // ข้อความของเรา
-                <div className="flex flex-col items-end gap-1">
-                  {message.message_type === "image" ? (
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="relative max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
-                        <Image
-                          src={message.image_url}
-                          alt="Shared image"
-                          width={300}
-                          height={300}
-                          className="object-cover w-full h-full"
-                          onClick={() => openImageModal(message.image_url)}
-                          onLoadStart={() => handleImageLoadStart(message.image_url)}
-                          onLoad={() => handleImageLoaded(message.image_url)}
-                          unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
-                        />
-                      </div>
-                      {message.content && message.content.trim() && (
-                        <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
-                          {message.content}
-                        </span>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
-                      {renderMessage(message)}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                // ข้อความของคนอื่น
-                <div className="flex items-end gap-3">
-                  {message.sender?.profile_image_url && (
-                    <div className="relative w-10 h-10 flex-shrink-0">
-                      <Image
-                        src={message.sender.profile_image_url}
-                        alt={message.sender.username}
-                        width={40}
-                        height={40}
-                        className="rounded-full object-cover w-full h-full"
-                        unoptimized={
-                          message.sender.profile_image_url?.startsWith("blob:") || message.sender.profile_image_url?.startsWith("data:")
-                        }
-                      />
-                    </div>
-                  )}
-                  <div className="flex flex-col items-start gap-1">
+        {/* กล่องข้อความ */}
+        <div ref={messagesContainerRef} className="flex-1 p-4 overflow-y-auto px-4 lg:px-24">
+          {loading ? (
+            <div className="text-center text-gray-500 py-4">Loading...</div>
+          ) : messages.length === 0 ? (
+            <div className="text-center text-gray-500 py-4">No Message</div>
+          ) : (
+            messages.map((message) => (
+              <div key={message.id} className={`mb-3 ${isOwnMessage(message) ? "text-right" : "text-left"}`}>
+                {isOwnMessage(message) ? (
+                  // ข้อความของเรา
+                  <div className="flex flex-col items-end gap-1">
                     {message.message_type === "image" ? (
-                      <div className="flex flex-col items-start gap-2">
+                      <div className="flex flex-col items-end gap-2">
                         <div className="relative max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
                           <Image
                             src={message.image_url}
@@ -405,90 +375,138 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
                           />
                         </div>
                         {message.content && message.content.trim() && (
-                          <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
+                          <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
                             {message.content}
                           </span>
                         )}
                       </div>
                     ) : (
-                      <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
-                        {message.content}
+                      <span className="inline-block text-[16px] px-6 py-3 border-1 border-[#7D2262] rounded-tl-[24px] rounded-tr-[24px] rounded-br-none rounded-bl-[24px] bg-[#7D2262] text-white">
+                        {renderMessage(message)}
                       </span>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+                ) : (
+                  // ข้อความของคนอื่น
+                  <div className="flex items-end gap-3">
+                    {message.sender?.profile_image_url && (
+                      <div className="relative w-10 h-10 flex-shrink-0">
+                        <Image
+                          src={message.sender.profile_image_url}
+                          alt={message.sender.username}
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover w-full h-full"
+                          unoptimized={
+                            message.sender.profile_image_url?.startsWith("blob:") || message.sender.profile_image_url?.startsWith("data:")
+                          }
+                        />
+                      </div>
+                    )}
+                    <div className="flex flex-col items-start gap-1">
+                      {message.message_type === "image" ? (
+                        <div className="flex flex-col items-start gap-2">
+                          <div className="relative max-w-[200px] max-h-[200px] lg:max-w-[300px] lg:max-h-[300px] overflow-hidden rounded-lg cursor-pointer shadow-md hover:shadow-lg transition-shadow">
+                            <Image
+                              src={message.image_url}
+                              alt="Shared image"
+                              width={300}
+                              height={300}
+                              className="object-cover w-full h-full"
+                              onClick={() => openImageModal(message.image_url)}
+                              onLoadStart={() => handleImageLoadStart(message.image_url)}
+                              onLoad={() => handleImageLoaded(message.image_url)}
+                              unoptimized={message.image_url?.startsWith("blob:") || message.image_url?.startsWith("data:")}
+                            />
+                          </div>
+                          {message.content && message.content.trim() && (
+                            <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
+                              {message.content}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-block text-[16px] px-6 py-3 rounded-tl-[24px] border-1 border-[#E4E6ED] rounded-tr-[24px] rounded-br-[24px] rounded-bl-none bg-[#EFC4E2] text-[#31333C]">
+                          {message.content}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
 
-      {/* ฟอร์มส่งข้อความ */}
-      <div className="p-4 border-t border-t-[#424C6B] px-4 lg:px-24">
-        {/* แสดง preview รูป */}
-        {imagePreview && (
-          <div className="mb-3 flex items-center gap-2 p-2 bg-[#200009] border-1 border-[#FF1659] rounded-lg">
-            <div className="relative w-12 h-12 overflow-hidden rounded">
-              <Image
-                src={imagePreview}
-                alt="Preview"
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
-                unoptimized={imagePreview?.startsWith("blob:") || imagePreview?.startsWith("data:")}
-              />
+        {/* ฟอร์มส่งข้อความ */}
+        <div className="p-4 border-t border-t-[#424C6B] px-4 lg:px-24">
+          {/* แสดง preview รูป */}
+          {imagePreview && (
+            <div className="mb-3 flex items-center gap-2 p-2 bg-[#200009] border-1 border-[#FF1659] rounded-lg">
+              <div className="relative w-12 h-12 overflow-hidden rounded">
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  width={48}
+                  height={48}
+                  className="object-cover w-full h-full"
+                  unoptimized={imagePreview?.startsWith("blob:") || imagePreview?.startsWith("data:")}
+                />
+              </div>
+              <span className="text-sm text-gray-600 flex-1">Select Image</span>
+              <button type="button" onClick={handleRemoveImage} className="text-red-500 hover:text-red-700">
+                <HiX size={20} />
+              </button>
             </div>
-            <span className="text-sm text-gray-600 flex-1">Select Image</span>
-            <button type="button" onClick={handleRemoveImage} className="text-red-500 hover:text-red-700">
-              <HiX size={20} />
+          )}
+
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="mb-3">
+              <div className="w-full bg-gray-200 rounded-full h-1">
+                <div className="bg-[#C70039] h-1 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Uploading... {uploadProgress}%</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSendMessage} className="flex gap-4">
+            {/* Hidden file input */}
+            <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" className="hidden" />
+
+            {/* Attach button */}
+            <button
+              type="button"
+              onClick={handleAttachClick}
+              className="flex bg-[#F6F7FC] w-12 h-12 justify-center items-center rounded-full hover:bg-gray-200 transition-colors cursor-pointer"
+              disabled={isUploading}
+            >
+              <PiImageFill size={20} color="#9AA1B9" />
             </button>
-          </div>
-        )}
 
-        {/* Upload Progress */}
-        {isUploading && (
-          <div className="mb-3">
-            <div className="w-full bg-gray-200 rounded-full h-1">
-              <div className="bg-[#C70039] h-1 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Uploading... {uploadProgress}%</p>
-          </div>
-        )}
+            {/* Text input */}
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Message..."
+              className="flex-1 p-2 border-none rounded text-[#9B9EAD] outline-none focus:outline-none"
+              disabled={loading || sending || isUploading}
+            />
 
-        <form onSubmit={handleSendMessage} className="flex gap-4">
-          {/* Hidden file input */}
-          <input type="file" ref={fileInputRef} onChange={handleFileSelect} accept="image/*" className="hidden" />
-
-          {/* Attach button */}
-          <button
-            type="button"
-            onClick={handleAttachClick}
-            className="flex bg-[#F6F7FC] w-12 h-12 justify-center items-center rounded-full hover:bg-gray-200 transition-colors"
-            disabled={isUploading}
-          >
-            <PiImageFill size={20} color="#9AA1B9" />
-          </button>
-
-          {/* Text input */}
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Message..."
-            className="flex-1 p-2 border-none rounded text-[#9B9EAD] outline-none focus:outline-none"
-            disabled={loading || sending || isUploading}
-          />
-
-          {/* Send button */}
-          <button
-            type="submit"
-            className="bg-[#C70039] text-white w-12 h-12 pl-1 flex justify-center items-center rounded-full hover:bg-[#95002B] transition-colors"
-            disabled={loading || sending || isUploading || (!newMessage.trim() && !selectedImage)}
-          >
-            <HiPaperAirplane size={24} color="#fff" />
-          </button>
-        </form>
+            {/* Send button */}
+            <button
+              type="submit"
+              className="bg-[#C70039] text-white w-12 h-12 pl-1 flex justify-center items-center rounded-full hover:bg-[#95002B] transition-colors cursor-pointer"
+              disabled={loading || sending || isUploading || (!newMessage.trim() && !selectedImage)}
+            >
+              <HiPaperAirplane size={24} color="#fff" />
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+
+      <StatusModal isOpen={showModal} onClose={handleCloseModal} type={modalType} message={modalMessage} />
+    </>
   );
 }

@@ -48,7 +48,11 @@ export default function StatusModal({
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-[#E4E6ED]">
             <h2 className="text-xl font-semibold text-black">{title || defaultTitle}</h2>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Close modal">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              aria-label="Close modal"
+            >
               <IoClose color="#C8CCDB" size={20} />
             </button>
           </div>
