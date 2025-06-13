@@ -33,7 +33,7 @@ export const DesktopUserMenuItems = () => {
   };
 
   return (
-    <div className="flex flex-col w-[198px] h-[258px] ">
+    <div className="flex flex-col w-[198px] h-[258px]  ">
       <Link
         href="merry-package"
         className="bg-gradient-to-r from-[#742138] to-[#A878BF] p-2.5 rounded-4xl mx-3 my-2 text-white flex items-center justify-center cursor-pointer"
@@ -251,7 +251,7 @@ const NavbarUser = () => {
             <div className="relative">
               <button
                 onClick={toggleAlertDesktopMenu}
-                className="alert-button-desktop hidden w-[40px] h-[40px] rounded-3xl bg-[#F6F7FC] md:flex justify-center items-center md:ml-10 md:mr-1 cursor-pointer "
+                className="alert-button-desktop hidden w-[48px] h-[48px] rounded-3xl bg-[#F6F7FC] md:flex justify-center items-center md:ml-10 md:mr-1 cursor-pointer "
               >
                 <svg
                   width="30"
@@ -268,11 +268,11 @@ const NavbarUser = () => {
                   />
                 </svg>
               </button>
-              <div className="absolute top-0 right-0"> <UnreadCount userId={userInfo.id} /> </div>
+              <div className="absolute top-[-15px] right-[-5px] md:top-1 md:right-3 "> <UnreadCount userId={userInfo.id} /> </div>
               {isAlertDesktopMenuOpen && (
                 <div
                   ref={alertMenuRef}
-                  className="absolute overflow-auto  md:top-[45px] md:right-[-70px]   mt-2 w-[251px] h-[214px] bg-white  rounded-lg shadow-xl/50 "
+                  className="absolute overflow-auto  md:top-[45px] md:right-[-70px]   mt-2 w-[251px] h-[214px] bg-white  rounded-lg shadow-lg "
                 >
                   {/* DesktopAlertMenuItems rendering */}
                   <DesktopAlertMenuItems />
@@ -282,7 +282,7 @@ const NavbarUser = () => {
             <div className="relative">
               <button
                 onClick={toggleUserMenu}
-                className="profile-logo hidden md:flex justify-center items-center w-[48px] h-[48px] bg-[#C70039] text-white py-3 rounded-full font-bold shadow-lg  "
+                className="profile-logo hidden md:flex justify-center items-center w-[48px] h-[48px] bg-[#C70039] text-white py-3 rounded-full font-bold  hover:cursor-pointer  "
               >
                 <Image
                   src={
@@ -298,7 +298,7 @@ const NavbarUser = () => {
               {isUserMenuOpen && (
                 <div
                   ref={userMenuRef}
-                  className="absolute  md:top-[45px] md:right-[-30px]   mt-2 w-[198px] h-[258px] bg-white  rounded-lg shadow-xl/50 "
+                  className="absolute  md:top-[45px] md:right-[-30px]   mt-2 w-[198px] h-[258px] bg-white  rounded-lg shadow-lg  "
                 >
                   <DesktopUserMenuItems setIsOpen={setIsOpen} />
                 </div>
