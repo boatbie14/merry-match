@@ -205,7 +205,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
               onSwipe={(dir) => handleSwipe && handleSwipe(dir, user)}
               onCardLeftScreen={() => handleOutOfFrame && handleOutOfFrame()}
             >
-              <div className="matching-card-size bg-transparent md:rounded-4xl overflow-hidden h-full flex flex-col">
+              <div className="matching-card-size bg-transparent md:rounded-4xl overflow-hidden h-full flex flex-col cursor-pointer">
                 {/* Container for image and gradient */}
                 <div className="relative w-full rounded-b-4xl md:rounded-4xl" style={{ height: "640px", overflow: "hidden" }}>
                   {/* รูปภาพ */}
@@ -214,7 +214,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
                       src={getImageUrl(user, (imageIndexes && imageIndexes[user.name]) || 1)}
                       alt={`Photo of ${user.name}`}
                       fill
-                      className="object-cover pointer-events-none"
+                      className="object-cover pointer-events-none cursor-pointer"
                       style={{ pointerEvents: "none" }}
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       priority

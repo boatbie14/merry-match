@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import MatchingLeftColumn from "@/components/match/MatchingLeftColumn";
-import Chat from "@/components/chat/ChatBox";
+import ChatBox from "@/components/chat/ChatBox";
 import { useChatUser } from "@/hooks/useChatUser";
 import { useChatUserDetail } from "@/hooks/useChatUserDetail";
 import { useChatRoomState } from "@/hooks/useChatRoomState"; // 🔥 ใช้ hook ที่แก้ไขแล้ว
@@ -132,7 +132,7 @@ export default function MatchPage() {
               {/* Chat Component - ใช้ flex-1 เพื่อให้ใช้พื้นที่ที่เหลือ */}
               <div className="flex-1 min-h-0">
                 {/* 🚀 UPDATED: เพิ่ม onMessageSent callback และ key สำหรับ force re-render */}
-                <Chat
+                <ChatBox
                   key={`chat-component-${hasUserParam}-${roomResetTrigger}`}
                   chatData={chatData}
                   currentUser={currentUser}
