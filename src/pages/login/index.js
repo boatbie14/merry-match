@@ -132,7 +132,7 @@ export default function LoginPage() {
 
               {error && <div className="text-red-500 text-sm">{error}</div>}
 
-              <button type="submit" className="w-full py-3 bg-[#c4003b] text-white rounded-full shadow-md hover:bg-[#a90032] transition">
+              <button type="submit" className="w-full py-3 bg-[#c4003b] text-white rounded-full shadow-md hover:bg-[#a90032] transition cursor-pointer">
                 Log in
               </button>
             </form>
