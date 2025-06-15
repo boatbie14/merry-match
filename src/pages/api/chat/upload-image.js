@@ -8,6 +8,18 @@ const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.
 
 const BUCKET_NAME = "user-photos";
 
+// 🛡️ 1. File Signature Check
+function isValidImage(buffer, mimeType) {
+  const jpeg = buffer[0] === 0xff && buffer[1] === 0xd8;
+  const png = buffer[0] === 0x89 && buffer[1] === 0x50;
+  const webp = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46;
+
+  if (mimeType.includes("jpeg") && !jpeg) return false;
+  if (mimeType.includes("png") && !png) return false;
+  if (mimeType.includes("webp") && !webp) return false;
+  return true;
+}
+
 // Disable default body parser
 export const config = {
   api: {
@@ -29,15 +41,17 @@ export default async function handler(req, res) {
 
     const [fields, files] = await form.parse(req);
 
-    const userId = Array.isArray(fields.userId) ? fields.userId[0] : fields.userId;
-    const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
+    // 🧹 2. Sanitize userId
+    const rawUserId = Array.isArray(fields.userId) ? fields.userId[0] : fields.userId;
+    const userId = rawUserId?.replace(/[^a-zA-Z0-9-_]/g, "") || "";
 
+    const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
 
     // Validation
     if (!userId) {
       return res.status(400).json({
         success: false,
-        error: "Missing userId",
+        error: "Missing or invalid userId",
       });
     }
 
@@ -58,21 +72,30 @@ export default async function handler(req, res) {
     }
 
     // เช็คขนาดไฟล์
-    if (imageFile.size > 5 * 1024 * 1024) {
+    if (imageFile.size > 2 * 1024 * 1024) {
       return res.status(400).json({
         success: false,
-        error: "File size too large. Maximum 5MB allowed",
+        error: "File size too large. Maximum 2MB allowed",
       });
     }
 
-    // สร้างชื่อไฟล์ใหม่
-    const timestamp = Date.now();
-    const fileExtension = path.extname(imageFile.originalFilename || ".jpg");
-    const fileName = `${timestamp}_image${fileExtension}`;
-    const filePath = `chat-images/${userId}/${fileName}`;
-
     // อ่านไฟล์
     const fileBuffer = fs.readFileSync(imageFile.filepath);
+
+    // 🛡️ 1. ตรวจสอบ File Signature
+    if (!isValidImage(fileBuffer, imageFile.mimetype)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid image file format",
+      });
+    }
+
+    // 🔐 3. Secure Filename
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(7);
+    const fileExtension = path.extname(imageFile.originalFilename || ".jpg");
+    const fileName = `${timestamp}_${randomString}${fileExtension}`;
+    const filePath = `chat-images/${userId}/${fileName}`;
 
     // อัพโหลดไป Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage.from(BUCKET_NAME).upload(filePath, fileBuffer, {
@@ -94,7 +117,6 @@ export default async function handler(req, res) {
 
     const imageUrl = urlData.publicUrl;
 
-    
     // ลบไฟล์ temporary
     try {
       fs.unlinkSync(imageFile.filepath);
