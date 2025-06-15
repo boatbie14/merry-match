@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { useChatMessages } from "@/hooks/useChatMessages";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import StatusModal from "@/components/popup/StatusModal";
 import { HiPaperAirplane } from "react-icons/hi2";
 import { HiX } from "react-icons/hi";
@@ -11,25 +12,29 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   const [newMessage, setNewMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
 
   // State สำหรับ Image Modal
   const [modalImage, setModalImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // State สำหรับ Status Modal
-  const [modalType, setModalType] = useState("success"); // "success" หรือ "error"
+  const [modalType, setModalType] = useState("success");
   const [modalMessage, setModalMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const fileInputRef = useRef(null);
   const messagesContainerRef = useRef(null);
 
-  const [showModal, setShowModal] = useState(false);
-
-  function handleCloseModal() {
-    setShowModal(false);
-  }
+  // Upload image hook
+  const {
+    uploading: isUploading,
+    progress: uploadProgress,
+    uploadError,
+    uploadImage,
+    validateImageFile,
+    clearUploadError,
+    reset: resetUpload,
+  } = useImageUpload();
 
   // ดึงข้อมูลจาก props
   const senderId = currentUser?.id;
@@ -38,12 +43,22 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
   const roomId = chatData?.chatRoom?.id;
 
   // ใช้ custom hook สำหรับจัดการ chat
-  const { messages, loading, error, sending, sendMessage, isOwnMessage, clearError } = useChatMessages(
-    senderId,
-    receiverId,
-    username,
-    roomId
-  );
+  const {
+    messages,
+    loading,
+    error: chatError,
+    sending,
+    sendMessage,
+    isOwnMessage,
+    clearError: clearChatError,
+  } = useChatMessages(senderId, receiverId, username, roomId);
+
+  // Combine errors
+  const combinedError = chatError || uploadError;
+  const clearAllErrors = () => {
+    clearChatError();
+    clearUploadError();
+  };
 
   // ปิดการใช้ auto scroll ของ hook โดยการ override useEffect
   useEffect(() => {
@@ -109,6 +124,10 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
     );
   }
 
+  function handleCloseModal() {
+    setShowModal(false);
+  }
+
   // เปิด Image Modal
   const openImageModal = (imageUrl) => {
     setModalImage(imageUrl);
@@ -121,65 +140,29 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
     setIsModalOpen(false);
   };
 
-  // Resize และ compress รูปภาพ
-  const resizeAndCompressImage = (file, maxWidth = 800, quality = 0.7) => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      const img = document.createElement("img");
-
-      img.onload = () => {
-        // คำนวณขนาดใหม่
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
-        const newWidth = img.width * ratio;
-        const newHeight = img.height * ratio;
-
-        canvas.width = newWidth;
-        canvas.height = newHeight;
-
-        // วาดรูปใหม่
-        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-        // แปลงเป็น blob
-        canvas.toBlob(resolve, "image/jpeg", quality);
-      };
-
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
   // จัดการเลือกไฟล์
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // เช็คประเภทไฟล์
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      setModalType("error");
-      setModalMessage("Please select an image file. (JPG, PNG, WebP)");
-      setShowModal(true);
-      return;
-    }
-
-    // เช็คขนาดไฟล์ (5MB)
-    if (file.size > 2 * 1024 * 1024) {
-      setModalType("error");
-      setModalMessage("The image file must not exceed the size limit. 2MB");
-      setShowModal(true);
-      return;
-    }
-
     try {
-      // Resize และ compress
-      const compressedFile = await resizeAndCompressImage(file);
-      setSelectedImage(compressedFile);
+      // ใช้ validation จาก Hook
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
+        setModalType("error");
+        setModalMessage(validation.message);
+        setShowModal(true);
+        return;
+      }
 
-      // สร้าง preview
-      const previewUrl = URL.createObjectURL(compressedFile);
+      // สร้าง preview (ไม่ต้อง compress ก่อน preview)
+      setSelectedImage(file);
+      const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
     } catch (error) {
-      alert("An error occurred while processing the image.");
+      setModalType("error");
+      setModalMessage("An error occurred while processing the image.");
+      setShowModal(true);
     }
 
     // Reset file input
@@ -193,25 +176,7 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
       URL.revokeObjectURL(imagePreview);
       setImagePreview(null);
     }
-  };
-
-  // อัพโหลดรูปภาพ
-  const uploadImage = async (imageFile) => {
-    const formData = new FormData();
-    formData.append("image", imageFile);
-    formData.append("userId", senderId);
-
-    const response = await fetch("/api/chat/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to upload image");
-    }
-
-    const data = await response.json();
-    return data.imageUrl;
+    resetUpload();
   };
 
   // Handle form submission
@@ -222,14 +187,12 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
     if (!newMessage.trim() && !selectedImage) return;
 
     try {
-      setIsUploading(true);
       let imageUrl = null;
 
       // อัพโหลดรูปถ้ามี
       if (selectedImage) {
-        setUploadProgress(50);
-        imageUrl = await uploadImage(selectedImage);
-        setUploadProgress(100);
+        const uploadResult = await uploadImage(selectedImage, senderId);
+        imageUrl = uploadResult.imageUrl;
       }
 
       // ส่งข้อความ
@@ -250,10 +213,9 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
         }
       }
     } catch (error) {
-      alert("An error occurred while processing the image.");
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
+      setModalType("error");
+      setModalMessage(error.message || "An error occurred while sending the message.");
+      setShowModal(true);
     }
   };
 
@@ -322,7 +284,7 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
               </button>
 
               {/* Modal Image */}
-              <div className="relative  max-w-[300px] lg:max-w-[500px] ">
+              <div className="relative max-w-[300px] lg:max-w-[500px]">
                 <Image
                   src={modalImage}
                   alt="Full size view"
@@ -338,10 +300,10 @@ export default function Chat({ chatData, currentUser, onMessageSent }) {
         )}
 
         {/* แสดงข้อผิดพลาด (ถ้ามี) */}
-        {error && (
+        {combinedError && (
           <div className="bg-red-100 text-red-700 p-2 m-4 rounded flex justify-between items-center">
-            <span>{error}</span>
-            <button onClick={clearError} className="text-red-500 hover:text-red-700 ml-2">
+            <span>{combinedError}</span>
+            <button onClick={clearAllErrors} className="text-red-500 hover:text-red-700 ml-2">
               ✕
             </button>
           </div>
