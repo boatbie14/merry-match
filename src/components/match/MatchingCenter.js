@@ -207,7 +207,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
             >
               <div className="matching-card-size bg-transparent md:rounded-4xl overflow-hidden h-full flex flex-col cursor-pointer">
                 {/* Container for image and gradient */}
-                <div className="relative w-full rounded-b-4xl md:rounded-4xl" style={{ height: "640px", overflow: "hidden" }}>
+                <div className="matching-card-size-inner relative w-full rounded-b-4xl md:rounded-4xl">
                   {/* รูปภาพ */}
                   <div className="relative w-full h-full">
                     <Image
