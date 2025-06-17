@@ -33,10 +33,7 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     console.error('Response Interceptor Error:', error);
-    if (error.response?.status === 401) {
-      console.log('Unauthorized - Redirecting or clearing token');
-      window.location.href = '/logout'
-    } else if (error.response?.status === 404) {
+    if (error.response?.status === 404) {
       console.log('Resource Not Found');
     }
     return Promise.reject(error);
