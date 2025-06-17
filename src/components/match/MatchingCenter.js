@@ -263,7 +263,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
                     <div className="absolute bottom-0 left-0 right-0 px-6 pb-14 text-white">
                       <div className="flex justify-between items-center">
                         <h5 className="text-3xl font-bold flex gap-4">
-                          <div>
+                          <div className="capitalize">
                             {user.name}, {user.age}
                           </div>
                           <button
@@ -290,7 +290,7 @@ const MatchingCenter = ({ onToggleFilter }) => {
                         </div>
                       </div>
                       <p className="text-white text-opacity-80 mt-1 flex items-center gap-2">
-                        <RiMapPin2Fill size={16} color="#FFFFFFCC" /> {user.city}, {user.country}
+                        <RiMapPin2Fill size={16} color="#FFFFFFCC" /> <span className="capitalize">{user.city}</span>, {user.country}
                       </p>
                     </div>
                   )}
