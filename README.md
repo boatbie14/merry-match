@@ -1,40 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 💘 Merry Match — Final Project (TechUp Bootcamp)
 
-## Getting Started
+**Merry Match** is a full-stack dating web application inspired by Tinder, developed as a final project during the full-stack developer bootcamp at [TechUp](https://www.techupth.com/).  
+This project was collaboratively built by a team of 5 members, using modern tools like **Next.js**, **Supabase**, **Stripe**, and more.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🔗 Live Demo & UI Design
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🔗 **Live Site**: [https://merry-match-ihmu.onrender.com](https://merry-match-ihmu.onrender.com)  
+- 🎨 **Figma Design**: [Merry Match UI](https://www.figma.com/design/hrHQRTVfoR2fiYwjQCHHWG/Merry-Match?node-id=0-1&p=f&t=o72TELqHYpvkz9VP-0)
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## 📌 Description
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+Merry Match is a web application that enables users to discover potential matches through a Tinder-style swipe interface.  
+The platform provides a rich set of features for both users and administrators.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 👥 Users can:
+- Register, login, and manage their personal profiles
+- Swipe left/right to like or skip potential matches (Merry system)
+- Engage in **live chat** with mutual matches
+- Receive **notifications** for new messages or interactions
+- Upgrade via **paid packages** to increase daily match limits (via **Stripe**)
+- Submit complaints via a user support system
 
-## Learn More
+### 🛠️ Admins can:
+- Manage users, packages, and match settings
+- View and respond to user complaints
+- Monitor platform activity through the admin dashboard
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## 🌟 Key Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 🎴 Swipe-based matching interface (like Tinder)
+- 🔐 Authentication & session management with Supabase
+- 💬 Real-time chat with match notifications
+- 🔔 Notification system with in-app indicators
+- 📦 Tiered package system with feature unlocks
+- 💳 Secure payment processing via Stripe
+- 🧑 Admin dashboard for user, match, and complaint management
+- 📄 PDF invoice generation via Puppeteer & pdf-lib
+- 📷 Image compression & upload for profile pictures
+- 🌍 Country/state/city data auto-fill in forms
+- 📱 Fully responsive and animated using Framer Motion
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+| Layer        | Tools / Libraries |
+|--------------|-------------------|
+| Frontend     | Next.js (Pages Router), React, Tailwind CSS, MUI, Emotion, Lucide Icons, Framer Motion |
+| Backend      | Supabase (DB, Auth, Realtime), Supabase Storage, Next API Routes |
+| Authentication | Supabase Auth Helpers |
+| Payment      | Stripe API |
+| File Upload  | Supabase Storage + `browser-image-compression` |
+| Chat System  | Supabase Realtime + custom UI |
+| Admin Tools  | Custom Next.js pages |
+| Others       | Axios, Day.js, PDF-lib, Puppeteer, React Hook Form, UUID, Crypto-JS |
